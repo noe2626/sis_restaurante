@@ -1,0 +1,24 @@
+<div class="container">
+    <div class="row mt-5">
+        <div class="offset-1 col-4 mt-5">
+            <div class="container">
+                <form [formGroup]="formProd">
+                    <ng-select [items]="productos" 
+                        bindLabel="name" 
+                        bindValue="id" 
+                        formControlName="idProducto"
+                        placeholder="Nombre/Código del producto">
+                    </ng-select>
+                    <br>
+                    <input formControlName="cantidad" type="number" class="form-control" placeholder="Cantidad">
+                    <br>
+                    <label class="form-control">{{precioProd}}</label>
+                </form>
+            </div>
+        </div>
+        <div class="offset-2 col-4">
+            <textarea id="" class="form-control" readonly rows="10">
+            </textarea>
+        </div>
+    </div>
+</div>
