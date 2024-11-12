@@ -4,6 +4,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { InicioComponent } from './panel/inicio/inicio.component';
 import { VentasComponent } from './panel/ventas/ventas.component';
 import { ProductosComponent } from './panel/inventarios/productos/productos.component';
+import { SucursalesComponent } from './auth/sucursales/sucursales.component';
 
 const routes: Routes = [
   {path: '',component: LoginComponent},
@@ -14,6 +15,7 @@ const routes: Routes = [
       { path: 'productos', component: ProductosComponent},
     ]
   },
+  {path: 'sucursales',component: SucursalesComponent},
 ];
 
 @NgModule({

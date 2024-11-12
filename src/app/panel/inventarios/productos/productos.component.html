@@ -2,62 +2,135 @@
     <div class="row">
         <h5>Productos</h5>
     </div>
-    <form [formGroup]="formProd" (ngSubmit)="onSubmit()">
-        <div class="row">
-            <div class="col-3">
-                <input type="text" class="form-control" placeholder="Producto" formControlName="nombre">
-            </div>
-            <div class="col-3">
-                <input type="text" class="form-control" placeholder="Código" formControlName="codigo">
-            </div>
-            <div class="col-2">
-                <input type="text" class="form-control" placeholder="Precio" formControlName="precio">
-            </div>
-            <div class="col-2">
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" id="flexCheckChecked" formControlName="inventariar"
-                        checked>
-                    <label class="form-check-label" for="flexCheckChecked">
-                        Inventariar
-                    </label>
-                </div>
-            </div>
-            <div class="col-2">
-                <button class="btn btn-success">Guardar</button>
-            </div>
-        </div>
-    </form>
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productosModal"
+        (click)="nuevoProducto()">Agregar</button>
+    </div>
     <div class="row mt-3">
         <div class="col-12">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Producto</th>
-                        <th>Código</th>
-                        <th>Inventariar</th>
-                        <th></th>
-                        <th></th>
+                        <th style="width: 35%; text-align: left;">Producto</th>
+                        <th style="width: 25%; text-align: left;">Código</th>
+                        <th style="width: 10%;">Inventariar</th>
+                        <th style="width: 10%;">Modificar</th>
+                        <th style="width: 10%;">Inventario</th>
+                        <th style="width: 10%;">Precio</th>
                     </tr>
-
                 </thead>
                 <tbody>
                     <tr *ngFor="let producto of productos">
                         <td>{{producto.nombre}}</td>
                         <td>{{producto.codigo}}</td>
-                        <td>
-                            <input *ngIf="producto.inventariar" type="checkbox" checked>
-                            <input
-                                *ngIf="!producto.inventariar" type="checkbox">
+                        <td class="icono">
+                            <i style="color: rgb(43, 187, 103);" *ngIf="producto.inventariar"
+                                    class="fa-solid fa-circle-check"></i>
                         </td>
-                        <td>
-                            <button class="btn btn-primary" *ngIf="producto.inventariar">Inventario</button>
+                        <td class="icono">
+                            <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productosModal"
+                                (click)="setEditar(producto)"><i style="color: gray;"
+                                    class="fa-solid fa-pen-to-square"></i></a>
                         </td>
-                        <td>
-                            <button class="btn btn-primary" *ngIf="producto.inventariar">Precios</button>
+                        <td class="icono">
+                            <a *ngIf="producto.inventariar" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#inventarioModal"><i style="color: gray;" class="fa-solid fa-boxes-stacked"></i></a>
+                        </td>
+                        <td class="icono">
+                            <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#precioModal"><i style="color: green;" class="fa-solid fa-money-bill"></i></a>
                         </td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="productosModal" tabindex="-1" role="dialog" aria-labelledby="productosModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productosModalLabel">Información de producto</h5>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formProd">
+                    Producto:
+                    <input type="text" class="form-control" placeholder="Producto" formControlName="nombre">
+                    <br>
+                    Código:
+                    <input type="text" class="form-control" placeholder="Código" formControlName="codigo">
+                    <br>
+                    <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" id="flexCheckChecked"
+                            formControlName="inventariar" checked>
+                        <label class="form-check-label" for="flexCheckChecked">
+                            Inventariar
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" (click)="onSubmit()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="precioModal" tabindex="-1" role="dialog" aria-labelledby="precioModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="precioModalLabel">Modificación de precio</h5>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formPrecio" >
+                    Sucursal:
+                    <select class="form-select" formControlName="idSucursal">
+                        <option value="0">Todas</option>
+                        <option value="1">Principal</option>
+                    </select>
+                    <br>
+                    Producto:
+                    <label class="form-control">Pruducto</label>
+                    <br>
+                    Precio:
+                    <input formControlName="precio" type="number" class="form-control" placeholder="Precio">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" (click)="onSubmit()">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="inventarioModal" tabindex="-1" role="dialog" aria-labelledby="inventarioModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="inventarioModal">Modificación de inventario</h5>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="formInventario" >
+                    Sucursal:
+                    <label class="form-control">Principal</label>
+                    <br>
+                    Producto:
+                    <label class="form-control">Pruducto</label>
+                    <br>
+                    Inventario:
+                    <input formControlName="inventario" type="number" class="form-control" placeholder="Inventario">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" (click)="onSubmit()">Guardar</button>
+            </div>
         </div>
     </div>
 </div>

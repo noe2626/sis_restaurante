@@ -16,7 +16,12 @@ export class ProductosService {
       headers: new HttpHeaders()
         .set('Authorization',  `Bearer ${token}`)
     }
-    return this.http.post(`${this.apiUrl}inventario/productos`, producto, header);
+    if(producto.id){
+      return this.http.put(`${this.apiUrl}inventario/productos/${producto.id}`, producto, header);
+    }else{
+      return this.http.post(`${this.apiUrl}inventario/productos`, producto, header);
+    }
+    
   }
 
   listarProductos(){

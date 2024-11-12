@@ -11,6 +11,7 @@ import { NavBarComponent } from './panel/nav-bar/nav-bar.component';
 import { VentasComponent } from './panel/ventas/ventas.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ProductosComponent } from './panel/inventarios/productos/productos.component';
+import { SucursalesComponent } from './auth/sucursales/sucursales.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { ProductosComponent } from './panel/inventarios/productos/productos.comp
     InicioComponent,
     NavBarComponent,
     VentasComponent,
-    ProductosComponent
+    ProductosComponent,
+    SucursalesComponent
   ],
   imports: [
     BrowserModule,
