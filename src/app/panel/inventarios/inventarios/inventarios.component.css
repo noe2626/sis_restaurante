@@ -1,0 +1,25 @@
+.table-inventario {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+}
+
+.table-inventario th{
+    text-align: center;
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.table-inventario td {
+    border: 1px solid black;
+    padding: 0;
+    text-align: left;
+}
+
+.table-inventario tbody td input {
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 0 !important;
+    width: 100%;
+}

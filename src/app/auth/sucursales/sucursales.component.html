@@ -8,14 +8,12 @@
                 <h5 class="modal-title" id="sucursalModal">Selecciona una sucursal</h5>
             </div>
             <div class="modal-body">
-                <select name="idSucursal" class="form-select">
-                    <option value="1">Sucursal 1</option>
-                    <option value="2">Sucursal 2</option>
-                    <option value="3">Sucursal 3</option>
+                <select [(ngModel)]="idSucursal" name="idSucursal" class="form-select">
+                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}</option>
                 </select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Entrar</button>
+                <button type="button" class="btn btn-primary" (click)="entrar()">Entrar</button>
             </div>
         </div>
     </div>

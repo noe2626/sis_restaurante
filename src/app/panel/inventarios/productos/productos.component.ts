@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductosService } from '../../../services/productos.service';
 import Swal from 'sweetalert2'
+import { SucursalesService } from '../../../services/sucursales.service';
+import { PreciosService } from '../../../services/precios.service';
 
 @Component({
   selector: 'app-productos',
@@ -13,10 +15,17 @@ export class ProductosComponent implements OnInit{
   formPrecio: FormGroup;
   formInventario: FormGroup;
   productos: Array<any> = [];
+  sucursales: Array<any> = [];
+  idSucursal: number = 0;
   selProducto: string = '';
   selIdProducto: number = 0;
 
-    constructor(private fb: FormBuilder, private productoService: ProductosService){
+    constructor(private fb: FormBuilder, 
+      private productoService: ProductosService,
+      private precioService: PreciosService,
+    private sucursalesService: SucursalesService){
+      
+      
       this.formProd = this.fb.group({
         id: [null, Validators.required],
         nombre: [null, Validators.required],
@@ -24,20 +33,24 @@ export class ProductosComponent implements OnInit{
         inventariar: [0, Validators.required],
       });
       this.formPrecio = this.fb.group({
-        idSucursal: [0, Validators.required],
+        idSucursal: [localStorage.getItem('idSucursal'), Validators.required],
         idProducto: [0, Validators.required],
         nombre: [null, Validators.required],
         precio: [0.0, Validators.required],
       });
       this.formInventario = this.fb.group({
-        idSucursal: [0, Validators.required],
+        idSucursal: [localStorage.getItem('idSucursal'), Validators.required],
         idProducto: [0, Validators.required],
         nombre: [null, Validators.required],
-        inventario: [0, Validators.required],
+        cantidad: [0, Validators.required],
       });
     }
 
     ngOnInit(): void {
+      this.listarProductos();
+    }
+
+    listarProductos(){
       this.productoService.listarProductos().subscribe({
         next: (data:any) => {
           if (data.success) {
@@ -49,6 +62,17 @@ export class ProductosComponent implements OnInit{
         error: (err) => { 
           console.log(err);
          },
+      });
+    }
+
+    getSucursales(){
+      this.sucursalesService.getSucursalesByUsuario().subscribe({
+        next: (data:any) => {
+          if (data.success) {
+            this.sucursales=data.data
+          }
+        },
+        error: () => { alert("Error al cargar sucursales") },
       });
     }
 
@@ -72,12 +96,104 @@ export class ProductosComponent implements OnInit{
       this.formProd.setValue(producto);
     }
 
-    modificarPrecio(idProducto:number, producto: string){
-      
+    cargarPreciosData(idProducto:any, producto:string){
+      this.formPrecio.patchValue({idProducto:idProducto, nombre:producto});
+      this.getSucursales();
+      this.getPrecioProducto();
     }
 
-    modificarInventario(idProducto:number, producto: string){
+    cargarInventariosData(idProducto:any, producto:string){
+      this.formInventario.patchValue({idProducto:idProducto, nombre:producto});
+      this.getSucursales();
+      this.getInventarioProducto()
+    }
 
+    changeSucursalPrecio(){
+      this.getPrecioProducto();
+    }
+
+    changeSucursalInventario(){
+      this.getInventarioProducto();
+    }
+
+    getPrecioProducto(){
+      let precioData = this.formPrecio.value;
+      this.precioService.getPrecioProducto(precioData.idSucursal,precioData.idProducto).subscribe({
+        next: (data:any) => {
+          if (data.success) {
+            this.formPrecio.patchValue({precio:data.data.precio});
+          }else{
+            console.log(data);
+          }
+        },
+        error: (err) => { 
+          alert("Error al listar"),
+          console.log(err);
+         },
+      });
+    }
+
+    modificarPrecio(){
+      let precioData = this.formPrecio.value;
+      this.precioService.setPreciosSucursal(precioData).subscribe({
+        next: (data:any) => {
+          if (data.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Guardado",
+              showConfirmButton: false,
+              timer: 1500
+            });
+          }else{
+            console.log(data);
+          }
+        },
+        error: (err) => { 
+          alert("Error al listar"),
+          console.log(err);
+         },
+      });
+    }
+
+    getInventarioProducto(){
+      let inventarioData = this.formInventario.value;
+      this.productoService.getInventarioProducto(inventarioData.idSucursal,inventarioData.idProducto).subscribe({
+        next: (data:any) => {
+          if (data.success) {
+            this.formInventario.patchValue({cantidad:data.data.cantidad});
+          }else{
+            console.log(data);
+          }
+        },
+        error: (err) => { 
+          alert("Error al listar"),
+          console.log(err);
+         },
+      });
+    }
+
+    modificarInventario(){
+      let inventarioData = this.formInventario.value;
+      console.log(this.formInventario.value);
+      
+      this.productoService.setInventarioProducto(inventarioData).subscribe({
+        next: (data:any) => {
+          if (data.success) {
+            Swal.fire({
+              icon: "success",
+              title: "Guardado",
+              showConfirmButton: false,
+              timer: 1500
+            });
+          }else{
+            console.log(data);
+          }
+        },
+        error: (err) => { 
+          alert("Error al listar"),
+          console.log(err);
+         },
+      });
     }
 
     onSubmit(){

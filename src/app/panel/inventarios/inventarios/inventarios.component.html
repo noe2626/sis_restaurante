@@ -1,0 +1,42 @@
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-4">
+            Sucursal:
+            <select (change)="this.listarProductos()" [(ngModel)]="idSucursal" id="idSucursal" class="form-select">
+                <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <input class="form-control" type="text" placeholder="Buscar Nombre/Código..." (input)="onSearch($event)" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <table class="table-inventario mt-3">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Código</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of filteredData; let i = index">
+                        <td style="width: 50%;"> <input [(ngModel)]="item.producto" readonly /> </td>
+                        <td style="width: 35%;"> <input [(ngModel)]="item.codigo" readonly /> </td>
+                        <td style="width: 15%;"> <input [(ngModel)]="item.cantidad" type="number" /> </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="offset-10 col-2">
+            <button class="btn btn-primary mt-3" style="width: 100%;" (click)="guardar()">Guardar</button>
+        </div>
+    </div>
+
+</div>

@@ -30,7 +30,8 @@ export class LoginComponent {
       next: (data:any) => {
         if (data.success) {
           localStorage.setItem('userToken',data.data.token);
-          this.router.navigate(['panel'])
+          localStorage.setItem('idUsuario',data.data.id);
+          this.router.navigate(['sucursales'])
         }
       },
       error: () => { alert("Error al inicar sesión inetente mas tarde") },

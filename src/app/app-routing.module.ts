@@ -5,6 +5,8 @@ import { InicioComponent } from './panel/inicio/inicio.component';
 import { VentasComponent } from './panel/ventas/ventas.component';
 import { ProductosComponent } from './panel/inventarios/productos/productos.component';
 import { SucursalesComponent } from './auth/sucursales/sucursales.component';
+import { PreciosComponent } from './panel/precios/precios.component';
+import { InventariosComponent } from './panel/inventarios/inventarios/inventarios.component';
 
 const routes: Routes = [
   {path: '',component: LoginComponent},
@@ -13,6 +15,7 @@ const routes: Routes = [
     children: [
       { path: 'ventas', component: VentasComponent },
       { path: 'productos', component: ProductosComponent},
+      { path: 'inventarios', component: InventariosComponent},
     ]
   },
   {path: 'sucursales',component: SucursalesComponent},

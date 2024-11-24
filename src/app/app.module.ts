@@ -5,13 +5,15 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './auth/login/login.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { HttpClient, provideHttpClient } from '@angular/common/http';
+import {provideHttpClient, withFetch } from '@angular/common/http';
 import { InicioComponent } from './panel/inicio/inicio.component';
 import { NavBarComponent } from './panel/nav-bar/nav-bar.component';
 import { VentasComponent } from './panel/ventas/ventas.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ProductosComponent } from './panel/inventarios/productos/productos.component';
 import { SucursalesComponent } from './auth/sucursales/sucursales.component';
+import { PreciosComponent } from './panel/precios/precios.component';
+import { InventariosComponent } from './panel/inventarios/inventarios/inventarios.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,9 @@ import { SucursalesComponent } from './auth/sucursales/sucursales.component';
     NavBarComponent,
     VentasComponent,
     ProductosComponent,
-    SucursalesComponent
+    SucursalesComponent,
+    PreciosComponent,
+    InventariosComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +36,7 @@ import { SucursalesComponent } from './auth/sucursales/sucursales.component';
   ],
   providers: [
     provideClientHydration(),
-    provideHttpClient()
+    provideHttpClient(withFetch())
   ],
   bootstrap: [AppComponent]
 })
