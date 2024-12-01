@@ -12,8 +12,8 @@ import { VentasComponent } from './panel/ventas/ventas.component';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ProductosComponent } from './panel/inventarios/productos/productos.component';
 import { SucursalesComponent } from './auth/sucursales/sucursales.component';
-import { PreciosComponent } from './panel/precios/precios.component';
 import { InventariosComponent } from './panel/inventarios/inventarios/inventarios.component';
+import { PreciosComponent } from './panel/inventarios/precios/precios.component';
 
 @NgModule({
   declarations: [
@@ -24,15 +24,15 @@ import { InventariosComponent } from './panel/inventarios/inventarios/inventario
     VentasComponent,
     ProductosComponent,
     SucursalesComponent,
-    PreciosComponent,
-    InventariosComponent
+    InventariosComponent,
+    PreciosComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     NgSelectModule,
-    FormsModule,
+    FormsModule
   ],
   providers: [
     provideClientHydration(),

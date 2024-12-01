@@ -1,24 +1,190 @@
-<div class="container">
-    <div class="row mt-5">
-        <div class="offset-1 col-4 mt-5">
-            <div class="container">
-                <form [formGroup]="formProd">
-                    <ng-select [items]="productos" 
-                        bindLabel="name" 
-                        bindValue="id" 
-                        formControlName="idProducto"
-                        placeholder="Nombre/Código del producto">
-                    </ng-select>
-                    <br>
-                    <input formControlName="cantidad" type="number" class="form-control" placeholder="Cantidad">
-                    <br>
-                    <label class="form-control">{{precioProd}}</label>
-                </form>
+<div class="bg-light p-4">
+    <div class="row">
+        <!-- Sección Izquierda: Selección de Cliente y Producto -->
+        <div class="col-md-6">
+            <!-- Selección de Cliente -->
+            <div class="mb-3">
+                <div class="form-floating">
+                    <select class="form-select" [(ngModel)]="idCliente" (change)="calcularTotal()">
+                        <option [ngValue]="null">Seleccionar</option>
+                        <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nombre }}</option>
+                    </select>
+                    <label><i class="bi bi-person-circle me-2"></i>Cliente</label>
+                </div>
+            </div>
+
+            <!-- Selección de Producto -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="bi bi-box-seam me-2"></i>Producto
+                </div>
+                <div class="card-body">
+                    <form [formGroup]="formProd" class="row g-3">
+                        <div class="col-md-8">
+                            <ng-select [items]="productos"
+                                       bindLabel="nombre"
+                                       bindValue="id"
+                                       placeholder="Buscar Producto"
+                                       formControlName="idProducto"
+                                       (change)="onProductoChange()"
+                                       class="custom-ng-select" 
+                                       [appendTo]="'body'"
+                                       [virtualScroll]="true"
+                                       [searchable]="true"
+                                       [searchFn]="customSearch">
+                                <ng-template ng-option-tmp let-item="item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>{{item.nombre}}</span>
+                                        <small class="text-muted">{{item.codigo}}</small>
+                                    </div>
+                                </ng-template>
+                            </ng-select>
+                        </div>
+                        <div class="col-md-3">
+                            <input formControlName="cantidad" type="number" placeholder="Cantidad" min="1" style="display: none;">
+                            <input type="text" class="form-control" [value]="precioProd | currency" readonly>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-outline-secondary btn-sm btn-rounded" (click)="agregarProducto()">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Selección Rápida de Productos -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <i class="bi bi-lightning me-2"></i>Selección Rápida de Productos
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-3" *ngFor="let producto of productosRapidos">
+                            <button class="btn btn-outline-secondary btn-quick w-100 mb-2 pt-3 pb-3" (click)="agregarProductoRapido(producto)">
+                                <i class="bi bi-box-seam me-1"></i>{{producto.nombre}} <br> <i class="bi bi-currency-dollar me-1"></i>{{producto.precio | currency}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="offset-2 col-4">
-            <textarea id="" class="form-control" readonly rows="10">
-            </textarea>
+
+        <!-- Sección Derecha: Carrito de Compras y Totales -->
+        <div class="col-md-6">
+
+            <!-- Carrito de Compras -->
+            <div class="card mb-2">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between">
+                    <span><i class="bi bi-cart me-2"></i>Carrito de Compras</span>
+                    <span class="badge bg-light text-dark">{{carrito.length}} Productos</span>
+                </div>
+                <div class="card-body p-0" style="height: 350px; overflow-y: auto;">
+                    <table class="table mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Producto</th>
+                          <th style="text-align: center;">Cantidad</th>
+                          <th style="text-align: center;">Precio</th>
+                          <th>Total</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody >
+                        <tr *ngFor="let item of carrito; let i = index" class="align-middle">
+                          <td class="td-carrito">{{item.nombre}}</td>
+                          <td>
+                            <div class="d-flex justify-content-center align-items-center">
+                              <button class="btn btn-outline-secondary btn-rounded" (click)="decrementarCantidad(item)">
+                                <i class="bi bi-dash"></i>
+                              </button>
+                              <input [(ngModel)]="item.cantidad" class="form-control" style="margin-left: 5px; margin-right: 5px; padding-left: 10px; padding-right: 10px;" (change)="actualizarSubtotal(item)">
+                              <button class="btn btn-outline-secondary btn-rounded" (click)="incrementarCantidad(item)">
+                                <i class="bi bi-plus"></i>
+                              </button>
+                            </div>
+                          </td>
+                          <td>
+                            <div *ngIf="item.promocion" style="text-align: center;">
+                              <span class="badge bg-success">{{item.promocion}}</span><br><span>{{item.precio | currency}}</span>
+                            </div>
+                            <div *ngIf="!item.promocion" class="d-flex justify-content-center align-items-center">
+                              {{item.precio | currency}}
+                            </div>
+                          </td>
+                          <td>{{item.subtotal | currency}}</td>
+                          <td style="text-align: left;">
+                            <i class="bi bi-trash" (click)="eliminarProducto(i)" style="color: red; font-size: 20px; cursor: pointer;"></i>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+            </div>
+
+            <!-- Totales y Descuentos -->
+            <div class="row g-3 mb-2">
+                <div class="col-md-4 mt-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" [value]="subTotal | currency" readonly>
+                        <label><i class="bi bi-cash me-2"></i>Subtotal</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" [value]="iva | currency" readonly>
+                        <label><i class="bi bi-piggy-bank me-2"></i>IVA</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control fw-bold" [value]="total | currency" readonly>
+                        <label><i class="bi bi-cash me-2"></i>Total</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finalización de la Venta -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <button class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#pagoModal"  [disabled]="carrito.length === 0">
+                        Finalizar Venta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="pagoModal" tabindex="-1" role="dialog" aria-labelledby="pagoModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pagoModal">Pago de venta</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4 mt-3">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" [value]="total | currency" readonly>
+                            <label><i class="bi bi-cash me-2"></i>total</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-3">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" [value]="pago">
+                            <label><i class="bi bi-piggy-bank me-2"></i>Pago</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success btn-lg w-100" (click)="finalizarVenta()">
+                    <i class="bi bi-check-circle me-2"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>

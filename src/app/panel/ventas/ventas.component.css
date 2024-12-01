@@ -1,0 +1,143 @@
+/* Estilos personalizados para el punto de venta */
+.custom-ng-select {
+    width: 100%;
+}
+
+.form-floating > .form-select,
+.form-floating > .form-control {
+    height: calc(3.5rem + 2px);
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+}
+
+.form-floating label {
+    font-size: 0.9rem;
+    top: 0;
+    left: 0rem;
+}
+
+.table > :not(caption) > * > * {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.card-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .btn-lg {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.btn-outline-primary {
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+
+.form-select,
+.form-control {
+    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
+}
+
+table .form-control {
+    padding: 0;
+    padding-left: 5px;
+    padding-right: 3px;
+    width: 60px;
+}
+
+.fw-bold {
+    font-weight: bold;
+}
+
+.card-rapido {
+    height: 50px;
+}
+
+.btn-rounded {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.form-select {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+button[type="button"] {
+    width: 100%;
+    border-radius: 50px;
+    padding: 10px;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+button[type="button"] i {
+    font-size: 1.5rem;
+}
+
+.btn-rounded {
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.btn-outline-secondary.btn-sm {
+    font-size: 1.2rem;
+    padding: 0;
+    height: 30px;
+    width: 30px;
+    line-height: 1.2;
+}
+
+.card-body .row .col-3 {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.card-body .row .col-3 button {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.card-body .row .col-md-3 input.form-control {
+    height: 10px !important;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    font-size: rem;
+}
+
+
+.card-body table th {
+    padding: 2px;
+    font-size: 1rem;
+}
+
+.card-body table td {
+    padding: 2px;
+    font-size: 0.9rem;
+}
+
+.td-carrito{
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}

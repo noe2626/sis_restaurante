@@ -75,4 +75,6 @@ export class ProductosService {
       return this.http.put(`${this.apiUrl}inventario/productos`, data, header);
   }
 
+  
+
 }
