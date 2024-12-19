@@ -98,7 +98,7 @@
                               <button class="btn btn-outline-secondary btn-rounded" (click)="decrementarCantidad(item)">
                                 <i class="bi bi-dash"></i>
                               </button>
-                              <input [(ngModel)]="item.cantidad" class="form-control" style="margin-left: 5px; margin-right: 5px; padding-left: 10px; padding-right: 10px;" (change)="actualizarSubtotal(item)">
+                              <input [(ngModel)]="item.cantidad" class="form-control" style="padding: 5px; width: 50px; margin: 5px; text-align: center;" (change)="actualizarSubtotal(item)">
                               <button class="btn btn-outline-secondary btn-rounded" (click)="incrementarCantidad(item)">
                                 <i class="bi bi-plus"></i>
                               </button>
@@ -162,28 +162,66 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="pagoModal">Pago de venta</h5>
+                <h5 class="modal-title" style="width: 100%; text-align: center;" id="pagoModal">Pago de venta</h5>
             </div>
             <div class="modal-body">
                 <div class="row g-3 mb-2">
-                    <div class="col-md-4 mt-3">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" [value]="total | currency" readonly>
-                            <label><i class="bi bi-cash me-2"></i>total</label>
-                        </div>
+                    <div class="col-md-6">
+                        <label><i class="bi bi-cash" style="padding: 5px;"></i>Total</label>
+                        <input type="text" class="form-control" [value]="total | currency" readonly>   
                     </div>
-                    <div class="col-md-4 mt-3">
-                        <div class="form-floating">
-                            <input type="text" class="form-control" [value]="pago">
-                            <label><i class="bi bi-piggy-bank me-2"></i>Pago</label>
-                        </div>
+                    <div class="col-md-6">
+                        <label><i class="bi bi-cash" style="padding: 5px;"></i>Pago</label>
+                        <input type="number" class="form-control" [(ngModel)]="pago" placeholder="Pago $">
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-success btn-lg w-100" (click)="finalizarVenta()">
-                    <i class="bi bi-check-circle me-2"></i>
-                </button>
+            <button class="btn btn-pago" [disabled]="total > pago" (click)="registrarVenta()">
+                <i class="bi bi-check-circle" ></i>
+            </button>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="btnFinalizar" data-bs-toggle="modal" data-bs-target="#finalizarModal">
+<div class="modal fade" id="finalizarModal" tabindex="-1" role="dialog" aria-labelledby="finalizarModalLabel"
+    aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="width: 100%; text-align: center;" id="finalizarModal">Finalizar compra</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="offset-3 col-2">
+                        Total:
+                    </div>
+                    <div class="offset-1 col-3" style="text-align: right;">
+                        {{total | currency}}
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="offset-3 col-2">
+                        Pago:
+                    </div>
+                    <div class="offset-1 col-3" style="text-align: right;">
+                        {{pago | currency}}
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="offset-3 col-2">
+                        Cambio:
+                    </div>
+                    <div class="offset-1 col-3" style="text-align: right;">
+                        {{cambio | currency}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-2 col-8 mt-2">
+                        <button class="btn btn-finalizar" (click)="finalizarVenta()" data-bs-dismiss="modal">
+                            Terminar
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

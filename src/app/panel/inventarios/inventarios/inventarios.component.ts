@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ProductosService } from '../../../services/productos.service';
 import { PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { SucursalesService } from '../../../services/sucursales.service';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { Data } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-inventarios',
@@ -13,6 +17,10 @@ export class InventariosComponent {
   data: Array<any> = [];
   idSucursal:any;
   sucursales: any = null;
+  displayedColumns: string[] = ['producto','codigo','cantidad','precio']; 
+  dataSource = new MatTableDataSource<any>([]);
+  totalItems = 0;
+  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
   originalData = [JSON.parse(JSON.stringify(this.data))]; // Copia profunda de los datos originales 
 
@@ -45,6 +53,9 @@ export class InventariosComponent {
     this.filteredData = this.data.filter(item => 
       item.producto.toLowerCase().includes(searchTerm) || (item.codigo !== null && item.codigo.toString().includes(searchTerm))
     );
+    this.dataSource.data = this.filteredData;
+    this.dataSource.paginator = this.paginator;
+    this.totalItems = this.filteredData.length;
   }
 
   guardar(): void {
@@ -52,34 +63,65 @@ export class InventariosComponent {
       return JSON.stringify(item) !== JSON.stringify(this.originalData[index]); 
     }); 
 
-    this.productoService.modificarInventario(changedData, this.idSucursal).subscribe({
+    this.productoService.modificarInventario(changedData).subscribe({
       next: (data:any) => {
         if (data.success) {
           this.listarProductos();
+          Swal.fire({
+            icon: "success",
+            title: "Guardado",
+            showConfirmButton: false,
+            timer: 1500
+          });
         }else{
-          console.log(data);
+          Swal.fire({
+            icon: "error",
+            title: "Error al guardar",
+            showConfirmButton: false,
+            timer: 1500
+          });
         }
       },
       error: (err) => { 
         console.log(err);
-       },
+        Swal.fire({
+          icon: "error",
+          title: "Error al guardar",
+          showConfirmButton: false,
+          timer: 1500
+        });
+      },
     });
   }
 
   listarProductos(){
-    this.productoService.listarInventario(this.idSucursal).subscribe({
+    this.productoService.listarInventario().subscribe({
       next: (data:any) => {
         if (data.success) {
           this.data=data.data;
           this.originalData = JSON.parse(JSON.stringify(this.data));
           this.filteredData = [...this.data];
+          this.dataSource.data = this.filteredData;
+          this.dataSource.paginator = this.paginator;
+          this.totalItems = this.filteredData.length;
         }else{
-          console.log(data);
+          Swal.fire({
+            icon: "error",
+            title: "Error al guardar",
+            showConfirmButton: false,
+            timer: 1500
+          });
         }
       },
       error: (err) => { 
         console.log(err);
-       },
+        Swal.fire({
+          icon: "error",
+          title: "Error al guardar",
+          showConfirmButton: false,
+          timer: 1500
+        });
+      },
     });
   }
 }

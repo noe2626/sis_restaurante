@@ -16,12 +16,13 @@ export class ProductosService {
 
   guardarProducto(producto:any){
     let token = localStorage.getItem('userToken');
+    let idSucursal = localStorage.getItem('idSucursal');
     var header = {
       headers: new HttpHeaders()
         .set('Authorization',  `Bearer ${token}`)
     }
     if(producto.id){
-      return this.http.put(`${this.apiUrl}inventario/productos/${producto.id}`, producto, header);
+      return this.http.put(`${this.apiUrl}inventario/productos/${producto.id}/${idSucursal}`, producto, header);
     }else{
       return this.http.post(`${this.apiUrl}inventario/productos`, producto, header);
     }
@@ -30,15 +31,17 @@ export class ProductosService {
 
   listarProductos(){
       let token = localStorage.getItem('userToken');
+      let idSucursal = localStorage.getItem('idSucursal');
       var header = {
         headers: new HttpHeaders()
           .set('Authorization',  `Bearer ${token}`)
       }
-      return this.http.get(`${this.apiUrl}inventario/productos`, header);
+      return this.http.get(`${this.apiUrl}inventario/productos/${idSucursal}`, header);
   }
 
-  listarInventario(idSucursal:any){
+  listarInventario(){
       let token = localStorage.getItem('userToken');
+      let idSucursal = localStorage.getItem('idSucursal');
       var header = {
         headers: new HttpHeaders()
           .set('Authorization',  `Bearer ${token}`)
@@ -47,8 +50,9 @@ export class ProductosService {
     
   }
 
-  getInventarioProducto(idSucursal:any, idProducto: number){
+  getInventarioProducto(idProducto: number){
     let token = localStorage.getItem('userToken');
+    let idSucursal = localStorage.getItem('idSucursal');
     var header = {
       headers: new HttpHeaders()
         .set('Authorization',  `Bearer ${token}`)
@@ -56,8 +60,9 @@ export class ProductosService {
     return this.http.get(`${this.apiUrl}inventario/${idSucursal}/${idProducto}`, header);
   }
 
-  modificarInventario(data:any, idSucursal:any){
+  modificarInventario(data:any){
       let token = localStorage.getItem('userToken');
+      let idSucursal = localStorage.getItem('idSucursal');
       var header = {
         headers: new HttpHeaders()
           .set('Authorization',  `Bearer ${token}`)

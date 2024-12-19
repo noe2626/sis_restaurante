@@ -3,7 +3,8 @@
         <div class="col-4">
             Sucursal:
             <select (change)="this.listarProductos()" [(ngModel)]="idSucursal" id="idSucursal" class="form-select">
-                <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}</option>
+                <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}
+                </option>
             </select>
         </div>
     </div>
@@ -12,24 +13,33 @@
             <input class="form-control" type="text" placeholder="Buscar Nombre/Código..." (input)="onSearch($event)" />
         </div>
     </div>
-    <div class="row">
+    <div class="row mt-2">
         <div class="col-12">
-            <table class="table-inventario mt-3">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Código</th>
-                        <th>Cantidad</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let item of filteredData; let i = index">
-                        <td style="width: 50%;"> <input [(ngModel)]="item.producto" readonly /> </td>
-                        <td style="width: 35%;"> <input [(ngModel)]="item.codigo" readonly /> </td>
-                        <td style="width: 15%;"> <input [(ngModel)]="item.cantidad" type="number" /> </td>
-                    </tr>
-                </tbody>
+            <table  mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="producto">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 45%;"> Nombre </th>
+                    <td mat-cell *matCellDef="let element"> {{element.producto}} </td>
+                </ng-container>
+                <ng-container matColumnDef="codigo">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Código </th>
+                    <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
+                </ng-container>
+                <ng-container matColumnDef="cantidad">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: center;"> Cantidad </th>
+                    <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input *ngIf="element.inventariar" [(ngModel)]="element.cantidad" type="number" class="input-cantidad"/> </td>
+                </ng-container>
+                <ng-container matColumnDef="precio">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: center;"> Precio </th>
+                    <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input [(ngModel)]="element.precio" type="number" class="input-cantidad"/> </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
             </table>
+            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
+            </mat-paginator>
+
         </div>
 
     </div>

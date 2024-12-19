@@ -6,6 +6,8 @@ import { ProductosService } from '../../services/productos.service';
 import { VentasService } from '../../services/ventas.service';
 import { ClientesService } from '../../services/clientes.service';
 import { PreciosService } from '../../services/precios.service';
+import Swal from 'sweetalert2';
+import * as bootstrap from "bootstrap";
 
 @Component({
   selector: 'app-ventas',
@@ -28,6 +30,7 @@ export class VentasComponent implements OnInit{
   typeaheadInput$ = new Subject<string>();
   pago:number = 0;
   cambio:number = 0;
+  idSucursal:any = 0;
 
   // Definimos e inicializamos productosRapidos
   productosRapidos: any[] = [
@@ -56,6 +59,7 @@ export class VentasComponent implements OnInit{
       idProducto: [null, Validators.required],
       cantidad: [1, [Validators.required, Validators.min(1)]]
     });
+    this.idSucursal=localStorage.getItem('idSucursal');
   }
 
 
@@ -103,8 +107,7 @@ export class VentasComponent implements OnInit{
   onProductoChange(): void {
     const idProducto = this.formProd.get('idProducto')?.value;
     if (idProducto) {
-      const idSucursal = 1; // Actualiza esto según tu lógica
-      this.preciosService.obtenerPrecioBase(idProducto, idSucursal).subscribe({
+      this.preciosService.obtenerPrecioBase(idProducto, this.idSucursal).subscribe({
         next: (data: any) => {
           this.precioProd = data.precio_base;
         },
@@ -125,16 +128,15 @@ export class VentasComponent implements OnInit{
       const item = { ...producto, cantidad, precio: this.precioProd, subtotal: this.precioProd * cantidad, promocion: '' };
 
       // Obtener el precio final y promoción al agregar el producto
-      this.preciosService.obtenerPrecioFinal(idProducto, 1, this.idCliente, cantidad).subscribe({
+      this.preciosService.obtenerPrecioFinal(idProducto, this.idSucursal, this.idCliente, cantidad).subscribe({
         next: (data: any) => {
           if (data.aplica_promocion) {
             item.precio = data.precio_final;
             item.promocion = data.promocion_descripcion;
-            item.subtotal = item.cantidad * item.precio;
           }
+          item.subtotal = item.cantidad * item.precio;
           this.carrito.unshift(item);
           this.calcularTotal();
-          this.validarPromocionDinamica(item);
           this.formProd.reset({ idProducto: null, cantidad: 1 });
           this.precioProd = 0;
         },
@@ -146,28 +148,17 @@ export class VentasComponent implements OnInit{
   }
 
   actualizarSubtotal(item: any): void {
-    this.preciosService.obtenerPrecioFinal(item.id, 1, this.idCliente, item.cantidad).subscribe({
-      next: (data: any) => {
-        if (data.aplica_promocion) {
-          item.precio = data.precio_final;
-          item.promocion = data.promocion_descripcion;
-          item.subtotal = item.cantidad * item.precio;
-        }
-        this.calcularTotal();
-        this.validarPromocionDinamica(item);
-      },
-      error: (err) => {
-        console.log('Error al obtener el precio final:', err);
-      }
-    });
+    item.subtotal = item.cantidad * item.precio;
+    this.calcularTotal();
+    this.validarPromocionDinamica(item);
   }
 
   validarPromocionDinamica(item: any): void {
-    this.preciosService.validarPromocionDinamica(item.id, 1, item.cantidad).subscribe({
+    this.preciosService.validarPromocionDinamica(item.id, this.idSucursal, item.cantidad).subscribe({
       next: (data: any) => {
         if (data.aplica_promocion) {
-          const vecesPromocion = Math.floor(item.cantidad / 2); // Dado el ejemplo de 2x1
-          const cantidadGratis = vecesPromocion * 1; // Cantidad gratis por cada promoción
+          const vecesPromocion = Math.floor(item.cantidad / 2); 
+          const cantidadGratis = vecesPromocion * 1; 
           const cantidadTotal = item.cantidad - cantidadGratis;
           item.subtotal = cantidadTotal * item.precio;
         }
@@ -193,30 +184,48 @@ export class VentasComponent implements OnInit{
     this.calcularTotal();
   }
 
-  finalizarVenta(): void {
+  registrarVenta(): void {
     const venta = {
       idCliente: this.idCliente,
       total: this.total,
       descuentos: this.descuentos,
       extras: this.extras,
       iva: this.iva,
+      subTotal: this.subTotal,
+      idSucursal: this.idSucursal,
       productos: this.carrito.map(item => ({
         idProducto: item.id,
         cantidad: item.cantidad,
         precio: item.precio,
-        promocion: item.promocion
+        promocion: item.promocion,
+        total: item.subtotal
       }))
     };
-
-    /*this.ventasService.registrarVenta(venta).subscribe({
+    this.ventasService.registrarVenta(venta).subscribe({
       next: (data: any) => {
-        console.log('Venta registrada con éxito:', data);
-        this.resetearFormulario();
+        
+        Swal.fire({
+          icon: "success",
+          title: "Venta registrada conrrectamente",
+          showConfirmButton: false,
+          timer: 1500
+        });
+        this.cambio = this.pago - this.total;
+        document.getElementById('btnFinalizar')?.click();
       },
       error: (err) => {
         console.log('Error al registrar la venta:', err);
       }
-    });*/
+    });
+  }
+
+  finalizarVenta(){
+    this.resetearFormulario();
+    this.total = 0;
+    this.subTotal = 0;
+    this.cambio = 0;
+    this.iva = 0;
+    this.pago = 0;
   }
 
   resetearFormulario(): void {

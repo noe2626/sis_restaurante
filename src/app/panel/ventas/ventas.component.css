@@ -3,12 +3,6 @@
     width: 100%;
 }
 
-.form-floating > .form-select,
-.form-floating > .form-control {
-    height: calc(3.5rem + 2px);
-    padding-top: 1.625rem;
-    padding-bottom: 0.625rem;
-}
 
 .form-floating label {
     font-size: 0.9rem;
@@ -46,17 +40,8 @@
     line-height: 1.2;
 }
 
-.form-select,
-.form-control {
-    padding: 1.5rem 0.75rem 0.75rem 0.75rem;
-}
 
-table .form-control {
-    padding: 0;
-    padding-left: 5px;
-    padding-right: 3px;
-    width: 60px;
-}
+
 
 .fw-bold {
     font-weight: bold;
@@ -119,12 +104,6 @@ button[type="button"] i {
     margin-bottom: 5px;
 }
 
-.card-body .row .col-md-3 input.form-control {
-    height: 10px !important;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-    font-size: rem;
-}
 
 
 .card-body table th {
@@ -140,4 +119,25 @@ button[type="button"] i {
 .td-carrito{
     padding-top: 15px !important;
     padding-bottom: 15px !important;
+}
+
+.btn-pago{
+    background-color: #146c43;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    margin: 5px 15px 10px 15px;
+    border-radius: 5px;
+    font-size: 25px;
+}
+
+.btn-finalizar{
+    background-color: #146c43;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    border-radius: 5px;
+    font-size: 17px;
+    width: 100%;
+    margin-top: 10px;
 }

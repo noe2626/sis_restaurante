@@ -1,25 +1,20 @@
-.table-inventario {
-    border-collapse: collapse;
-    width: 100%;
-    background: white;
+.table-inventario{
+    border-bottom: 1px solid #808080;
 }
 
-.table-inventario th{
-    text-align: center;
-    border: 1px solid black;
-    padding: 5px;
+.th-table{
+    font-weight: bold !important;
 }
 
-.table-inventario td {
-    border: 1px solid black;
-    padding: 0;
-    text-align: left;
+.mat-mdc-paginator{
+    border-top: 1px solid #b8b8b8;
 }
 
-.table-inventario tbody td input {
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
+.input-cantidad {
     border: 0 !important;
     width: 100%;
+    height: 50px !important;
+    text-align: right;
+    padding-right: 5px;
+    padding-left: 5px;
 }

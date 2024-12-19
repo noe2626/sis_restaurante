@@ -157,7 +157,7 @@ export class ProductosComponent implements OnInit{
 
     getInventarioProducto(){
       let inventarioData = this.formInventario.value;
-      this.productoService.getInventarioProducto(inventarioData.idSucursal,inventarioData.idProducto).subscribe({
+      this.productoService.getInventarioProducto(inventarioData.idProducto).subscribe({
         next: (data:any) => {
           if (data.success) {
             this.formInventario.patchValue({cantidad:data.data.cantidad});

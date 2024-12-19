@@ -13,7 +13,10 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { ProductosComponent } from './panel/inventarios/productos/productos.component';
 import { SucursalesComponent } from './auth/sucursales/sucursales.component';
 import { InventariosComponent } from './panel/inventarios/inventarios/inventarios.component';
-import { PreciosComponent } from './panel/inventarios/precios/precios.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -24,19 +27,22 @@ import { PreciosComponent } from './panel/inventarios/precios/precios.component'
     VentasComponent,
     ProductosComponent,
     SucursalesComponent,
-    InventariosComponent,
-    PreciosComponent
+    InventariosComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     NgSelectModule,
-    FormsModule
+    FormsModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatTableModule
   ],
   providers: [
     provideClientHydration(),
-    provideHttpClient(withFetch())
+    provideHttpClient(withFetch()),
+    provideAnimations()
   ],
   bootstrap: [AppComponent]
 })
