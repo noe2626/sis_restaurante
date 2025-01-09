@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { error } from 'console';
+import CryptoJS from 'crypto-js'
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -29,8 +31,9 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: (data:any) => {
         if (data.success) {
+          const encryptedIdUsuario = CryptoJS.AES.encrypt(data.data.id.toString(), environment.secretKey).toString();
           localStorage.setItem('userToken',data.data.token);
-          localStorage.setItem('idUsuario',data.data.id);
+          localStorage.setItem('idUsuario',encryptedIdUsuario);
           this.router.navigate(['sucursales'])
         }
       },

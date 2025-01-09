@@ -48,7 +48,7 @@
 }
 
 .card-rapido {
-    height: 50px;
+    height: 80px;
 }
 
 .btn-rounded {
@@ -89,8 +89,8 @@ button[type="button"] i {
 .btn-outline-secondary.btn-sm {
     font-size: 1.2rem;
     padding: 0;
-    height: 30px;
-    width: 30px;
+    height: 40px;
+    width: 40px;
     line-height: 1.2;
 }
 
@@ -140,4 +140,8 @@ button[type="button"] i {
     font-size: 17px;
     width: 100%;
     margin-top: 10px;
+}
+
+.btn-quick{
+    height: 100px;
 }

@@ -4,7 +4,7 @@ import { PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, EMPTY } from 'rxjs';
 import { environment } from '../../environments/environment';
-
+import CryptoJS from 'crypto-js';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +19,7 @@ export class SucursalesService {
     
     if (isPlatformBrowser(this.platformId)) { 
       let token = localStorage.getItem('userToken');
-      let user = localStorage.getItem('idUsuario');
+      const user = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario'), environment.secretKey).toString(CryptoJS.enc.Utf8);
       var header = {
         headers: new HttpHeaders()
           .set('Authorization',  `Bearer ${token}`)

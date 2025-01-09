@@ -25,11 +25,11 @@
                     <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
                 </ng-container>
                 <ng-container matColumnDef="cantidad">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: center;"> Cantidad </th>
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Cantidad </th>
                     <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input *ngIf="element.inventariar" [(ngModel)]="element.cantidad" type="number" class="input-cantidad"/> </td>
                 </ng-container>
                 <ng-container matColumnDef="precio">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: center;"> Precio </th>
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Precio </th>
                     <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input [(ngModel)]="element.precio" type="number" class="input-cantidad"/> </td>
                 </ng-container>
 

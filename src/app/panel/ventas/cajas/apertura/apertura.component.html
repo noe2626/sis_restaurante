@@ -1,0 +1,25 @@
+<input type="hidden" id="btnModalApCajas" data-bs-toggle="modal" data-bs-target="#aperturaModal">
+
+<div class="modal fade" id="aperturaModal" tabindex="-1" role="dialog" aria-labelledby="aperturaModalLabel"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sucursalModal">Apertura de caja</h5>
+            </div>
+            <div class="modal-body">
+                <label for="">Seleccionar caja:</label>
+                <select [(ngModel)]="idCaja" name="idCaja" class="form-select" (change)="cambiarCaja()">
+                    <option value="0">-- Seleccionar --</option>
+                    <option *ngFor="let caja of cajas" value="{{caja.idCaja}}">{{caja.caja}}</option>
+                </select>
+                <br>
+                <label for="">Cantidad de apertura</label>
+                <input type="text" class="form-control" value="$ {{efectivoCaja}}" readonly>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="abrirCaja()">Entrar</button>
+            </div>
+        </div>
+    </div>
+</div>

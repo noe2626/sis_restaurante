@@ -8,6 +8,8 @@ import { ClientesService } from '../../services/clientes.service';
 import { PreciosService } from '../../services/precios.service';
 import Swal from 'sweetalert2';
 import * as bootstrap from "bootstrap";
+import CryptoJS from 'crypto-js';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-ventas',
@@ -185,7 +187,10 @@ export class VentasComponent implements OnInit{
   }
 
   registrarVenta(): void {
+    const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja'), environment.secretKey).toString(CryptoJS.enc.Utf8);
+    let idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario'), environment.secretKey).toString(CryptoJS.enc.Utf8);
     const venta = {
+      idUser: parseInt(idUsuario),
       idCliente: this.idCliente,
       total: this.total,
       descuentos: this.descuentos,
@@ -193,6 +198,7 @@ export class VentasComponent implements OnInit{
       iva: this.iva,
       subTotal: this.subTotal,
       idSucursal: this.idSucursal,
+      idCaja: decryptedIdCaja,
       productos: this.carrito.map(item => ({
         idProducto: item.id,
         cantidad: item.cantidad,

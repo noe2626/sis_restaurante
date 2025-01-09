@@ -123,11 +123,21 @@ export class ProductosComponent implements OnInit{
           if (data.success) {
             this.formPrecio.patchValue({precio:data.data.precio});
           }else{
-            console.log(data);
+            Swal.fire({
+              icon: "error",
+              title: "Error al listar",
+              showConfirmButton: false,
+              timer: 1500
+            });
           }
         },
         error: (err) => { 
-          alert("Error al listar"),
+          Swal.fire({
+            icon: "error",
+            title: "Error al listar",
+            showConfirmButton: false,
+            timer: 1500
+          });
           console.log(err);
          },
       });
@@ -145,11 +155,21 @@ export class ProductosComponent implements OnInit{
               timer: 1500
             });
           }else{
-            console.log(data);
+            Swal.fire({
+              icon: "error",
+              title: "Error al guardar",
+              showConfirmButton: false,
+              timer: 1500
+            });
           }
         },
         error: (err) => { 
-          alert("Error al listar"),
+          Swal.fire({
+            icon: "error",
+            title: "Error al guardar",
+            showConfirmButton: false,
+            timer: 1500
+          });
           console.log(err);
          },
       });
@@ -162,11 +182,21 @@ export class ProductosComponent implements OnInit{
           if (data.success) {
             this.formInventario.patchValue({cantidad:data.data.cantidad});
           }else{
-            console.log(data);
+            Swal.fire({
+              icon: "error",
+              title: "Error al listar",
+              showConfirmButton: false,
+              timer: 1500
+            });
           }
         },
         error: (err) => { 
-          alert("Error al listar"),
+          Swal.fire({
+            icon: "error",
+            title: "Error al listar",
+            showConfirmButton: false,
+            timer: 1500
+          });
           console.log(err);
          },
       });
@@ -174,7 +204,6 @@ export class ProductosComponent implements OnInit{
 
     modificarInventario(){
       let inventarioData = this.formInventario.value;
-      console.log(this.formInventario.value);
       
       this.productoService.setInventarioProducto(inventarioData).subscribe({
         next: (data:any) => {
@@ -186,11 +215,21 @@ export class ProductosComponent implements OnInit{
               timer: 1500
             });
           }else{
-            console.log(data);
+            Swal.fire({
+              icon: "error",
+              title: "Error al guardar",
+              showConfirmButton: false,
+              timer: 1500
+            });
           }
         },
         error: (err) => { 
-          alert("Error al listar"),
+          Swal.fire({
+            icon: "error",
+            title: "Error al guardar",
+            showConfirmButton: false,
+            timer: 1500
+          });
           console.log(err);
          },
       });
@@ -217,18 +256,33 @@ export class ProductosComponent implements OnInit{
                 if (data.success) {
                   this.productos=data.data;
                 }else{
-                  console.log(data);
+                  Swal.fire({
+                    icon: "error",
+                    title: "Error al listar",
+                    showConfirmButton: false,
+                    timer: 1500
+                  });
                 }
               },
               error: (err) => { 
-                alert("Error al listar"),
+                Swal.fire({
+                  icon: "error",
+                  title: "Error al listar",
+                  showConfirmButton: false,
+                  timer: 1500
+                });
                 console.log(err);
                },
             });
           }
         },
         error: (err) => { 
-          alert("Error al guardar, inetente mas tarde"),
+          Swal.fire({
+            icon: "error",
+            title: "Error al guardar",
+            showConfirmButton: false,
+            timer: 1500
+          });
           console.log(err);
          },
       });

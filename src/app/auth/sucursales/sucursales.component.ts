@@ -20,9 +20,7 @@ export class SucursalesComponent implements OnInit{
     private sucursalesService: SucursalesService){}
 
   ngOnInit(): void {
-    if (isPlatformBrowser(this.platformId)) { 
-      document.getElementById('btnModalSuc')?.click();
-    }
+    document.getElementById('btnModalSuc')?.click();
     this.sucursalesService.getSucursalesByUsuario().subscribe({
       next: (data:any) => {
         if (data.success) {

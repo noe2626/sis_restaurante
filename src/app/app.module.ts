@@ -17,6 +17,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatTableModule } from '@angular/material/table';
+import { AperturaComponent } from './panel/ventas/cajas/apertura/apertura.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { MatTableModule } from '@angular/material/table';
     VentasComponent,
     ProductosComponent,
     SucursalesComponent,
-    InventariosComponent
+    InventariosComponent,
+    AperturaComponent
   ],
   imports: [
     BrowserModule,
