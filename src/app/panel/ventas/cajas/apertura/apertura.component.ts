@@ -21,18 +21,41 @@ export class AperturaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    
     let caja = localStorage.getItem('idCaja');
     if (caja) {
       const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja'), environment.secretKey).toString(CryptoJS.enc.Utf8);
       this.idCaja = parseInt(decryptedIdCaja);
+      this.cajaService.verificarCajas(this.idCaja).subscribe({
+        next: (data: any) => {
+          if(data.success){
+            Swal.fire({
+              icon: "success",
+              title: "Sesión actual "+localStorage.getItem('caja'),
+              showConfirmButton: false,
+              timer: 1500
+            });
+          }else{
+            this.idCaja = 0;
+            this.seleccionarCaja();
+          }
+        },
+        error: () => {
+          this.idCaja = 0;
+          this.seleccionarCaja();
+        },
+      });
     }
     if (caja == null) {
-      document.getElementById('btnModalApCajas')?.click();
+      this.seleccionarCaja();
+    }
+  }
+
+  seleccionarCaja(){
       this.cajaService.getSucursalesByUsuario().subscribe({
         next: (data: any) => {
           if (data.success) {
             this.cajas = data.data
+            document.getElementById('btnModalApCajas')?.click();
           }
         },
         error: () => {
@@ -44,7 +67,6 @@ export class AperturaComponent implements OnInit {
           });
         },
       });
-    }
   }
 
   cambiarCaja() {
@@ -58,6 +80,7 @@ export class AperturaComponent implements OnInit {
         if (data.success) {
           const encryptedIdCaja = CryptoJS.AES.encrypt(this.idCaja.toString(), environment.secretKey).toString();
           localStorage.setItem("idCaja", encryptedIdCaja);
+          localStorage.setItem("caja", data.data.caja);
           Swal.fire({
             icon: "success",
             title: "Sesión creada",
@@ -67,6 +90,13 @@ export class AperturaComponent implements OnInit {
           const modalElement = document.getElementById('aperturaModal'); 
           const modal = bootstrap.Modal.getInstance(modalElement);
           modal.hide();
+        }else{
+          Swal.fire({
+            icon: "error",
+            title: "Error al crear sesión",
+            showConfirmButton: false,
+            timer: 1500
+          });
         }
       },
       error: () => {

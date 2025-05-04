@@ -22,6 +22,15 @@ export class CajasService {
     return this.http.get(`${this.apiUrl}cajas/${idSucursal}`, header);
   }
 
+  verificarCajas(idCaja:number) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.get(`${this.apiUrl}cajas/verificar/${idCaja}`, header);
+  }
+
   abrirCaja(cantidad:number, idCaja:number){
     let token = localStorage.getItem('userToken');
     let idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario'), environment.secretKey).toString(CryptoJS.enc.Utf8);
@@ -35,6 +44,33 @@ export class CajasService {
         'cantidad':cantidad,
         'idUser':idUsuario
       }, header);
+  }
+
+  depositar(idCaja:number, idUser:number, cantidad:number) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.post(`${this.apiUrl}cajas/depositar`, {idCaja, idUser, cantidad}, header);
+  }
+
+  retirar(idCaja:number, idUser:number, cantidad:number) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.post(`${this.apiUrl}cajas/retirar`, {idCaja, idUser, cantidad}, header);
+  }
+
+  cerrarSesion(idCaja:number) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.post(`${this.apiUrl}cajas/cerrar`, {idCaja}, header);
   }
 
 }

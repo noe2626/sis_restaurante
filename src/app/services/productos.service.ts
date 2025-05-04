@@ -39,6 +39,16 @@ export class ProductosService {
       return this.http.get(`${this.apiUrl}inventario/productos/${idSucursal}`, header);
   }
 
+  listarProductosMasVendidos(){
+    let token = localStorage.getItem('userToken');
+    let idSucursal = localStorage.getItem('idSucursal');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization',  `Bearer ${token}`)
+    }
+    return this.http.get(`${this.apiUrl}inventario/productos/vendidos/${idSucursal}`, header);
+}
+
   listarInventario(){
       let token = localStorage.getItem('userToken');
       let idSucursal = localStorage.getItem('idSucursal');

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, of, Subject } from 'rxjs';
 import { switchMap, debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -28,34 +28,19 @@ export class VentasComponent implements OnInit{
   iva: number = 0;
   extras: number = 0;
   descuentos: number = 0;
-  productosFiltrados$: Observable<any[]> = of([]);
   typeaheadInput$ = new Subject<string>();
-  pago:number = 0;
+  pago:any = 0;
   cambio:number = 0;
   idSucursal:any = 0;
-
-  // Definimos e inicializamos productosRapidos
-  productosRapidos: any[] = [
-    { id: 1, nombre: 'Producto A', precio: 100 },
-    { id: 2, nombre: 'Producto B', precio: 150 },
-    { id: 3, nombre: 'Producto C', precio: 200 },
-    { id: 1, nombre: 'Producto A', precio: 100 },
-    { id: 2, nombre: 'Producto B', precio: 150 },
-    { id: 3, nombre: 'Producto C', precio: 200 },
-    { id: 1, nombre: 'Producto A', precio: 100 },
-    { id: 2, nombre: 'Producto B', precio: 150 },
-    { id: 3, nombre: 'Producto C', precio: 200 },
-    { id: 1, nombre: 'Producto A', precio: 100 },
-    { id: 2, nombre: 'Producto B', precio: 150 },
-    { id: 3, nombre: 'Producto C', precio: 200 }
-  ];
+  productosRapidos: any[] = [];
 
   constructor(
     private fb: FormBuilder,
     private productoService: ProductosService,
     private ventasService: VentasService,
     private clientesService: ClientesService,
-    private preciosService: PreciosService
+    private preciosService: PreciosService,
+    private renderer: Renderer2
   ) {
     this.formProd = this.fb.group({
       idProducto: [null, Validators.required],
@@ -68,15 +53,31 @@ export class VentasComponent implements OnInit{
 
   ngOnInit(): void {
     this.listarProductos();
+    this.listarProductosMasVendidos();
     this.listarClientes();
   }
 
   listarProductos(): void {
     this.productoService.listarProductos().subscribe({
       next: (data: any) => {
-        console.log(data.data);
-        
-        this.productos = data.data || [];
+        this.productos = data.data.map((producto:any) => ({ 
+          ...producto, 
+          disabled: this.isDisabled(producto) 
+        }));
+      },
+      error: (err) => {
+        console.log(err);
+      }
+    });
+  }
+
+  listarProductosMasVendidos(): void {
+    this.productoService.listarProductosMasVendidos().subscribe({
+      next: (data: any) => {
+        this.productosRapidos = data.data.map((producto:any) => ({ 
+          ...producto, 
+          disabled: this.isDisabled(producto) 
+        }));
       },
       error: (err) => {
         console.log(err);
@@ -178,13 +179,23 @@ export class VentasComponent implements OnInit{
     const extras = this.extras;
     this.iva = (this.subTotal + extras - descuentos) * 0.16;
 
-    this.total = (this.subTotal + extras - descuentos) + this.iva
+    this.total = (this.subTotal + extras - descuentos) //+ this.iva
   }
 
   eliminarProducto(index: number): void {
     this.carrito.splice(index, 1);
     this.calcularTotal();
   }
+
+  pagar(){
+    this.pago=null;
+    setTimeout(() => {
+      var pagoInput = document.getElementById("pagoInput");
+      pagoInput?.focus();
+      
+    }, 500);
+  }
+
 
   registrarVenta(): void {
     const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja'), environment.secretKey).toString(CryptoJS.enc.Utf8);
@@ -261,5 +272,9 @@ export class VentasComponent implements OnInit{
   incrementarCantidad(item:any){
     item.cantidad ++;
     this.actualizarSubtotal(item)
+  }
+
+  isDisabled(item: any): boolean { 
+    return item.inventariar && item.cantidad < 1; 
   }
 }

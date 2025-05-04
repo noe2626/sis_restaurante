@@ -1,36 +1,42 @@
 import { Component, ViewChild } from '@angular/core';
-import { ProductosService } from '../../../services/productos.service';
-import { PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { SucursalesService } from '../../../services/sucursales.service';
-import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Data } from '@angular/router';
+import { SucursalesService } from '../../../services/sucursales.service';
+import { ProveedoresService } from '../../../services/proveedores.service';
 import Swal from 'sweetalert2';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-inventarios',
-  templateUrl: './inventarios.component.html',
-  styleUrl: './inventarios.component.css'
+  selector: 'app-proveedores',
+  templateUrl: './proveedores.component.html',
+  styleUrl: './proveedores.component.css'
 })
-export class InventariosComponent {
+export class ProveedoresComponent {
   data: Array<any> = [];
   idSucursal:any;
   sucursales: any = null;
-  displayedColumns: string[] = ['producto','codigo','cantidad','precio']; 
+  displayedColumns: string[] = ['nombre','email','telefono','rfc', 'modificar']; 
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+  formPro: FormGroup;
 
   originalData = [JSON.parse(JSON.stringify(this.data))]; // Copia profunda de los datos originales 
 
   filteredData = [...this.data];
 
-  constructor(private productoService: ProductosService,
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private sucursalesService: SucursalesService){
-
-    }
+  constructor(private sucursalesService: SucursalesService,
+    private proveedoresService: ProveedoresService,
+    private fb: FormBuilder){
+      this.formPro = this.fb.group({
+        id: [null, Validators.required],
+        nombre: [null, Validators.required],
+        email: [null, [Validators.required, Validators.email]],
+        telefono: [null, Validators.required],
+        rfc: [null, Validators.required],
+        estatus: [null, Validators.required],
+      });
+  }
 
   ngOnInit(): void { 
     this.idSucursal = localStorage.getItem('idSucursal');
@@ -42,14 +48,13 @@ export class InventariosComponent {
       },
       error: () => { alert("Error al actualizar") },
     });
-    this.listarProductos();
-     
+    this.listarProveedores();
   }
 
   onSearch(event: Event): void {
     const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
     this.filteredData = this.data.filter(item => 
-      item.producto.toLowerCase().includes(searchTerm) || (item.codigo !== null && item.codigo.toString().includes(searchTerm))
+      item.nombre.toLowerCase().includes(searchTerm) || item.email.toLowerCase().includes(searchTerm)
     );
     this.dataSource.data = this.filteredData;
     this.dataSource.paginator = this.paginator;
@@ -57,17 +62,14 @@ export class InventariosComponent {
   }
 
   guardar(): void {
-    const changedData = this.data.filter((item, index) => { 
-      return JSON.stringify(item) !== JSON.stringify(this.originalData[index]); 
-    }); 
-
-    this.productoService.modificarInventario(changedData).subscribe({
+    let proveedor=this.formPro.value;
+    this.proveedoresService.guardarProveedor(proveedor).subscribe({
       next: (data:any) => {
         if (data.success) {
-          this.listarProductos();
+          this.listarProveedores();
           Swal.fire({
             icon: "success",
-            title: "Guardado",
+            title: "Provedor guardado",
             showConfirmButton: false,
             timer: 1500
           });
@@ -92,8 +94,8 @@ export class InventariosComponent {
     });
   }
 
-  listarProductos(){
-    this.productoService.listarInventario().subscribe({
+  listarProveedores(){
+    this.proveedoresService.listarProveedores().subscribe({
       next: (data:any) => {
         if (data.success) {
           this.data=data.data;
@@ -122,5 +124,30 @@ export class InventariosComponent {
       },
     });
   }
-}
 
+  nuevoProveedor(){
+    let proveedor = {
+      id: null,
+      nombre: null,
+      email: null,
+      telefono: null,
+      rfc: null,
+      estatus: null,
+    }
+    this.formPro.setValue(proveedor);
+  }
+
+  setEditar(prov: any){
+    let proveedor = {
+      id: prov.id,
+      nombre: prov.nombre,
+      email: prov.email,
+      telefono: prov.telefono,
+      rfc: prov.rfc,
+      estatus: prov.estatus,
+    }
+    this.formPro.setValue(proveedor);
+  }
+
+
+}

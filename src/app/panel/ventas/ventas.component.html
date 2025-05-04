@@ -1,8 +1,10 @@
+<app-nav-caja></app-nav-caja>
 <app-apertura></app-apertura>
 <div class="bg-light p-4">
     <div class="row">
         <!-- Sección Izquierda: Selección de Cliente y Producto -->
         <div class="col-md-6">
+
             <!-- Selección de Cliente -->
             <div class="mb-3">
                 <div class="form-floating">
@@ -23,23 +25,25 @@
                     <form [formGroup]="formProd" class="row g-3">
                         <div class="col-md-8">
                             <ng-select [items]="productos"
-                                       bindLabel="nombre"
-                                       bindValue="id"
-                                       placeholder="Buscar Producto"
-                                       formControlName="idProducto"
-                                       (change)="onProductoChange()"
-                                       class="custom-ng-select" 
-                                       [appendTo]="'body'"
-                                       [virtualScroll]="true"
-                                       [searchable]="true"
-                                       [searchFn]="customSearch">
-                                <ng-template ng-option-tmp let-item="item">
-                                    <div class="d-flex justify-content-between">
-                                        <span>{{item.nombre}}</span>
-                                        <small class="text-muted">{{item.codigo}}</small>
-                                    </div>
-                                </ng-template>
+                                    bindLabel="nombre"
+                                    bindValue="id"
+                                    placeholder="Buscar Producto"
+                                    formControlName="idProducto"
+                                    (change)="onProductoChange()"
+                                    class="custom-ng-select" 
+                                    [appendTo]="'body'"
+                                    [virtualScroll]="true"
+                                    [searchable]="true"
+                                    [searchFn]="customSearch">
+                            <ng-template ng-option-tmp let-item="item">
+                                <div class="d-flex justify-content-between">
+                                <span>{{ item?.nombre }}</span>
+                                <small class="text-muted">{{ item?.codigo || 'N/A' }}</small>
+                                </div>
+                            </ng-template>
                             </ng-select>
+
+
                         </div>
                         <div class="col-md-3">
                             <input formControlName="cantidad" type="number" placeholder="Cantidad" min="1" style="display: none;">
@@ -63,7 +67,7 @@
                     <div class="row">
                         <div class="col-3" *ngFor="let producto of productosRapidos">
                             <button class="btn btn-outline-secondary btn-quick w-100 mb-2 pt-3 pb-3" (click)="agregarProductoRapido(producto)">
-                                <i class="bi bi-box-seam me-1"></i>{{producto.nombre}} <br> <i class="bi bi-currency-dollar me-1"></i>{{producto.precio | currency}}
+                                <i class="bi bi-box-seam me-1"></i>{{producto.nombre}} <br> <i class="bi bi-currency-dollar me-1"></i>{{producto.precio }}
                             </button>
                         </div>
                     </div>
@@ -73,9 +77,9 @@
 
         <!-- Sección Derecha: Carrito de Compras y Totales -->
         <div class="col-md-6">
-
+            
             <!-- Carrito de Compras -->
-            <div class="card mb-2" style="height: 600px;">
+            <div class="card mb-2" style="height: 500px;">
                 <div class="card-header bg-secondary text-white d-flex justify-content-between">
                     <span><i class="bi bi-cart me-2"></i>Carrito de Compras</span>
                     <span class="badge bg-light text-dark">{{carrito.length}} Productos</span>
@@ -126,34 +130,39 @@
 
             <!-- Totales y Descuentos -->
             <div class="row g-3 mb-2">
-                <div class="col-md-4 mt-3">
+                <!---<div class="col-md-4 mt-3">
                     <div class="form-floating">
                         <input type="text" class="form-control" [value]="subTotal | currency" readonly>
                         <label><i class="bi bi-cash me-2"></i>Subtotal</label>
                     </div>
-                </div>
-                <div class="col-md-4 mt-3">
+                </div>--->
+                <!---<div class="col-md-4 mt-3">
                     <div class="form-floating">
                         <input type="text" class="form-control" [value]="iva | currency" readonly>
                         <label><i class="bi bi-piggy-bank me-2"></i>IVA</label>
                     </div>
-                </div>
-                <div class="col-md-4 mt-3">
+                </div>--->
+                <div class="col-md-5 mt-3">
                     <div class="form-floating">
                         <input type="text" class="form-control fw-bold" [value]="total | currency" readonly>
                         <label><i class="bi bi-cash me-2"></i>Total</label>
                     </div>
                 </div>
+                <div class="col-7 mt-3">
+                    <button class="btn btn-success btn-lg w-100 h-100" data-bs-toggle="modal" data-bs-target="#pagoModal"  [disabled]="carrito.length === 0" (click)="pagar()">
+                        Finalizar Venta
+                    </button>
+                </div>
             </div>
 
             <!-- Finalización de la Venta -->
-            <div class="row mb-4">
+            <!---<div class="row mb-4">
                 <div class="col-12">
                     <button class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#pagoModal"  [disabled]="carrito.length === 0">
                         Finalizar Venta
                     </button>
                 </div>
-            </div>
+            </div>--->
         </div>
     </div>
 </div>
@@ -173,7 +182,7 @@
                     </div>
                     <div class="col-md-6">
                         <label><i class="bi bi-cash" style="padding: 5px;"></i>Pago</label>
-                        <input type="number" class="form-control" [(ngModel)]="pago" placeholder="Pago $">
+                        <input id="pagoInput" type="number" class="form-control" [(ngModel)]="pago" placeholder="Pago $">
                     </div>
                 </div>
             </div>

@@ -1,0 +1,79 @@
+<div class="container mt-3">
+    <div class="row">
+        <h5>Proveedores</h5>
+    </div>
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proveedoresModal"
+        (click)="nuevoProveedor()">Agregar</button>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <input class="form-control" type="text" placeholder="Buscar por Nombre/Email..." (input)="onSearch($event)" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <table  mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Nombre </th>
+                    <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+                </ng-container>
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Email </th>
+                    <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+                </ng-container>
+                <ng-container matColumnDef="telefono">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Teléfono </th>
+                    <td mat-cell *matCellDef="let element"> {{element.telefono}} </td>
+                </ng-container>
+                <ng-container matColumnDef="rfc">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> RFC </th>
+                    <td mat-cell *matCellDef="let element"> {{element.rfc}} </td>
+                </ng-container>
+                <ng-container matColumnDef="modificar">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Modificar </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;"> <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#proveedoresModal"
+                        (click)="setEditar(element)"><i style="color: gray;"
+                            class="fa-solid fa-pen-to-square"></i></a> </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            </table>
+            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
+            </mat-paginator>
+        </div>
+    </div>
+
+    <div class="modal fade" id="proveedoresModal" tabindex="-1" role="dialog" aria-labelledby="proveedoresModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="proveedoresModalLabel">Información de proveedor</h5>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="formPro">
+                        Proveedor:
+                        <input type="text" class="form-control" placeholder="Nombre" formControlName="nombre">
+                        <br>
+                        Email:
+                        <input type="text" class="form-control" placeholder="Email" formControlName="email">
+                        <br>
+                        Teléfono:
+                        <input type="text" class="form-control" placeholder="Teléfono" formControlName="telefono">
+                        <br>
+                        RFC:
+                        <input type="text" class="form-control" placeholder="RFC" formControlName="rfc">
+                        <br>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" (click)="guardar()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

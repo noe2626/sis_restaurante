@@ -1,0 +1,48 @@
+<div class="container mt-3">
+    <div class="row">
+        <h5>Compras</h5>
+    </div>
+    <div>
+        <button class="btn btn-primary" routerLink="editar">Registrar compra</button>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <input class="form-control" type="text" placeholder="Buscar por Proveedor" (input)="onSearch($event)" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <table  mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="proveedor">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Proveedor </th>
+                    <td mat-cell *matCellDef="let element"> {{element.proveedor}} </td>
+                </ng-container>
+                <ng-container matColumnDef="fecha">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Fecha </th>
+                    <td mat-cell *matCellDef="let element"> {{element.fecha}} </td>
+                </ng-container>
+                <ng-container matColumnDef="estatus">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Estatus </th>
+                    <td mat-cell *matCellDef="let element"> {{element.estatus}} </td>
+                </ng-container>
+                <ng-container matColumnDef="total">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> total </th>
+                    <td mat-cell *matCellDef="let element"> {{element.total}} </td>
+                </ng-container>
+                <ng-container matColumnDef="modificar">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Modificar </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;"> <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#comprasModal"
+                        (click)="setEditar(element)"><i style="color: gray;"
+                            class="fa-solid fa-pen-to-square"></i></a> </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            </table>
+            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
+            </mat-paginator>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,101 @@
+<div class="container">
+    <br>
+    <div class="row">
+        <div class="col-7">
+            <ng-select [items]="proveedores"
+                            bindLabel="nombre"
+                            bindValue="id"
+                            [(ngModel)]="idProveedor"
+                            placeholder="Buscar Proveedor"
+                            class="custom-ng-select" 
+                            [appendTo]="'body'"
+                            [virtualScroll]="true"
+                            [searchable]="true"
+                            [searchFn]="customSearch">
+                    <ng-template ng-option-tmp let-item="item">
+                        <div class="d-flex justify-content-between">
+                        <span>{{ item?.nombre }}</span>
+                        </div>
+                    </ng-template>
+                    </ng-select>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-5">
+            <ng-select [items]="productos"
+                        bindLabel="nombre"
+                        bindValue="id"
+                        placeholder="Buscar Producto"
+                        class="custom-ng-select" 
+                        [appendTo]="'body'"
+                        [virtualScroll]="true"
+                        [searchable]="true"
+                        [searchFn]="customSearch"
+                        [(ngModel)]="idProducto">
+                        <ng-template ng-option-tmp let-item="item">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ item?.nombre }}</span>
+                            <small class="text-muted">{{ item?.codigo || 'N/A' }}</small>
+                        </div>
+                        </ng-template>
+                    </ng-select>
+        </div>
+        <div class="col-2">
+            <button class="btn btn-primary w-100" (click)="agregarProducto()">Agregar</button>
+        </div>
+    </div>
+    <br>
+        <div class="row">
+                    <div class="col-9">
+                        <table  mat-table [dataSource]="dataSource">
+                            <ng-container matColumnDef="producto">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Nombre </th>
+                                <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+                            </ng-container>
+                            <ng-container matColumnDef="codigo">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Código </th>
+                                <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
+                            </ng-container>
+                            <ng-container matColumnDef="cantidad">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: right;"> Cantidad </th>
+                                <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input [(ngModel)]="element.cantidad" type="number" class="input-cantidad" (change)="calcularTotales(element)"/> </td>
+                            </ng-container>
+                            <ng-container matColumnDef="precio">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: right;"> Precio </th>
+                                <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input [(ngModel)]="element.precio" type="number" class="input-cantidad" (change)="calcularTotales(element)"/> </td>
+                            </ng-container>
+                            <ng-container matColumnDef="iva">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> IVA(%) </th>
+                                <td mat-cell *matCellDef="let element" style="text-align: center;"><input [(ngModel)]="element.iva" type="number" class="input-cantidad" (change)="calcularTotales(element)"/> </td>
+                            </ng-container>
+
+                            <ng-container matColumnDef="subtotal">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Subtotal </th>
+                                <td mat-cell *matCellDef="let element" style="text-align: right; padding-left: 0;"> {{element.subtotal | currency}} </td>
+                            </ng-container>
+                            <ng-container matColumnDef="total">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Total </th>
+                                <td mat-cell *matCellDef="let element" style="text-align: right; padding-left: 0;"> {{element.total | currency}} </td>
+                            </ng-container>
+            
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            
+                        </table>
+            
+                    </div>
+                    <div class="col-3">
+                        <h6 style="text-align: right;">Subtotal: </h6>
+                        <input style="text-align: right;" type="text" [ngModel]="subtotal | currency" readonly class="form-control">
+                        <br>
+                        <h6 style="text-align: right;">IVA: </h6>
+                        <input style="text-align: right;" type="text" [ngModel]="iva | currency" readonly class="form-control">
+                        <br>
+                        <h6 style="text-align: right;">Total: </h6>
+                        <input style="text-align: right;" type="text" [ngModel]="total | currency" readonly class="form-control">
+                        <br>
+                        <button class="btn btn-primary w-100" (click)="guardarCompra()">Guardar</button>
+                    </div>
+        </div>
+</div>

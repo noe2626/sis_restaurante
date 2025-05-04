@@ -18,6 +18,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatTableModule } from '@angular/material/table';
 import { AperturaComponent } from './panel/ventas/cajas/apertura/apertura.component';
+import { NavCajaComponent } from './panel/ventas/cajas/nav-caja/nav-caja.component';
+import { ProveedoresComponent } from './panel/compras/proveedores/proveedores.component';
+import { ComprasComponent } from './panel/compras/compras/compras.component';
+import { EditarCompraComponent } from './panel/compras/compras/editar-compra/editar-compra.component';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,11 @@ import { AperturaComponent } from './panel/ventas/cajas/apertura/apertura.compon
     ProductosComponent,
     SucursalesComponent,
     InventariosComponent,
-    AperturaComponent
+    AperturaComponent,
+    NavCajaComponent,
+    ProveedoresComponent,
+    ComprasComponent,
+    EditarCompraComponent,
   ],
   imports: [
     BrowserModule,

@@ -1,18 +1,28 @@
-<div class="container">
-    <div class="row">
-        <div class="offset-md-8 col-md-4 mt-5">
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                <div>
-                    <input id="user" formControlName="user" placeholder="Usuario" class="form-control">
+<div class="row vh-100">
+    <div class="col-7" style="padding: 0;">
+        <div class="fondo-login d-flex justify-content-center align-items-center">
+            <div class="blur-layer w-100">
+                <div class="div-logo">
                 </div>
-                <br>
-                <div>
+            </div>
+        </div>
+    </div>
+    <div class="col-5" style="background-color: white;">
+        <div class=" w-100 d-flex justify-content-center align-items-center vh-100">
+            <div class="p-5 div-login">
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                    <h2 style="text-align: center; color: #f28c22; font-weight: bolder;">PUNTO DE VENTA</h2>
+                    <br><br>
+                    <input id="user" formControlName="user" placeholder="Usuario" class="form-control mb-2" />
                     <input type="password" id="password" formControlName="password" placeholder="Contraseña"
-                        class="form-control">
-                </div>
-                <br>
-                <button class="btn btn-secondary text-white btn-submit" type="submit" [disabled]="loginForm.invalid">Iniciar sesión</button>
-            </form>
+                        class="form-control mb-3" />
+                    <button class="btn btn-secondary text-white btn-submit font-weight-bold" type="submit"
+                        [disabled]="loginForm.invalid">
+                        Iniciar sesión
+                    </button>
+                    <br><br>
+                </form>
+            </div>
         </div>
     </div>
 </div>
