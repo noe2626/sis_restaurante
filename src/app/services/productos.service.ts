@@ -90,6 +90,32 @@ export class ProductosService {
       return this.http.put(`${this.apiUrl}inventario/productos`, data, header);
   }
 
+  guardarComponentesProducto(data: any){
+    let token = localStorage.getItem('userToken');
+      var header = {
+        headers: new HttpHeaders()
+          .set('Authorization',  `Bearer ${token}`)
+      }
+    return this.http.post(`${this.apiUrl}inventario/productos/componentes`, data, header);
+  }
+  
+  getComponentesProducto(idProducto: number){
+    let token = localStorage.getItem('userToken');
+      var header = {
+        headers: new HttpHeaders()
+          .set('Authorization',  `Bearer ${token}`)
+      }
+    return this.http.get(`${this.apiUrl}inventario/productos/componentes/${idProducto}`, header);
+  }
+
+  deleteComponentesProducto(idComponente: number){
+    let token = localStorage.getItem('userToken');
+      var header = {
+        headers: new HttpHeaders()
+          .set('Authorization',  `Bearer ${token}`)
+      }
+    return this.http.delete(`${this.apiUrl}inventario/productos/componentes/${idComponente}`, header);
+  }
   
 
 }

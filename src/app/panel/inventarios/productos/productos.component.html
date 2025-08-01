@@ -1,134 +1,212 @@
 <div class="container mt-3">
     <div class="row">
-        <h5>Productos</h5>
+      <h5>Productos</h5>
     </div>
-    <div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productosModal"
-        (click)="nuevoProducto()">Agregar</button>
+  
+    <div class="row mb-2">
+      <div class="col-md-6">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="nuevoProducto()">Agregar</button>
+      </div>
     </div>
     <div class="row mt-3">
         <div class="col-12">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th style="width: 35%; text-align: left;">Producto</th>
-                        <th style="width: 25%; text-align: left;">Código</th>
-                        <th style="width: 10%;">Inventariar</th>
-                        <th style="width: 10%;">Modificar</th>
-                        <th style="width: 10%;">Inventario</th>
-                        <th style="width: 10%;">Precio</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let producto of productos">
-                        <td>{{producto.nombre}}</td>
-                        <td>{{producto.codigo}}</td>
-                        <td class="icono">
-                            <i style="color: rgb(43, 187, 103);" *ngIf="producto.inventariar"
-                                    class="fa-solid fa-circle-check"></i>
-                        </td>
-                        <td class="icono">
-                            <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productosModal"
-                                (click)="setEditar(producto)"><i style="color: gray;"
-                                    class="fa-solid fa-pen-to-square"></i></a>
-                        </td>
-                        <td class="icono">
-                            <a *ngIf="producto.inventariar" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#inventarioModal" (click)="cargarInventariosData(producto.id,producto.nombre)"><i style="color: gray;" class="fa-solid fa-boxes-stacked"></i></a>
-                        </td>
-                        <td class="icono">
-                            <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#precioModal" (click)="cargarPreciosData(producto.id,producto.nombre)"><i style="color: green;" class="fa-solid fa-money-bill"></i></a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <input class="form-control" type="text" placeholder="Buscar por nombre o código..." (input)="onSearch($event)" />
         </div>
     </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="productosModal" tabindex="-1" role="dialog" aria-labelledby="productosModalLabel">
+  
+    <div class="row mt-3">
+      <div class="col-12">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th style="width: 25%; text-align: left;">Producto</th>
+              <th style="width: 20%; text-align: left;">Código</th>
+              <th style="width: 10%;">Inventariar</th>
+              <th style="width: 10%;">Modificar</th>
+              <th style="width: 10%;">Inventario</th>
+              <th style="width: 10%;">Precio</th>
+              <th style="width: 10%;">Componentes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let producto of productosFiltrados">
+              <td>{{ producto.nombre }}</td>
+              <td>{{ producto.codigo }}</td>
+              <td class="icono">
+                <i style="color: rgb(43, 187, 103);" *ngIf="producto.inventariar" class="fa-solid fa-circle-check"></i>
+              </td>
+              <td class="icono">
+                <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="setEditar(producto)">
+                  <i style="color: gray;" class="fa-solid fa-pen-to-square"></i>
+                </a>
+              </td>
+              <td class="icono">
+                <a *ngIf="producto.inventariar" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#inventarioModal" (click)="cargarInventariosData(producto.id, producto.nombre)">
+                  <i style="color: gray;" class="fa-solid fa-boxes-stacked"></i>
+                </a>
+              </td>
+              <td class="icono">
+                <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#precioModal" (click)="cargarPreciosData(producto.id, producto.nombre)">
+                  <i style="color: green;" class="fa-solid fa-money-bill"></i>
+                </a>
+              </td>
+              <td class="icono">
+                <a *ngIf="producto.inventariar" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#nuevoModal" (click)="cargarComponentes(producto)">
+                  <i style="color: rgb(121, 65, 65);" class="fa-solid fa-burger"></i>
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: Producto -->
+  <div class="modal fade" id="productosModal" tabindex="-1" role="dialog" aria-labelledby="productosModalLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="productosModalLabel">Información de producto</h5>
-            </div>
-            <div class="modal-body">
-                <form [formGroup]="formProd">
-                    Producto:
-                    <input type="text" class="form-control" placeholder="Producto" formControlName="nombre">
-                    <br>
-                    Código:
-                    <input type="text" class="form-control" placeholder="Código" formControlName="codigo">
-                    <br>
-                    <div class="form-check form-switch mt-2">
-                        <input class="form-check-input" type="checkbox" id="flexCheckChecked"
-                            formControlName="inventariar" checked>
-                        <label class="form-check-label" for="flexCheckChecked">
-                            Inventariar
-                        </label>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" (click)="onSubmit()">Guardar</button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Información de producto</h5>
         </div>
+        <div class="modal-body">
+          <form [formGroup]="formProd">
+            Producto:
+            <input type="text" class="form-control" placeholder="Producto" formControlName="nombre">
+            <br>
+            Código:
+            <input type="text" class="form-control" placeholder="Código" formControlName="codigo">
+            <br>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="flexCheckChecked" formControlName="inventariar">
+              <label class="form-check-label" for="flexCheckChecked">Inventariar</label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" (click)="onSubmit()">Guardar</button>
+        </div>
+      </div>
     </div>
-</div>
-
-<div class="modal fade" id="precioModal" tabindex="-1" role="dialog" aria-labelledby="precioModalLabel">
+  </div>
+  
+  <!-- Modal: Precio -->
+  <div class="modal fade" id="precioModal" tabindex="-1" role="dialog" aria-labelledby="precioModalLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="precioModalLabel">Modificación de precio</h5>
-            </div>
-            <div class="modal-body">
-                <form [formGroup]="formPrecio" >
-                    Sucursal:
-                    <select formControlName="idSucursal" class="form-select" (change)="changeSucursalPrecio()">
-                        <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}</option>
-                    </select>
-                    <br>
-                    Producto:
-                    <input formControlName="nombre" type="text" class="form-control" readonly>
-                    <br>
-                    Precio:
-                    <input formControlName="precio" type="number" class="form-control" placeholder="Precio">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" (click)="modificarPrecio()">Guardar</button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modificación de precio</h5>
         </div>
+        <div class="modal-body">
+          <form [formGroup]="formPrecio">
+            Sucursal:
+            <select formControlName="idSucursal" class="form-select" (change)="changeSucursalPrecio()">
+              <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
+            </select>
+            <br>
+            Producto:
+            <input formControlName="nombre" type="text" class="form-control" readonly>
+            <br>
+            Precio:
+            <input formControlName="precio" type="number" class="form-control" placeholder="Precio">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" (click)="modificarPrecio()">Guardar</button>
+        </div>
+      </div>
     </div>
-</div>
-
-<div class="modal fade" id="inventarioModal" tabindex="-1" role="dialog" aria-labelledby="inventarioModalLabel">
+  </div>
+  
+  <!-- Modal: Inventario -->
+  <div class="modal fade" id="inventarioModal" tabindex="-1" role="dialog" aria-labelledby="inventarioModalLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="inventarioModal">Modificación de inventario</h5>
-            </div>
-            <div class="modal-body">
-                <form [formGroup]="formInventario" >
-                    Sucursal:
-                    <select formControlName="idSucursal" class="form-select" (change)="changeSucursalInventario()">
-                        <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}</option>
-                    </select>
-                    <br>
-                    Producto:
-                    <label class="form-control">Pruducto</label>
-                    <br>
-                    Inventario:
-                    <input formControlName="cantidad" type="number" class="form-control" placeholder="Inventario">
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" (click)="modificarInventario()">Guardar</button>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Modificación de inventario</h5>
         </div>
+        <div class="modal-body">
+          <form [formGroup]="formInventario">
+            Sucursal:
+            <select formControlName="idSucursal" class="form-select" (change)="changeSucursalInventario()">
+              <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
+            </select>
+            <br>
+            Producto:
+            <label class="form-control">{{ formInventario.get('nombre')?.value }}</label>
+            <br>
+            Inventario:
+            <input formControlName="cantidad" type="number" class="form-control" placeholder="Inventario">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" (click)="modificarInventario()">Guardar</button>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+  
+  <!-- Modal: Nuevo (Extra acción) -->
+  <div class="modal fade" id="nuevoModal" tabindex="-1" role="dialog" aria-labelledby="nuevoModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Componentes</h5>
+        </div>
+        <div class="modal-body">
+          <p>Producto: <strong>{{ productoSeleccionado?.nombre }}</strong></p>
+          <div class="row">
+            <div class="col-6">
+                <ng-select [items]="productosComponentes"
+                            bindLabel="nombre"
+                            bindValue="id"
+                            placeholder="Buscar Producto"
+                            class="custom-ng-select" 
+                            [virtualScroll]="true"
+                            [searchable]="true"
+                            [searchFn]="customSearch"
+                            [(ngModel)]="idComponente">
+                            <ng-template ng-option-tmp let-item="item">
+                            <div class="d-flex justify-content-between">
+                                <span>{{ item?.nombre }}</span>
+                                <small class="text-muted">{{ item?.codigo || 'N/A' }}</small>
+                            </div>
+                            </ng-template>
+                        </ng-select>
+            </div>
+            <div class="col-3">
+              <input [(ngModel)]="cantidadComponente" type="number" class="form-control">
+            </div>
+            <div class="col-3">
+                <button class="btn btn-primary w-100" (click)="agregarComponente()">Agregar</button>
+            </div>
+          </div>
+          <table *ngIf="componentes.length > 0" class="table tabla-componentes mt-3">
+            <thead>
+              <tr>
+                <th style="width: 50%;">Componente</th>
+                <th style="width: 30%;" class="text-center">Cantidad</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let componente of componentes">
+                <td>{{componente.producto}}</td>
+                <td class="text-center">{{componente.cantidad}}</td>
+                <td class="text-center">
+                  <i style="color: gray; cursor: pointer;" class="fa-solid fa-trash" (click)="eliminarComponente(componente)"></i>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="text-center mt-5 mb-5" *ngIf="componentes.length === 0">
+            <h6 class="text-secondary">No hay componentes para este producto</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
