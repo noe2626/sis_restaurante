@@ -1,0 +1,40 @@
+<div class="container mt-3">
+    <div class="row">
+        <h5>Ventas</h5>
+    </div>
+    <div>
+        <button class="btn btn-primary" routerLink="nueva">Registrar venta</button>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <input class="form-control" type="text" placeholder="Buscar por Cliente o Fecha" (input)="onSearch($event)" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <table mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="cliente">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Cliente </th>
+                    <td mat-cell *matCellDef="let element"> {{element.cliente || element.cliente_nombre || 'Cliente General'}} </td>
+                </ng-container>
+                <ng-container matColumnDef="fecha">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Fecha </th>
+                    <td mat-cell *matCellDef="let element"> {{element.fecha | date:'yyyy-MM-dd HH:mm'}} </td>
+                </ng-container>
+                <ng-container matColumnDef="estatus">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Estatus </th>
+                    <td mat-cell *matCellDef="let element"> {{element.estatus || 'Completada'}} </td>
+                </ng-container>
+                <ng-container matColumnDef="total">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 30%;"> Total </th>
+                    <td mat-cell *matCellDef="let element"> {{element.total | currency}} </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
+            </mat-paginator>
+        </div>
+    </div>
+</div>

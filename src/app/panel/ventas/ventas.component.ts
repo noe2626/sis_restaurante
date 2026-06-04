@@ -6,6 +6,7 @@ import { ProductosService } from '../../services/productos.service';
 import { VentasService } from '../../services/ventas.service';
 import { ClientesService } from '../../services/clientes.service';
 import { PreciosService } from '../../services/precios.service';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 import * as bootstrap from "bootstrap";
 import CryptoJS from 'crypto-js';
@@ -33,6 +34,7 @@ export class VentasComponent implements OnInit{
   cambio:number = 0;
   idSucursal:any = 0;
   productosRapidos: any[] = [];
+  manejaIva: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -40,6 +42,7 @@ export class VentasComponent implements OnInit{
     private ventasService: VentasService,
     private clientesService: ClientesService,
     private preciosService: PreciosService,
+    private authService: AuthService,
     private renderer: Renderer2
   ) {
     this.formProd = this.fb.group({
@@ -47,6 +50,7 @@ export class VentasComponent implements OnInit{
       cantidad: [1, [Validators.required, Validators.min(1)]]
     });
     this.idSucursal=localStorage.getItem('idSucursal');
+    this.manejaIva = localStorage.getItem('manejaIva') === '1';
   }
 
 
@@ -177,9 +181,13 @@ export class VentasComponent implements OnInit{
     this.subTotal = this.carrito.reduce((sum, item) => sum + item.subtotal, 0);
     const descuentos = this.descuentos;
     const extras = this.extras;
-    this.iva = (this.subTotal + extras - descuentos) * 0.16;
-
-    this.total = (this.subTotal + extras - descuentos) //+ this.iva
+    if (this.manejaIva) {
+      this.iva = (this.subTotal + extras - descuentos) * 0.16;
+      this.total = (this.subTotal + extras - descuentos) + this.iva;
+    } else {
+      this.iva = 0;
+      this.total = (this.subTotal + extras - descuentos);
+    }
   }
 
   eliminarProducto(index: number): void {
@@ -272,6 +280,77 @@ export class VentasComponent implements OnInit{
   incrementarCantidad(item:any){
     item.cantidad ++;
     this.actualizarSubtotal(item)
+  }
+
+  solicitarAutorizacionPrecio(item: any) {
+    Swal.fire({
+      title: 'Autorización de Supervisor',
+      html: `
+        <div class="mb-3" style="text-align: left;">
+          <label for="swal-user" class="form-label font-weight-bold">Usuario Supervisor</label>
+          <input id="swal-user" class="form-control" placeholder="Ingrese usuario">
+        </div>
+        <div class="mb-3" style="text-align: left;">
+          <label for="swal-pass" class="form-label font-weight-bold">Contraseña</label>
+          <input id="swal-pass" type="password" class="form-control" placeholder="Ingrese contraseña">
+        </div>
+        <div class="mb-3" style="text-align: left;">
+          <label for="swal-price" class="form-label font-weight-bold">Nuevo Precio</label>
+          <input id="swal-price" type="number" class="form-control" placeholder="0.00" value="${item.precio}">
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Autorizar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#0d6efd',
+      cancelButtonColor: '#6c757d',
+      preConfirm: () => {
+        const user = (document.getElementById('swal-user') as HTMLInputElement).value;
+        const password = (document.getElementById('swal-pass') as HTMLInputElement).value;
+        const price = parseFloat((document.getElementById('swal-price') as HTMLInputElement).value);
+
+        if (!user || !password || isNaN(price) || price < 0) {
+          Swal.showValidationMessage('Todos los campos son obligatorios y el precio debe ser mayor o igual a 0');
+          return false;
+        }
+
+        return { user, password, price };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const { user, password, price } = result.value;
+        this.authService.autorizarPrecio({ user, password }).subscribe({
+          next: (res: any) => {
+            if (res.success) {
+              item.precio = price;
+              item.subtotal = item.cantidad * price;
+              this.calcularTotal();
+              Swal.fire({
+                icon: 'success',
+                title: 'Precio autorizado',
+                text: `El precio de ${item.nombre} se actualizó a $${price}`,
+                timer: 1500,
+                showConfirmButton: false
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'No autorizado',
+                text: res.message || 'No se pudo autorizar el cambio de precio.'
+              });
+            }
+          },
+          error: (err) => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un error al conectar con el servidor de autorización.'
+            });
+          }
+        });
+      }
+    });
   }
 
   isDisabled(item: any): boolean { 

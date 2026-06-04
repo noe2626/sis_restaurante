@@ -19,4 +19,13 @@ export class ComprasService {
       };
       return this.http.post(`${this.apiUrl}compras`, compra, header);
     }
+
+    listarCompras(){
+      let token = localStorage.getItem('userToken');
+      let idSucursal = localStorage.getItem('idSucursal');
+      const header = {
+        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      };
+      return this.http.get(`${this.apiUrl}compras/${idSucursal}`, header);
+    }
 }

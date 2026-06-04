@@ -111,10 +111,14 @@
                           </td>
                           <td>
                             <div *ngIf="item.promocion" style="text-align: center;">
-                              <span class="badge bg-success">{{item.promocion}}</span><br><span>{{item.precio | currency}}</span>
+                              <span class="badge bg-success">{{item.promocion}}</span><br><span>
+                                {{item.precio | currency}}
+                                <i class="bi bi-pencil-square ms-1" style="cursor: pointer; color: #0d6efd;" (click)="solicitarAutorizacionPrecio(item)"></i>
+                              </span>
                             </div>
                             <div *ngIf="!item.promocion" class="d-flex justify-content-center align-items-center">
                               {{item.precio | currency}}
+                              <i class="bi bi-pencil-square ms-2" style="cursor: pointer; color: #0d6efd;" (click)="solicitarAutorizacionPrecio(item)"></i>
                             </div>
                           </td>
                           <td>{{item.subtotal | currency}}</td>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 
@@ -13,5 +13,13 @@ export class AuthService {
 
   login(user: { user: string; password: string }){
     return this.http.post(`${this.apiUrl}login`, user);
+  }
+
+  autorizarPrecio(credentials: any) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.post(`${this.apiUrl}pos/autorizar-precio`, credentials, header);
   }
 }

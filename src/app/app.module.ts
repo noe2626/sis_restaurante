@@ -22,6 +22,8 @@ import { NavCajaComponent } from './panel/ventas/cajas/nav-caja/nav-caja.compone
 import { ProveedoresComponent } from './panel/compras/proveedores/proveedores.component';
 import { ComprasComponent } from './panel/compras/compras/compras.component';
 import { EditarCompraComponent } from './panel/compras/compras/editar-compra/editar-compra.component';
+import { VentasListaComponent } from './panel/ventas/ventas-lista/ventas-lista.component';
+import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +40,8 @@ import { EditarCompraComponent } from './panel/compras/compras/editar-compra/edi
     ProveedoresComponent,
     ComprasComponent,
     EditarCompraComponent,
+    VentasListaComponent,
+    NuevaVentaComponent,
   ],
   imports: [
     BrowserModule,

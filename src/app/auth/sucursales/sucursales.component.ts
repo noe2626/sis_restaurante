@@ -37,6 +37,7 @@ export class SucursalesComponent implements OnInit{
       localStorage.setItem('idSucursal',this.idSucursal.toString());
       let sucursalObj = this.sucursales.find((item:any) => item.idSucursal == this.idSucursal);
       localStorage.setItem('sucursal',sucursalObj.sucursal);
+      localStorage.setItem('manejaIva', (sucursalObj.manejaIva ?? 0).toString());
     }
     const modalElement = document.getElementById('sucursalModal'); 
     const modal = bootstrap.Modal.getInstance(modalElement);

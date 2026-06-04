@@ -1,0 +1,21 @@
+.th-table {
+    font-weight: bold;
+    color: #495057;
+}
+
+table {
+    width: 100%;
+    margin-top: 10px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mat-mdc-table {
+    background: white;
+}
+
+.mat-mdc-row:hover {
+    background-color: #f8f9fa;
+}
