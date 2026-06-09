@@ -71,6 +71,10 @@ export class NuevaVentaComponent implements OnInit {
     this.clientesService.listarClientes().subscribe({
       next: (data: any) => {
         this.clientes = data || [];
+        const defaultClient = this.clientes.find(c => c.nombre.toLowerCase().includes('público general') || c.nombre.toLowerCase().includes('general'));
+        if (defaultClient) {
+          this.idCliente = defaultClient.id;
+        }
       },
       error: (err) => {
         console.log(err);

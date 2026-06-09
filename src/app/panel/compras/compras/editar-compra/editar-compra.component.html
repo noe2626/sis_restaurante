@@ -1,5 +1,13 @@
 <div class="container">
     <br>
+    <div class="row mb-3 align-items-center">
+        <div class="col-12 d-flex align-items-center gap-3">
+            <a routerLink="/panel/compras" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%;">
+                <i class="fa-solid fa-arrow-left" style="font-size: 1.25rem;"></i>
+            </a>
+            <h5 class="mb-0">Registrar Compra</h5>
+        </div>
+    </div>
     <div class="row">
         <div class="col-7">
             <ng-select [items]="proveedores"
@@ -77,6 +85,14 @@
                             <ng-container matColumnDef="total">
                                 <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Total </th>
                                 <td mat-cell *matCellDef="let element" style="text-align: right; padding-left: 0;"> {{element.total | currency}} </td>
+                            </ng-container>
+                            <ng-container matColumnDef="eliminar">
+                                <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 6%; text-align: center;"> </th>
+                                <td mat-cell *matCellDef="let element; let i = index" style="text-align: center;">
+                                    <a style="cursor: pointer;" (click)="eliminarProducto(i)">
+                                        <i style="color: red; font-size: 18px;" class="bi bi-trash"></i>
+                                    </a>
+                                </td>
                             </ng-container>
             
                             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
