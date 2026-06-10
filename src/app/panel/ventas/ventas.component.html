@@ -66,7 +66,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-3" *ngFor="let producto of productosRapidos">
-                            <button class="btn btn-outline-secondary btn-quick w-100 mb-2 pt-3 pb-3" (click)="agregarProductoRapido(producto)">
+                            <button class="btn btn-outline-secondary btn-quick w-100 mb-2 pt-3 pb-3" [disabled]="producto.disabled" (click)="agregarProductoRapido(producto)">
                                 <i class="bi bi-box-seam me-1"></i>{{producto.nombre}} <br> <i class="bi bi-currency-dollar me-1"></i>{{producto.precio }}
                             </button>
                         </div>

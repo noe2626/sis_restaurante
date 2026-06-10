@@ -1,0 +1,93 @@
+<div class="container mt-3">
+    <div class="row">
+        <h5>Clientes</h5>
+    </div>
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#clientesModal"
+        (click)="nuevoCliente()">Agregar</button>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <input class="form-control" type="text" placeholder="Buscar por Nombre/Email..." (input)="onSearch($event)" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <table mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 30%;"> Nombre </th>
+                    <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
+                </ng-container>
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 30%;"> Email </th>
+                    <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+                </ng-container>
+                <ng-container matColumnDef="telefono">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Teléfono </th>
+                    <td mat-cell *matCellDef="let element"> {{element.telefono}} </td>
+                </ng-container>
+                <ng-container matColumnDef="modificar">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Modificar </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;"> 
+                        <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="setEditar(element)">
+                            <i style="color: gray;" class="fa-solid fa-pen-to-square"></i>
+                        </a> 
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="eliminar">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Eliminar </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;"> 
+                        <a *ngIf="element.id !== 1" style="cursor: pointer;" (click)="eliminar(element.id)">
+                            <i style="color: red;" class="fa-solid fa-trash"></i>
+                        </a>
+                        <span *ngIf="element.id === 1" style="color: lightgray; cursor: not-allowed;" title="No se puede eliminar el cliente público general">
+                            <i class="fa-solid fa-trash"></i>
+                        </span>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
+            </mat-paginator>
+        </div>
+    </div>
+
+    <div class="modal fade" id="clientesModal" tabindex="-1" role="dialog" aria-labelledby="clientesModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientesModalLabel">Información del cliente</h5>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="formCli">
+                        <label class="form-label font-weight-bold">Nombre:</label>
+                        <input type="text" class="form-control" placeholder="Nombre completo" formControlName="nombre">
+                        <div *ngIf="formCli.get('nombre')?.touched && formCli.get('nombre')?.invalid" class="text-danger small">
+                            El nombre es obligatorio.
+                        </div>
+                        <br>
+                        <label class="form-label font-weight-bold">Email:</label>
+                        <input type="email" class="form-control" placeholder="nombre@correo.com" formControlName="email">
+                        <div *ngIf="formCli.get('email')?.touched && formCli.get('email')?.invalid" class="text-danger small">
+                            <span *ngIf="formCli.get('email')?.errors?.['required']">El correo es obligatorio.</span>
+                            <span *ngIf="formCli.get('email')?.errors?.['email']">Ingrese un correo válido.</span>
+                        </div>
+                        <br>
+                        <label class="form-label font-weight-bold">Teléfono:</label>
+                        <input type="text" class="form-control" placeholder="Teléfono a 10 dígitos" formControlName="telefono">
+                        <div *ngIf="formCli.get('telefono')?.touched && formCli.get('telefono')?.invalid" class="text-danger small">
+                            El teléfono es obligatorio.
+                        </div>
+                        <br>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" (click)="guardar()" [disabled]="formCli.invalid">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -33,4 +33,12 @@ export class ProveedoresService {
     return this.http.get(`${this.apiUrl}proveedores`, header);
   }
 
+  eliminarProveedor(id: number) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.delete(`${this.apiUrl}proveedores/${id}`, header);
+  }
+
 }

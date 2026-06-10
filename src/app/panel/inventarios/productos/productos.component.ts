@@ -37,6 +37,8 @@ export class ProductosComponent implements OnInit {
       nombre: [null, Validators.required],
       codigo: [null, Validators.required],
       inventariar: [false, Validators.required],
+      se_vende: [true, Validators.required],
+      se_compra: [true, Validators.required]
     });
 
     this.formPrecio = this.fb.group({
@@ -105,7 +107,9 @@ export class ProductosComponent implements OnInit {
       id: null,
       nombre: null,
       codigo: null,
-      inventariar: false
+      inventariar: false,
+      se_vende: true,
+      se_compra: true
     };
     this.formProd.setValue(producto);
   }
@@ -115,7 +119,9 @@ export class ProductosComponent implements OnInit {
       id: prod.id,
       nombre: prod.nombre,
       codigo: prod.codigo,
-      inventariar: prod.inventariar
+      inventariar: prod.inventariar,
+      se_vende: prod.se_vende,
+      se_compra: prod.se_compra
     };
     this.formProd.setValue(producto);
   }

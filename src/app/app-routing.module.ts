@@ -11,6 +11,8 @@ import { ComprasComponent } from './panel/compras/compras/compras.component';
 import { EditarCompraComponent } from './panel/compras/compras/editar-compra/editar-compra.component';
 import { VentasListaComponent } from './panel/ventas/ventas-lista/ventas-lista.component';
 import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.component';
+import { ClientesComponent } from './panel/clientes/clientes.component';
+import { PromocionesComponent } from './panel/promociones/promociones.component';
 
 const routes: Routes = [
   {path: '',component: LoginComponent},
@@ -23,7 +25,9 @@ const routes: Routes = [
       { path: 'compras', component: ComprasComponent},
       { path: 'compras/editar', component: EditarCompraComponent},
       { path: 'ventas', component: VentasListaComponent},
-      { path: 'ventas/nueva', component: NuevaVentaComponent}
+      { path: 'ventas/nueva', component: NuevaVentaComponent},
+      { path: 'clientes', component: ClientesComponent },
+      { path: 'promociones', component: PromocionesComponent }
     ]
   },
   {path: 'sucursales',component: SucursalesComponent},

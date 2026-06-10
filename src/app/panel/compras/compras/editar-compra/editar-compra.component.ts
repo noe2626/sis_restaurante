@@ -51,11 +51,14 @@ export class EditarCompraComponent implements OnInit{
   listarProductos(): void {
     this.productoService.listarProductos().subscribe({
       next: (data: any) => {
-        this.productos = data.data.map((producto:any) => ({ 
-          ...producto, 
-          disabled: this.isDisabled(producto),
-          iva: 16
-        }));
+        const rawProducts = data.data || [];
+        this.productos = rawProducts
+          .filter((producto: any) => producto.se_compra === true || producto.se_compra === 1)
+          .map((producto:any) => ({ 
+            ...producto, 
+            //disabled: this.isDisabled(producto),
+            iva: 16
+          }));
       },
       error: (err) => {
         console.log(err);

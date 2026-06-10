@@ -1,0 +1,241 @@
+<div class="container mt-3">
+    <div class="row">
+        <h5>Promociones</h5>
+    </div>
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#promocionesModal"
+        (click)="nuevaPromocion()">Agregar Promoción</button>
+    </div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <input class="form-control" type="text" placeholder="Buscar por Producto o Descripción..." (input)="onSearch($event)" />
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
+            <table mat-table [dataSource]="dataSource" class="w-100">
+                <!-- Producto Column -->
+                <ng-container matColumnDef="producto">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%;"> Producto </th>
+                    <td mat-cell *matCellDef="let element"> {{ element.producto?.nombre || 'Desconocido' }} </td>
+                </ng-container>
+
+                <!-- Sucursal Column -->
+                <ng-container matColumnDef="sucursal">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%;"> Sucursal </th>
+                    <td mat-cell *matCellDef="let element"> 
+                        <span class="badge bg-secondary" *ngIf="!element.idSucursal">Global</span>
+                        <span *ngIf="element.idSucursal">{{ element.sucursal?.nombre || 'Cargando...' }}</span>
+                    </td>
+                </ng-container>
+
+                <!-- Descripcion Column -->
+                <ng-container matColumnDef="descripcion">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Descripción </th>
+                    <td mat-cell *matCellDef="let element"> {{element.descripcion}} </td>
+                </ng-container>
+
+                <!-- Tipo Column -->
+                <ng-container matColumnDef="tipo">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%;"> Tipo </th>
+                    <td mat-cell *matCellDef="let element">
+                        <span *ngIf="element.tipo === 'fijo'">Precio Fijo</span>
+                        <span *ngIf="element.tipo === 'porcentaje'">Porcentaje</span>
+                        <span *ngIf="element.tipo === 'oferta_dinamica'">Dinámica (X x Y)</span>
+                        <span *ngIf="element.tipo === 'mayoreo'">Mayoreo/Volumen</span>
+                    </td>
+                </ng-container>
+
+                <!-- Valor Column -->
+                <ng-container matColumnDef="valor">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%;"> Valor </th>
+                    <td mat-cell *matCellDef="let element">
+                        <span *ngIf="element.tipo === 'fijo'">{{ element.valor | currency }}</span>
+                        <span *ngIf="element.tipo === 'porcentaje'">{{ element.valor }}%</span>
+                        <span *ngIf="element.tipo === 'mayoreo'">{{ element.valor | currency }} c/u</span>
+                        <span *ngIf="element.tipo === 'oferta_dinamica'">N/A</span>
+                    </td>
+                </ng-container>
+
+                <!-- Regla Column -->
+                <ng-container matColumnDef="regla">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%;"> Regla </th>
+                    <td mat-cell *matCellDef="let element">
+                        <span *ngIf="element.tipo === 'oferta_dinamica'">
+                            Compra {{element.cantidad_compra}} / Gratis {{element.cantidad_gratis}}
+                        </span>
+                        <span *ngIf="element.tipo === 'mayoreo'">
+                            Mínimo {{element.cantidad_compra}} piezas
+                        </span>
+                        <span *ngIf="element.tipo !== 'oferta_dinamica' && element.tipo !== 'mayoreo'">-</span>
+                    </td>
+                </ng-container>
+
+                <!-- Fechas Column -->
+                <ng-container matColumnDef="fechas">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%;"> Vigencia </th>
+                    <td mat-cell *matCellDef="let element" style="font-size: 0.85em;">
+                        {{element.fecha_inicio | date:'dd/MM/yyyy'}} al {{element.fecha_fin | date:'dd/MM/yyyy'}}
+                    </td>
+                </ng-container>
+
+                <!-- Activo Column -->
+                <ng-container matColumnDef="activo">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 5%; text-align: center;"> Activo </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;">
+                        <span class="badge bg-success" *ngIf="element.activo == 1 || element.activo === true">Sí</span>
+                        <span class="badge bg-danger" *ngIf="element.activo == 0 || element.activo === false">No</span>
+                    </td>
+                </ng-container>
+
+                <!-- Modificar Column -->
+                <ng-container matColumnDef="modificar">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 5%; text-align: center;"> Editar </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;"> 
+                        <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#promocionesModal" (click)="setEditar(element)">
+                            <i style="color: gray;" class="fa-solid fa-pen-to-square"></i>
+                        </a> 
+                    </td>
+                </ng-container>
+
+                <!-- Eliminar Column -->
+                <ng-container matColumnDef="eliminar">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 5%; text-align: center;"> Eliminar </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;"> 
+                        <a style="cursor: pointer;" (click)="eliminar(element.id)">
+                            <i style="color: red;" class="fa-solid fa-trash"></i>
+                        </a>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
+            </mat-paginator>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div class="modal fade" id="promocionesModal" tabindex="-1" role="dialog" aria-labelledby="promocionesModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="promocionesModalLabel">Información de la Promoción</h5>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="formPromo">
+                        <div class="row">
+                            <!-- Producto -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">Producto *</label>
+                                <select class="form-select" formControlName="idProducto">
+                                    <option [value]="null" disabled selected>Seleccione un producto</option>
+                                    <option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }} ({{ p.codigo }})</option>
+                                </select>
+                                <div *ngIf="formPromo.get('idProducto')?.touched && formPromo.get('idProducto')?.invalid" class="text-danger small">
+                                    El producto es obligatorio.
+                                </div>
+                            </div>
+
+                            <!-- Sucursal -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">Sucursal (Vacío para Global)</label>
+                                <select class="form-select" formControlName="idSucursal">
+                                    <option [value]="null">Global (Todas las Sucursales)</option>
+                                    <option *ngFor="let s of sucursales" [value]="s.idSucursal">{{ s.sucursal }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Descripción / Nombre Promo *</label>
+                            <input type="text" class="form-control" placeholder="Ej. 2x1 en Pollos o 15% Descuento Jueves" formControlName="descripcion">
+                            <div *ngIf="formPromo.get('descripcion')?.touched && formPromo.get('descripcion')?.invalid" class="text-danger small">
+                                la descripción es obligatoria.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Tipo -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">Tipo de Promoción *</label>
+                                <select class="form-select" formControlName="tipo" (change)="onTipoChange()">
+                                    <option value="fijo">Precio Fijo</option>
+                                    <option value="porcentaje">Porcentaje de Descuento</option>
+                                    <option value="oferta_dinamica">Oferta Dinámica (Compra X, Gratis Y)</option>
+                                    <option value="mayoreo">Mayoreo (Precio especial por cantidad)</option>
+                                </select>
+                            </div>
+
+                            <!-- Valor -->
+                            <div class="col-md-6 mb-3" *ngIf="formPromo.get('tipo')?.value !== 'oferta_dinamica'">
+                                <label class="form-label font-weight-bold">
+                                    Valor ({{ formPromo.get('tipo')?.value === 'porcentaje' ? '%' : '$' }}) *
+                                </label>
+                                <input type="number" step="0.01" class="form-control" formControlName="valor">
+                                <div *ngIf="formPromo.get('valor')?.touched && formPromo.get('valor')?.invalid" class="text-danger small">
+                                    El valor debe ser un número válido mayor a 0.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reglas para Dinámica y Mayoreo -->
+                        <div class="row" *ngIf="formPromo.get('tipo')?.value === 'oferta_dinamica' || formPromo.get('tipo')?.value === 'mayoreo'">
+                            <!-- Cantidad Compra -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">
+                                    {{ formPromo.get('tipo')?.value === 'mayoreo' ? 'Cantidad Mínima Requerida *' : 'Cantidad Compra (X) *' }}
+                                </label>
+                                <input type="number" class="form-control" placeholder="Ej. 5" formControlName="cantidad_compra">
+                                <div *ngIf="formPromo.get('cantidad_compra')?.touched && formPromo.get('cantidad_compra')?.invalid" class="text-danger small">
+                                    Debe ingresar una cantidad válida (mínimo 1).
+                                </div>
+                            </div>
+
+                            <!-- Cantidad Gratis -->
+                            <div class="col-md-6 mb-3" *ngIf="formPromo.get('tipo')?.value === 'oferta_dinamica'">
+                                <label class="form-label font-weight-bold">Cantidad Gratis (Y) *</label>
+                                <input type="number" class="form-control" placeholder="Ej. 1" formControlName="cantidad_gratis">
+                                <div *ngIf="formPromo.get('cantidad_gratis')?.touched && formPromo.get('cantidad_gratis')?.invalid" class="text-danger small">
+                                    Debe ingresar una cantidad válida (mínimo 1).
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Fecha Inicio -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">Fecha Inicio *</label>
+                                <input type="date" class="form-control" formControlName="fecha_inicio">
+                                <div *ngIf="formPromo.get('fecha_inicio')?.touched && formPromo.get('fecha_inicio')?.invalid" class="text-danger small">
+                                    La fecha de inicio es requerida.
+                                </div>
+                            </div>
+
+                            <!-- Fecha Fin -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label font-weight-bold">Fecha Fin *</label>
+                                <input type="date" class="form-control" formControlName="fecha_fin">
+                                <div *ngIf="formPromo.get('fecha_fin')?.touched && formPromo.get('fecha_fin')?.invalid" class="text-danger small">
+                                    La fecha de fin es requerida.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activo -->
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" formControlName="activo">
+                            <label class="form-check-label font-weight-bold" for="flexSwitchCheckChecked">Promoción Activa</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeModalBtn">Cerrar</button>
+                    <button type="button" class="btn btn-primary" (click)="guardar()" [disabled]="formPromo.invalid">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

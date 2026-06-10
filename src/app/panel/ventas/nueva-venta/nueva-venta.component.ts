@@ -56,10 +56,14 @@ export class NuevaVentaComponent implements OnInit {
   listarProductos(): void {
     this.productoService.listarProductos().subscribe({
       next: (data: any) => {
-        this.productos = data.data.map((producto: any) => ({
-          ...producto,
-          iva: this.manejaIva ? 16 : 0
-        }));
+        const rawProducts = data.data || [];
+        this.productos = rawProducts
+          .filter((producto: any) => producto.se_vende === true || producto.se_vende === 1)
+          .map((producto: any) => ({
+            ...producto,
+            iva: this.manejaIva ? 16 : 0,
+            disabled: this.isDisabled(producto)
+          }));
       },
       error: (err) => {
         console.log(err);
@@ -232,12 +236,20 @@ export class NuevaVentaComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al registrar venta:', err);
+        const mensajeError = err.error?.message || 'Hubo un error al registrar la venta. Por favor, intente de nuevo.';
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Hubo un error al registrar la venta. Por favor, intente de nuevo.'
+          text: mensajeError
         });
       }
     });
+  }
+
+  isDisabled(item: any): boolean {
+    if (item.inventariar || item.tiene_componentes) {
+      return (item.stock_disponible || 0) < 1;
+    }
+    return false;
   }
 }

@@ -15,7 +15,7 @@ export class ProveedoresComponent {
   data: Array<any> = [];
   idSucursal:any;
   sucursales: any = null;
-  displayedColumns: string[] = ['nombre','email','telefono','rfc', 'modificar']; 
+  displayedColumns: string[] = ['nombre','email','telefono','rfc', 'modificar', 'eliminar']; 
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
@@ -62,21 +62,21 @@ export class ProveedoresComponent {
   }
 
   guardar(): void {
-    let proveedor=this.formPro.value;
+    let proveedor=this.formPro.getRawValue();
     this.proveedoresService.guardarProveedor(proveedor).subscribe({
       next: (data:any) => {
         if (data.success) {
           this.listarProveedores();
           Swal.fire({
             icon: "success",
-            title: "Provedor guardado",
+            title: "Proveedor guardado",
             showConfirmButton: false,
             timer: 1500
           });
         }else{
           Swal.fire({
             icon: "error",
-            title: "Error al guardar",
+            title: data.message || "Error al guardar",
             showConfirmButton: false,
             timer: 1500
           });
@@ -107,7 +107,7 @@ export class ProveedoresComponent {
         }else{
           Swal.fire({
             icon: "error",
-            title: "Error al guardar",
+            title: "Error al cargar proveedores",
             showConfirmButton: false,
             timer: 1500
           });
@@ -117,7 +117,7 @@ export class ProveedoresComponent {
         console.log(err);
         Swal.fire({
           icon: "error",
-          title: "Error al guardar",
+          title: "Error al cargar proveedores",
           showConfirmButton: false,
           timer: 1500
         });
@@ -126,6 +126,7 @@ export class ProveedoresComponent {
   }
 
   nuevoProveedor(){
+    this.formPro.get('nombre')?.enable();
     let proveedor = {
       id: null,
       nombre: null,
@@ -138,6 +139,7 @@ export class ProveedoresComponent {
   }
 
   setEditar(prov: any){
+    this.formPro.get('nombre')?.enable();
     let proveedor = {
       id: prov.id,
       nombre: prov.nombre,
@@ -147,6 +149,62 @@ export class ProveedoresComponent {
       estatus: prov.estatus,
     }
     this.formPro.setValue(proveedor);
+    if (prov.id === 1) {
+      this.formPro.get('nombre')?.disable();
+    }
+  }
+
+  eliminar(id: number) {
+    if (id === 1) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se puede eliminar el proveedor general.'
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: '¿Está seguro?',
+      text: '¿Desea eliminar este proveedor?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.proveedoresService.eliminarProveedor(id).subscribe({
+          next: (data: any) => {
+            if (data.success) {
+              this.listarProveedores();
+              Swal.fire({
+                icon: 'success',
+                title: 'Eliminado',
+                text: 'El proveedor ha sido eliminado.',
+                showConfirmButton: false,
+                timer: 1500
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'No se pudo eliminar el proveedor.'
+              });
+            }
+          },
+          error: (err) => {
+            console.error(err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Hubo un error al eliminar el proveedor.'
+            });
+          }
+        });
+      }
+    });
   }
 
 

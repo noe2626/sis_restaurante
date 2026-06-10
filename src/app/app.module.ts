@@ -24,6 +24,8 @@ import { ComprasComponent } from './panel/compras/compras/compras.component';
 import { EditarCompraComponent } from './panel/compras/compras/editar-compra/editar-compra.component';
 import { VentasListaComponent } from './panel/ventas/ventas-lista/ventas-lista.component';
 import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.component';
+import { ClientesComponent } from './panel/clientes/clientes.component';
+import { PromocionesComponent } from './panel/promociones/promociones.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +44,8 @@ import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.comp
     EditarCompraComponent,
     VentasListaComponent,
     NuevaVentaComponent,
+    ClientesComponent,
+    PromocionesComponent,
   ],
   imports: [
     BrowserModule,

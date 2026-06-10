@@ -64,10 +64,13 @@ export class VentasComponent implements OnInit{
   listarProductos(): void {
     this.productoService.listarProductos().subscribe({
       next: (data: any) => {
-        this.productos = data.data.map((producto:any) => ({ 
-          ...producto, 
-          disabled: this.isDisabled(producto) 
-        }));
+        const rawProducts = data.data || [];
+        this.productos = rawProducts
+          .filter((producto: any) => producto.se_vende === true || producto.se_vende === 1)
+          .map((producto: any) => ({ 
+            ...producto, 
+            disabled: this.isDisabled(producto) 
+          }));
       },
       error: (err) => {
         console.log(err);
@@ -78,10 +81,13 @@ export class VentasComponent implements OnInit{
   listarProductosMasVendidos(): void {
     this.productoService.listarProductosMasVendidos().subscribe({
       next: (data: any) => {
-        this.productosRapidos = data.data.map((producto:any) => ({ 
-          ...producto, 
-          disabled: this.isDisabled(producto) 
-        }));
+        const rawProducts = data.data || [];
+        this.productosRapidos = rawProducts
+          .filter((producto: any) => producto.se_vende === true || producto.se_vende === 1)
+          .map((producto: any) => ({ 
+            ...producto, 
+            disabled: this.isDisabled(producto) 
+          }));
       },
       error: (err) => {
         console.log(err);
@@ -132,7 +138,14 @@ export class VentasComponent implements OnInit{
     const cantidad = this.formProd.get('cantidad')?.value;
     const producto = this.productos.find(p => p.id === idProducto);
     if (producto) {
-      const item = { ...producto, cantidad, precio: this.precioProd, subtotal: this.precioProd * cantidad, promocion: '' };
+      const item = { 
+        ...producto, 
+        cantidad, 
+        precio: this.precioProd, 
+        precio_base: this.precioProd, 
+        subtotal: this.precioProd * cantidad, 
+        promocion: '' 
+      };
 
       // Obtener el precio final y promoción al agregar el producto
       this.preciosService.obtenerPrecioFinal(idProducto, this.idSucursal, this.idCliente, cantidad).subscribe({
@@ -144,6 +157,9 @@ export class VentasComponent implements OnInit{
           item.subtotal = item.cantidad * item.precio;
           this.carrito.unshift(item);
           this.calcularTotal();
+          
+          this.validarPromocionDinamica(item);
+          
           this.formProd.reset({ idProducto: null, cantidad: 1 });
           this.precioProd = 0;
         },
@@ -155,19 +171,34 @@ export class VentasComponent implements OnInit{
   }
 
   actualizarSubtotal(item: any): void {
-    item.subtotal = item.cantidad * item.precio;
-    this.calcularTotal();
-    this.validarPromocionDinamica(item);
+    this.preciosService.obtenerPrecioFinal(item.id, this.idSucursal, this.idCliente, item.cantidad).subscribe({
+      next: (data: any) => {
+        if (data.aplica_promocion) {
+          item.precio = data.precio_final;
+          item.promocion = data.promocion_descripcion;
+        } else {
+          item.precio = item.precio_base || item.precio;
+          item.promocion = '';
+        }
+        item.subtotal = item.cantidad * item.precio;
+        this.calcularTotal();
+        this.validarPromocionDinamica(item);
+      },
+      error: (err) => {
+        console.error('Error al actualizar el precio final:', err);
+        item.subtotal = item.cantidad * item.precio;
+        this.calcularTotal();
+        this.validarPromocionDinamica(item);
+      }
+    });
   }
 
   validarPromocionDinamica(item: any): void {
     this.preciosService.validarPromocionDinamica(item.id, this.idSucursal, item.cantidad).subscribe({
       next: (data: any) => {
         if (data.aplica_promocion) {
-          const vecesPromocion = Math.floor(item.cantidad / 2); 
-          const cantidadGratis = vecesPromocion * 1; 
-          const cantidadTotal = item.cantidad - cantidadGratis;
-          item.subtotal = cantidadTotal * item.precio;
+          item.subtotal = data.total;
+          item.promocion = data.promocion_descripcion;
         }
         this.calcularTotal();
       },
@@ -240,6 +271,12 @@ export class VentasComponent implements OnInit{
       },
       error: (err) => {
         console.log('Error al registrar la venta:', err);
+        const mensajeError = err.error?.message || 'Hubo un error al registrar la venta. Por favor, intente de nuevo.';
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al registrar venta',
+          text: mensajeError
+        });
       }
     });
   }
@@ -265,9 +302,33 @@ export class VentasComponent implements OnInit{
 
   // Método para agregar productos rápidamente
   agregarProductoRapido(producto: any): void {
-    const item = { ...producto, cantidad: 1, precio: producto.precio, subtotal: producto.precio, promocion: '' };
-    this.carrito.unshift(item);
-    this.calcularTotal();
+    const item = { 
+      ...producto, 
+      cantidad: 1, 
+      precio: producto.precio, 
+      precio_base: producto.precio, 
+      subtotal: producto.precio, 
+      promocion: '' 
+    };
+    
+    this.preciosService.obtenerPrecioFinal(producto.id, this.idSucursal, this.idCliente, 1).subscribe({
+      next: (data: any) => {
+        if (data.aplica_promocion) {
+          item.precio = data.precio_final;
+          item.promocion = data.promocion_descripcion;
+        }
+        item.subtotal = item.cantidad * item.precio;
+        this.carrito.unshift(item);
+        this.calcularTotal();
+        
+        this.validarPromocionDinamica(item);
+      },
+      error: (err) => {
+        console.error('Error al obtener el precio final:', err);
+        this.carrito.unshift(item);
+        this.calcularTotal();
+      }
+    });
   }
 
   decrementarCantidad(item:any){
@@ -354,6 +415,9 @@ export class VentasComponent implements OnInit{
   }
 
   isDisabled(item: any): boolean { 
-    return item.inventariar && item.cantidad < 1; 
+    if (item.inventariar || item.tiene_componentes) {
+      return (item.stock_disponible || 0) < 1;
+    }
+    return false;
   }
 }

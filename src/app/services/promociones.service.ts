@@ -5,37 +5,37 @@ import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class ClientesService {
+export class PromocionesService {
 
   private apiUrl = environment.urlApi;
 
   constructor(private http: HttpClient) { }
 
-  listarClientes(){
+  listarPromociones(){
     let token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
     };
-    return this.http.get(`${this.apiUrl}clientes`, header);
+    return this.http.get(`${this.apiUrl}promociones`, header);
   }
 
-  guardarCliente(cliente: any) {
+  guardarPromocion(promocion: any) {
     let token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
     };
-    if (cliente.id) {
-      return this.http.put(`${this.apiUrl}clientes/${cliente.id}`, cliente, header);
+    if (promocion.id) {
+      return this.http.put(`${this.apiUrl}promociones/${promocion.id}`, promocion, header);
     } else {
-      return this.http.post(`${this.apiUrl}clientes`, cliente, header);
+      return this.http.post(`${this.apiUrl}promociones`, promocion, header);
     }
   }
 
-  eliminarCliente(id: number) {
+  eliminarPromocion(id: number) {
     let token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
     };
-    return this.http.delete(`${this.apiUrl}clientes/${id}`, header);
+    return this.http.delete(`${this.apiUrl}promociones/${id}`, header);
   }
 }
