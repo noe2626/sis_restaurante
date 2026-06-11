@@ -16,7 +16,7 @@ export class ComprasComponent implements OnInit{
   data: Array<any> = [];
   idSucursal:any;
   sucursales: any = null;
-  displayedColumns: string[] = ['folio', 'folioProveedor', 'proveedor','fecha','total','estatus', 'detalle']; 
+  displayedColumns: string[] = ['folio', 'folio_proveedor', 'proveedor','fecha','total','estatus', 'detalle']; 
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
