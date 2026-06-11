@@ -29,4 +29,20 @@ export class VentasService {
     return this.http.get(`${this.apiUrl}ventas/${idSucursal}`, header);
   }
 
+  obtenerDetalleVenta(id: number) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.get(`${this.apiUrl}ventas/detalle/${id}`, header);
+  }
+
+  cancelarVenta(id: number) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.post(`${this.apiUrl}ventas/cancelar/${id}`, {}, header);
+  }
+
 }

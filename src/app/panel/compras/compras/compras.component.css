@@ -1,0 +1,238 @@
+.th-table {
+    font-weight: 600;
+    color: #334155;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    background-color: #f8fafc !important;
+}
+
+table {
+    width: 100%;
+    margin-top: 15px;
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.mat-mdc-table {
+    background: white;
+}
+
+.mat-mdc-row {
+    transition: background-color 0.2s ease;
+}
+
+.mat-mdc-row:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.mat-mdc-cell {
+    color: #475569;
+    font-size: 0.875rem;
+    padding: 1rem !important;
+}
+
+/* Estatus pills in list */
+.badge-status-list {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+}
+
+/* Estilos premium para el modal */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #ffffff;
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-header .btn-close {
+    filter: invert(1) grayscale(1) brightness(2);
+    opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.modal-body {
+    padding: 1.75rem 1.5rem;
+    background-color: #f8fafc;
+}
+
+.modal-footer {
+    background-color: #f1f5f9;
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 1.5rem;
+}
+
+/* Detalles del encabezado de la venta/compra */
+.info-section {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.info-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #64748b;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Badge de estatus */
+.status-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.status-badge.completada {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.cancelada {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Estilo de la tabla de productos */
+.detail-table {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.detail-table th {
+    background-color: #0f172a;
+    color: #f8fafc;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border: none;
+}
+
+.detail-table td {
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-table tr:last-child td {
+    border-bottom: none;
+}
+
+.detail-table code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.8rem;
+    background-color: #f1f5f9;
+    color: #475569;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+}
+
+/* Card de Totales */
+.totals-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    font-size: 0.82rem;
+    color: #475569;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.total-row:last-of-type {
+    border-bottom: none;
+    padding-top: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+.total-row.discount {
+    color: #b91c1c;
+}
+
+/* Botón de acciones */
+.btn-premium {
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-premium-danger {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+}
+
+.btn-premium-danger:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.btn-premium-secondary {
+    background-color: #cbd5e1;
+    color: #1e293b;
+    border: none;
+}
+
+.btn-premium-secondary:hover {
+    background-color: #94a3b8;
+    transform: translateY(-1px);
+}

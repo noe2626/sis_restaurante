@@ -28,4 +28,20 @@ export class ComprasService {
       };
       return this.http.get(`${this.apiUrl}compras/${idSucursal}`, header);
     }
+
+    obtenerDetalleCompra(id: number) {
+      let token = localStorage.getItem('userToken');
+      const header = {
+        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      };
+      return this.http.get(`${this.apiUrl}compras/detalle/${id}`, header);
+    }
+
+    cancelarCompra(id: number) {
+      let token = localStorage.getItem('userToken');
+      const header = {
+        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      };
+      return this.http.post(`${this.apiUrl}compras/cancelar/${id}`, {}, header);
+    }
 }
