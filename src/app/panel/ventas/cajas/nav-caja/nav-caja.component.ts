@@ -16,6 +16,32 @@ export class NavCajaComponent {
   cantidadDeposito:number = 0;
   cantidadRetiro:number = 0;
 
+  listaBilletesObj = [
+    { valor: 1000, key: 'b1000', label: '$1,000', class: 'bill-1000' },
+    { valor: 500, key: 'b500', label: '$500', class: 'bill-500' },
+    { valor: 200, key: 'b200', label: '$200', class: 'bill-200' },
+    { valor: 100, key: 'b100', label: '$100', class: 'bill-100' },
+    { valor: 50, key: 'b50', label: '$50', class: 'bill-50' },
+    { valor: 20, key: 'b20', label: '$20', class: 'bill-20' }
+  ];
+  listaMonedasObj = [
+    { valor: 10, key: 'm10', label: '$10', class: 'coin-10' },
+    { valor: 5, key: 'm5', label: '$5', class: 'coin-5' },
+    { valor: 2, key: 'm2', label: '$2', class: 'coin-2' },
+    { valor: 1, key: 'm1', label: '$1', class: 'coin-1' },
+    { valor: 0.5, key: 'm05', label: '50¢', class: 'coin-05' }
+  ];
+  denominaciones: any = {
+    b1000: 0, b500: 0, b200: 0, b100: 0, b50: 0, b20: 0,
+    m10: 0, m5: 0, m2: 0, m1: 0, m05: 0
+  };
+  resumenCierre: any = null;
+  totalFisico: number = 0;
+  diferencia: number = 0;
+  notasCierre: string = '';
+  retiroCierre: number = 0;
+  fondoRestante: number = 0;
+
   constructor(private service:CajasService,
     private router: Router
   ){
@@ -148,56 +174,171 @@ export class NavCajaComponent {
     });
   }
 
-  alertCerrarSesion(){
-    Swal.fire({
-      title: 'Cerrar sesión',
-      showDenyButton: true,
-      confirmButtonText: 'Confirmar',
-      denyButtonText: 'Cancelar',
-      customClass: {
-        actions: 'my-actions',
-        cancelButton: 'order-1 right-gap',
-        confirmButton: 'order-2',
-        denyButton: 'order-3',
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.cerrarSesion();
-      }
-    })
-  }
+  alertCerrarSesion() {
+    const idCajaDecrypted = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    const idCaja = parseInt(idCajaDecrypted);
 
-  cerrarSesion(){
-    const idCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja'), environment.secretKey).toString(CryptoJS.enc.Utf8);
-    this.service.cerrarSesion(idCaja).subscribe({
-      next: (data: any) => {
-        if (data.success) {
-          localStorage.removeItem('idCaja');
-          Swal.fire({
-            icon: "success",
-            title: "Sesión cerrada exitosamente",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          this.router.navigate(['panel']);
-        }else{
-          Swal.fire({
-            icon: "error",
-            title: "Error al cerrar sesión",
-            showConfirmButton: false,
-            timer: 1500
-          });
+    if (!idCaja) {
+      Swal.fire('Error', 'No hay una caja activa en esta sesión.', 'error');
+      return;
+    }
+
+    this.service.getResumenCierre(idCaja).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.resumenCierre = res.data;
+          
+          // Resetear calculadora
+          this.denominaciones = {
+            b1000: 0, b500: 0, b200: 0, b100: 0, b50: 0, b20: 0,
+            m10: 0, m5: 0, m2: 0, m1: 0, m05: 0
+          };
+          this.totalFisico = 0;
+          this.diferencia = -this.resumenCierre.efectivo_sistema;
+          this.notasCierre = '';
+          this.retiroCierre = 0;
+          this.fondoRestante = 0;
+
+          // Mostrar modal de Bootstrap
+          const modalElement = document.getElementById('arqueoModal');
+          if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+          }
+        } else {
+          Swal.fire('Error', res.message || 'No se pudo obtener el resumen de cierre.', 'error');
         }
       },
-      error: () => {
-        Swal.fire({
-          icon: "error",
-          title: "Error al cerrar sesión",
-          showConfirmButton: false,
-          timer: 1500
-        });
-      },
+      error: (err) => {
+        console.error('Error al obtener resumen de cierre:', err);
+        const msg = err.error?.message || 'Error al comunicarse con el servidor.';
+        Swal.fire('Error', msg, 'error');
+      }
     });
+  }
+
+  actualizarTotalFisico() {
+    const getVal = (v: any) => v && v > 0 ? Number(v) : 0;
+    
+    const bills = 
+      getVal(this.denominaciones.b1000) * 1000 +
+      getVal(this.denominaciones.b500) * 500 +
+      getVal(this.denominaciones.b200) * 200 +
+      getVal(this.denominaciones.b100) * 100 +
+      getVal(this.denominaciones.b50) * 50 +
+      getVal(this.denominaciones.b20) * 20;
+
+    const coins =
+      getVal(this.denominaciones.m10) * 10 +
+      getVal(this.denominaciones.m5) * 5 +
+      getVal(this.denominaciones.m2) * 2 +
+      getVal(this.denominaciones.m1) * 1 +
+      getVal(this.denominaciones.m05) * 0.5;
+
+    this.totalFisico = bills + coins;
+    if (this.resumenCierre) {
+      this.diferencia = this.totalFisico - this.resumenCierre.efectivo_sistema;
+    }
+    this.actualizarFondoRestante();
+  }
+
+  actualizarFondoRestante() {
+    const val = (v: any) => v && v > 0 ? Number(v) : 0;
+    this.fondoRestante = this.totalFisico - val(this.retiroCierre);
+  }
+
+  confirmarCierre() {
+    const idCajaDecrypted = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    const idCaja = parseInt(idCajaDecrypted);
+
+    if (!idCaja) {
+      Swal.fire('Error', 'No hay una caja activa en esta sesión.', 'error');
+      return;
+    }
+
+    const val = (v: any) => v && v > 0 ? Number(v) : 0;
+    const numRetiro = val(this.retiroCierre);
+    if (numRetiro < 0) {
+      Swal.fire('Error', 'El monto a retirar no puede ser menor a 0.', 'error');
+      return;
+    }
+    if (numRetiro > this.totalFisico) {
+      Swal.fire('Error', 'El monto a retirar no puede ser mayor al total físico contado.', 'error');
+      return;
+    }
+
+    const desgloseGuardar = {
+      billetes: {
+        '1000': this.denominaciones.b1000 || 0,
+        '500': this.denominaciones.b500 || 0,
+        '200': this.denominaciones.b200 || 0,
+        '100': this.denominaciones.b100 || 0,
+        '50': this.denominaciones.b50 || 0,
+        '20': this.denominaciones.b20 || 0
+      },
+      monedas: {
+        '10': this.denominaciones.m10 || 0,
+        '5': this.denominaciones.m5 || 0,
+        '2': this.denominaciones.m2 || 0,
+        '1': this.denominaciones.m1 || 0,
+        '0.5': this.denominaciones.m05 || 0
+      }
+    };
+
+    this.service.cerrarSesion(idCaja, this.totalFisico, desgloseGuardar, this.notasCierre, numRetiro).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          const closeBtn = document.getElementById('closeArqueoModalBtn');
+          closeBtn?.click();
+
+          localStorage.removeItem('idCaja');
+          localStorage.removeItem('caja');
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Sesión Cerrada y Arqueada',
+            text: `La sesión de caja ha sido cerrada con un total físico de $${this.totalFisico.toFixed(2)}.`,
+            confirmButtonText: 'Entendido'
+          }).then(() => {
+            this.router.navigate(['panel']);
+          });
+        } else {
+          Swal.fire('Error', res.message || 'Error al guardar el arqueo de caja.', 'error');
+        }
+      },
+      error: (err) => {
+        console.error('Error al cerrar sesión:', err);
+        const msg = err.error?.message || 'Error al procesar el cierre en el servidor.';
+        Swal.fire('Error', msg, 'error');
+      }
+    });
+  }
+
+  incrementarDenominacion(key: string): void {
+    if (this.denominaciones[key] === undefined) {
+      this.denominaciones[key] = 0;
+    }
+    this.denominaciones[key]++;
+    this.actualizarTotalFisico();
+  }
+
+  decrementarDenominacion(key: string, event: Event): void {
+    event.stopPropagation();
+    if (this.denominaciones[key] > 0) {
+      this.denominaciones[key]--;
+      this.actualizarTotalFisico();
+    }
+  }
+
+  limpiarCalculadora(): void {
+    this.denominaciones = {
+      b1000: 0, b500: 0, b200: 0, b100: 0, b50: 0, b20: 0,
+      m10: 0, m5: 0, m2: 0, m1: 0, m05: 0
+    };
+    this.totalFisico = 0;
+    if (this.resumenCierre) {
+      this.diferencia = -this.resumenCierre.efectivo_sistema;
+    }
   }
 
 }

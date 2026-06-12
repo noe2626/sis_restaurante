@@ -64,13 +64,22 @@ export class CajasService {
     return this.http.post(`${this.apiUrl}cajas/retirar`, {idCaja, idUser, cantidad}, header);
   }
 
-  cerrarSesion(idCaja:number) {
+  getResumenCierre(idCaja: number) {
     let token = localStorage.getItem('userToken');
     var header = {
       headers: new HttpHeaders()
         .set('Authorization', `Bearer ${token}`)
     }
-    return this.http.post(`${this.apiUrl}cajas/cerrar`, {idCaja}, header);
+    return this.http.get(`${this.apiUrl}cajas/resumen-cierre/${idCaja}`, header);
+  }
+
+  cerrarSesion(idCaja: number, cantidadCierre: number, desglose: any, notas: string, retiroCierre: number) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.post(`${this.apiUrl}cajas/cerrar`, { idCaja, cantidad_cierre: cantidadCierre, desglose, notas, retiro_cierre: retiroCierre }, header);
   }
 
 }

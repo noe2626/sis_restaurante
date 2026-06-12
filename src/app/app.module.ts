@@ -26,6 +26,7 @@ import { VentasListaComponent } from './panel/ventas/ventas-lista/ventas-lista.c
 import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.component';
 import { ClientesComponent } from './panel/clientes/clientes.component';
 import { PromocionesComponent } from './panel/promociones/promociones.component';
+import { DashboardComponent } from './panel/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,7 @@ import { PromocionesComponent } from './panel/promociones/promociones.component'
     NuevaVentaComponent,
     ClientesComponent,
     PromocionesComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule,

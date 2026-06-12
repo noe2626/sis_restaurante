@@ -13,12 +13,15 @@ import { VentasListaComponent } from './panel/ventas/ventas-lista/ventas-lista.c
 import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.component';
 import { ClientesComponent } from './panel/clientes/clientes.component';
 import { PromocionesComponent } from './panel/promociones/promociones.component';
+import { DashboardComponent } from './panel/dashboard/dashboard.component';
 
 const routes: Routes = [
   {path: '',component: LoginComponent},
   {path: 'login',component: LoginComponent},
   {path: 'panel',component: InicioComponent,
     children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
       { path: 'productos', component: ProductosComponent},
       { path: 'inventarios', component: InventariosComponent},
       { path: 'proveedores', component: ProveedoresComponent},

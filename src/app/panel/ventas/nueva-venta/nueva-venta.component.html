@@ -29,6 +29,14 @@
                 </ng-template>
             </ng-select>
         </div>
+        <div class="col-5">
+            <label class="form-label font-weight-bold">Método de Pago</label>
+            <select class="form-select" [(ngModel)]="metodoPago" style="height: 38px;">
+                <option value="efectivo">Efectivo</option>
+                <option value="tarjeta">Tarjeta (Débito/Crédito)</option>
+                <option value="transferencia">Transferencia Bancaria</option>
+            </select>
+        </div>
     </div>
     <br>
     <div class="row">

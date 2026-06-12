@@ -186,7 +186,17 @@
                     </div>
                     <div class="col-md-6">
                         <label><i class="bi bi-cash" style="padding: 5px;"></i>Pago</label>
-                        <input id="pagoInput" type="number" class="form-control" [(ngModel)]="pago" placeholder="Pago $">
+                        <input id="pagoInput" type="number" class="form-control" [(ngModel)]="pago" [disabled]="metodoPago !== 'efectivo'" placeholder="Pago $">
+                    </div>
+                </div>
+                <div class="row g-3 mb-2 mt-1">
+                    <div class="col-12">
+                        <label class="form-label"><i class="bi bi-credit-card-2-front me-2"></i>Método de Pago</label>
+                        <select class="form-select" [(ngModel)]="metodoPago" (change)="alCambiarMetodoPago()">
+                            <option value="efectivo">Efectivo</option>
+                            <option value="tarjeta">Tarjeta (Débito/Crédito)</option>
+                            <option value="transferencia">Transferencia Bancaria</option>
+                        </select>
                     </div>
                 </div>
             </div>

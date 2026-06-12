@@ -1,0 +1,334 @@
+<div class="container-fluid px-4 py-2 dashboard-container">
+  <!-- Header del Dashboard (muy compacto) -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="div-sucursal">
+      <h2 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size: 1.5rem;">
+        <i class="fa-regular fa-building" style="color: white;"></i>
+        <span style="color: white;">{{ sucursalNombre }}</span>
+      </h2>
+    </div>
+    <button class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2" (click)="cargarDatos()"
+      [disabled]="loading" style="font-size: 1.02rem;">
+      <i class="bi bi-arrow-clockwise" [class.spin]="loading"></i> Actualizar
+    </button>
+  </div>
+
+  <!-- Estado de Carga -->
+  <div *ngIf="loading && !dashboardData"
+    class="d-flex flex-column justify-content-center align-items-center flex-grow-1">
+    <div class="spinner-border text-primary mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="text-muted fw-semibold" style="font-size: 1.05rem;">Cargando estadísticas...</p>
+  </div>
+
+  <!-- Estado de Error -->
+  <div *ngIf="error && !loading" class="alert alert-danger border-0 shadow-sm d-flex align-items-center gap-3 p-3 mb-2"
+    role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-4 text-danger"></i>
+    <div>
+      <p class="mb-0 fw-bold" style="font-size: 1.05rem;">{{ error }}</p>
+    </div>
+  </div>
+
+  <!-- Contenido del Dashboard -->
+  <div *ngIf="dashboardData" class="d-flex flex-column flex-grow-1 min-vh-0">
+    <!-- Tarjetas de Resumen (Compactas) -->
+    <div class="row g-3 mb-3">
+      <!-- Card Ventas Hoy -->
+      <div class="col-12 col-md-4">
+        <div class="card card-summary bg-gradient-sales border-0 shadow-sm text-white" routerLink="/panel/ventas">
+          <div class="card-body p-3 d-flex justify-content-between align-items-center">
+            <div>
+              <span class="text-white-50 small text-uppercase fw-bold tracking-wider" style="font-size: 0.92rem;">Ventas
+                de Hoy</span>
+              <h3 class="fw-bold my-1" style="font-size: 2.1rem;">{{ dashboardData.total_ventas_hoy | currency }}</h3>
+              <span class="text-white-50" style="font-size: 0.92rem;"><i class="bi bi-graph-up-arrow me-1"></i>Ingresos
+                diarios</span>
+            </div>
+            <div class="icon-wrapper bg-white shadow-sm" style="width: 54px; height: 54px; border-radius: 10px;">
+              <i class="bi bi-currency-dollar fs-3" style="color: #0f9b0f !important;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Cantidad Ventas Hoy -->
+      <div class="col-12 col-md-4">
+        <div class="card card-summary bg-gradient-transactions border-0 shadow-sm text-white"
+          routerLink="/panel/ventas">
+          <div class="card-body p-3 d-flex justify-content-between align-items-center">
+            <div>
+              <span class="text-white-50 small text-uppercase fw-bold tracking-wider"
+                style="font-size: 0.92rem;">Transacciones de Hoy</span>
+              <h3 class="fw-bold my-1" style="font-size: 2.1rem;">{{ dashboardData.cantidad_ventas_hoy }}</h3>
+              <span class="text-white-50" style="font-size: 0.92rem;"><i class="bi bi-receipt me-1"></i>Operaciones
+                registradas</span>
+            </div>
+            <div class="icon-wrapper bg-white shadow-sm" style="width: 54px; height: 54px; border-radius: 10px;">
+              <i class="bi bi-cart-check fs-3" style="color: #8e44ad !important;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Compras Hoy -->
+      <div class="col-12 col-md-4">
+        <div class="card card-summary bg-gradient-purchases border-0 shadow-sm text-white" routerLink="/panel/compras">
+          <div class="card-body p-3 d-flex justify-content-between align-items-center">
+            <div>
+              <span class="text-white-50 small text-uppercase fw-bold tracking-wider"
+                style="font-size: 0.92rem;">Compras de Hoy</span>
+              <h3 class="fw-bold my-1" style="font-size: 2.1rem;">{{ dashboardData.total_compras_hoy | currency }}</h3>
+              <span class="text-white-50" style="font-size: 0.92rem;"><i class="bi bi-truck me-1"></i>Insumos y
+                Mercancía</span>
+            </div>
+            <div class="icon-wrapper bg-white shadow-sm" style="width: 54px; height: 54px; border-radius: 10px;">
+              <i class="bi bi-bag-plus fs-3" style="color: #e67e22 !important;"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido Detallado (3 Columnas, 100% de la altura disponible) -->
+    <div class="row g-3 flex-grow-1 min-vh-0">
+      <!-- Columna 1: Ventas por Horario (Barras) e Indicadores (KPIs) -->
+      <div class="col-12 col-lg-4 d-flex flex-column">
+        <div class="card border-0 shadow-sm flex-grow-1 d-flex flex-column min-vh-0">
+          <div class="card-header bg-white border-0 py-2">
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 1.05rem;"><i
+                class="bi bi-bar-chart-line text-primary me-2"></i>Ventas por Horario (Hoy)</h6>
+          </div>
+          <div class="card-body pt-0 flex-grow-1 d-flex flex-column justify-content-center min-vh-0">
+            <!-- Contenedor del Gráfico de Barras -->
+            <div class="ventas-chart">
+
+              <!-- EJE Y -->
+              <div class="y-axis">
+                <span *ngFor="let valor of metricasY">
+                  {{ valor | currency:'USD':'symbol':'1.0-0' }}
+                </span>
+              </div>
+
+              <!-- GRAFICA -->
+              <div class="chart-area">
+
+                <!-- GRID -->
+                <div class="grid-lines">
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                  <div class="grid-line"></div>
+                </div>
+
+                <!-- BARRAS -->
+                <div class="bars-container">
+
+                  <div
+                    class="bar-wrapper"
+                    *ngFor="let item of dashboardData.ventas_por_hora">
+
+                    <div
+                      class="bar"
+                      [style.height.%]="item.percentage">
+
+                      <span
+                        class="bar-value"
+                        *ngIf="item.total > 0">
+
+                        {{ item.total | currency:'USD':'symbol':'1.0-0' }}
+
+                      </span>
+
+                    </div>
+
+                    <span class="bar-label">
+                      {{ item.label.split(' - ')[0] }}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+            <div *ngIf="dashboardData.total_ventas_hoy === 0" class="text-center py-2 text-muted"
+              style="font-size: 1.05rem;">
+              Sin ventas hoy.
+            </div>
+
+            <!-- Divisor -->
+            <hr class="w-100 my-2 text-muted" style="opacity: 0.15;">
+
+            <!-- KPIs (Indicadores Clave del Día) colocados aquí -->
+            <div class="w-100 px-2 mt-3">
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="p-2 bg-light rounded text-center border border-light">
+                    <span class="text-muted d-block" style="font-size: 0.82rem; font-weight: 500;">Ticket
+                      Promedio</span>
+                    <span class="fw-bold text-dark" style="font-size: 1.15rem;"><i style="margin-right: 5px; color: #9cb6dd;" class="fa-solid fa-receipt"></i>{{ ticketPromedio | currency }}</span>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="p-2 bg-light rounded text-center border border-light">
+                    <span class="text-muted d-block" style="font-size: 0.82rem; font-weight: 500;">Balance Neto</span>
+                    <span class="fw-bold" [class.text-success]="balanceNeto >= 0" [class.text-danger]="balanceNeto < 0"
+                      style="font-size: 1.15rem;">
+                      <i *ngIf="balanceNeto >= 0" class="fa-solid fa-arrow-trend-up"></i>
+                      <i *ngIf="balanceNeto < 0" class="fa-solid fa-arrow-trend-down"></i>
+                      {{ (balanceNeto >= 0 ? '+' : '') + (balanceNeto | currency) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 2: Métodos de Pago (Circular al DOBLE de tamaño) -->
+      <div class="col-12 col-lg-4 d-flex flex-column">
+        <div class="card border-0 shadow-sm flex-grow-1 d-flex flex-column min-vh-0">
+          <div class="card-header bg-white border-0 py-2">
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 1.05rem;">
+              <i class="fa-solid fa-chart-pie text-info me-2"></i>Medios de Pago (Hoy)</h6>
+          </div>
+          <div class="card-body pt-0 flex-grow-1 d-flex flex-column justify-content-center align-items-center min-vh-0">
+            <!-- SVG Donut Chart (Aumentado al doble del original: 250px) -->
+            <div class="position-relative d-flex align-items-center justify-content-center"
+              style="width: 250px; height: 250px;">
+              <svg width="250" height="250" viewBox="0 0 42 42" class="donut-chart"
+                style="transform: rotate(-90deg); filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.06));">
+                <circle class="donut-hole" cx="21" cy="21" r="15.91549430918954" fill="#fff"></circle>
+                <circle class="donut-ring" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#f1f3f5"
+                  stroke-width="4.5"></circle>
+
+                <!-- Segmento Efectivo (Verde) -->
+                <circle *ngIf="efectivoPct > 0" class="donut-segment" cx="21" cy="21" r="15.91549430918954"
+                  fill="transparent" stroke="#2ecc71" stroke-width="4.5" [attr.stroke-dasharray]="dashArrayEfectivo"
+                  [attr.stroke-dashoffset]="dashOffsetEfectivo"></circle>
+
+                <!-- Segmento Tarjeta (Azul) -->
+                <circle *ngIf="tarjetaPct > 0" class="donut-segment" cx="21" cy="21" r="15.91549430918954"
+                  fill="transparent" stroke="#0d6efd" stroke-width="4.5" [attr.stroke-dasharray]="dashArrayTarjeta"
+                  [attr.stroke-dashoffset]="dashOffsetTarjeta"></circle>
+
+                <!-- Segmento Transferencia (Celeste) -->
+                <circle *ngIf="transferenciaPct > 0" class="donut-segment" cx="21" cy="21" r="15.91549430918954"
+                  fill="transparent" stroke="#0dcaf0" stroke-width="4.5"
+                  [attr.stroke-dasharray]="dashArrayTransferencia" [attr.stroke-dashoffset]="dashOffsetTransferencia">
+                </circle>
+              </svg>
+
+              <!-- Texto central dentro del donut (Aumentado de tamaño) -->
+              <div class="position-absolute text-center d-flex flex-column align-items-center justify-content-center">
+                <span class="text-muted small text-uppercase fw-semibold"
+                  style="font-size: 0.95rem; letter-spacing: 0.4px;">Total</span>
+                <span class="fw-bold text-dark" style="font-size: 1.8rem;">{{ dashboardData.total_ventas_hoy |
+                  currency:'USD':'symbol':'1.0-0' }}</span>
+              </div>
+            </div>
+
+            <!-- Leyendas detalladas compactas -->
+            <div class="w-100 px-2 mt-3">
+              <div class="d-flex justify-content-between align-items-center py-1 border-bottom"
+                style="font-size: 1.05rem;">
+                <span class="text-muted fw-semibold"><i class="fa-solid fa-money-bill-1 me-2 text-secondary">
+                </i><i class="bi bi-circle-fill me-2 text-success"
+                    style="font-size: 0.85rem;"></i>Efectivo ({{ efectivoPct | number:'1.0-0' }}%)</span>
+                <span class="fw-bold text-dark">{{ dashboardData.ventas_por_metodo.efectivo | currency }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-1 border-bottom"
+                style="font-size: 1.05rem;">
+                <span class="text-muted fw-semibold"><i class="fa-solid fa-credit-card me-2 text-secondary">
+                </i><i class="bi bi-circle-fill me-2 text-primary"
+                    style="font-size: 0.85rem;"></i>Tarjeta ({{ tarjetaPct | number:'1.0-0' }}%)</span>
+                <span class="fw-bold text-dark">{{ dashboardData.ventas_por_metodo.tarjeta | currency }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-1" style="font-size: 1.05rem;">
+                <span class="text-muted fw-semibold"><i class="fa-solid fa-arrow-right-arrow-left me-2 text-secondary">
+                </i><i class="bi bi-circle-fill me-2 text-info"
+                    style="font-size: 0.85rem;"></i>Transf. ({{ transferenciaPct | number:'1.0-0' }}%)</span>
+                <span class="fw-bold text-dark">{{ dashboardData.ventas_por_metodo.transferencia | currency }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna 3: Listas Compactas Stackeadas (Top Productos e Inventario Bajo) -->
+      <div class="col-12 col-lg-4 d-flex flex-column gap-3">
+        <!-- Top 3 Productos -->
+        <div class="card border-0 shadow-sm flex-grow-1 d-flex flex-column min-vh-0">
+          <div class="card-header bg-white border-0 py-2">
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 1.05rem;"><i
+                class="bi bi-trophy text-warning me-2"></i>Top Productos (Mes)</h6>
+          </div>
+          <div class="card-body pt-0 flex-grow-1 d-flex flex-column justify-content-center min-vh-0"
+            style="overflow-y: auto;">
+            <ul class="list-group list-group-flush" style="font-size: 1.05rem;">
+              <li
+                class="list-group-item px-0 py-3 d-flex justify-content-between align-items-center border-0 border-bottom"
+                *ngFor="let prod of dashboardData.productos_mas_vendidos.slice(0, 3); let i = index">
+                <div class="d-flex align-items-center gap-2">
+                  <div
+                    class="rank-badge bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                    style="width: 26px; height: 26px; min-width: 26px; font-size: 0.95rem;">
+                    {{ i + 1 }}
+                  </div>
+                  <div>
+                    <h6 class="mb-0 fw-semibold" style="font-size: 1.05rem;">{{ prod.nombre }}</h6>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-primary rounded px-2 py-1 fw-bold" style="font-size: 0.9rem;">{{
+                    prod.total_vendido }} u.</span>
+                </div>
+              </li>
+              <li *ngIf="dashboardData.productos_mas_vendidos.length === 0"
+                class="list-group-item text-center py-2 text-muted border-0" style="font-size: 1.05rem;">
+                Sin ventas.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Inventario Bajo (Top 3) -->
+        <div class="card border-0 shadow-sm flex-grow-1 d-flex flex-column min-vh-0">
+          <div class="card-header bg-white border-0 py-2">
+            <h6 class="fw-bold text-dark mb-0" style="font-size: 1.05rem;"><i
+                class="bi bi-exclamation-triangle text-warning me-2"></i>Inventario Bajo</h6>
+          </div>
+          <div class="card-body pt-0 flex-grow-1 d-flex flex-column justify-content-center min-vh-0"
+            style="overflow-y: auto;">
+            <ul class="list-group list-group-flush" style="font-size: 1.05rem;">
+              <li
+                class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-0 border-bottom"
+                *ngFor="let prod of dashboardData.productos_bajo_stock.slice(0, 3)">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="fw-semibold text-dark" style="font-size: 1.05rem;">{{ prod.nombre }}</span>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-danger-subtle text-danger fw-bold rounded px-2 py-2" style="font-size: 0.9rem;">
+                    {{ prod.cantidad }} u.
+                  </span>
+                </div>
+              </li>
+              <li *ngIf="dashboardData.productos_bajo_stock.length === 0"
+                class="list-group-item text-center py-2 text-success fw-bold border-0" style="font-size: 1.05rem;">
+                <i class="bi bi-check-circle-fill me-1"></i>Stock óptimo.
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

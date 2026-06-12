@@ -32,6 +32,7 @@ export class VentasComponent implements OnInit{
   typeaheadInput$ = new Subject<string>();
   pago:any = 0;
   cambio:number = 0;
+  metodoPago: string = 'efectivo';
   idSucursal:any = 0;
   productosRapidos: any[] = [];
   manejaIva: boolean = false;
@@ -227,12 +228,24 @@ export class VentasComponent implements OnInit{
   }
 
   pagar(){
+    this.metodoPago = 'efectivo';
     this.pago=null;
     setTimeout(() => {
       var pagoInput = document.getElementById("pagoInput");
       pagoInput?.focus();
       
     }, 500);
+  }
+
+  alCambiarMetodoPago(): void {
+    if (this.metodoPago !== 'efectivo') {
+      this.pago = this.total;
+    } else {
+      this.pago = null;
+      setTimeout(() => {
+        document.getElementById("pagoInput")?.focus();
+      }, 100);
+    }
   }
 
 
@@ -249,6 +262,7 @@ export class VentasComponent implements OnInit{
       subTotal: this.subTotal,
       idSucursal: this.idSucursal,
       idCaja: decryptedIdCaja,
+      metodo_pago: this.metodoPago,
       productos: this.carrito.map(item => ({
         idProducto: item.id,
         cantidad: item.cantidad,
@@ -288,6 +302,7 @@ export class VentasComponent implements OnInit{
     this.cambio = 0;
     this.iva = 0;
     this.pago = 0;
+    this.metodoPago = 'efectivo';
   }
 
   resetearFormulario(): void {

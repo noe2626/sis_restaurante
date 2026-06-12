@@ -1,0 +1,269 @@
+.bg-gradient {
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+}
+
+.tracking-wider {
+  letter-spacing: 0.08em;
+}
+
+.modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.card {
+  border-radius: 10px;
+}
+
+.fs-5 {
+  font-size: 1.25rem !important;
+}
+
+.fs-3 {
+  font-size: 1.75rem !important;
+}
+
+.fs-4 {
+  font-size: 1.5rem !important;
+}
+
+/* Custom scrollbar */
+.card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Highlights */
+.bg-success.bg-opacity-10 {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+.border-success.border-opacity-20 {
+  border-color: rgba(25, 135, 84, 0.2) !important;
+}
+
+.bg-danger.bg-opacity-10 {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+.border-danger.border-opacity-20 {
+  border-color: rgba(220, 53, 69, 0.2) !important;
+}
+
+.bg-warning.bg-opacity-10 {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}
+.border-warning.border-opacity-20 {
+  border-color: rgba(255, 193, 7, 0.2) !important;
+}
+
+.bg-primary.bg-opacity-10 {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+.border-primary.border-opacity-20 {
+  border-color: rgba(13, 110, 253, 0.2) !important;
+}
+
+.text-warning-emphasis {
+  color: #664d03 !important;
+}
+
+/* Animations */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out;
+}
+
+/* ==========================================================================
+   ESTILOS PREMIUM DE BILLETES Y MONEDAS TÁCTILES
+   ========================================================================== */
+
+/* Billetes */
+.bill-card {
+  height: 65px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  user-select: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bill-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.bill-card:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Colores de los Billetes */
+.bill-1000 {
+  background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%); /* Índigo / Morado */
+}
+.bill-500 {
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 100%); /* Azul oscuro */
+}
+.bill-200 {
+  background: linear-gradient(135deg, #1b5e20 0%, #388e3c 100%); /* Verde */
+}
+.bill-100 {
+  background: linear-gradient(135deg, #b71c1c 0%, #d32f2f 100%); /* Rojo / Naranja */
+}
+.bill-50 {
+  background: linear-gradient(135deg, #880e4f 0%, #c2185b 100%); /* Rosa / Magenta */
+}
+.bill-20 {
+  background: linear-gradient(135deg, #006064 0%, #0097a7 100%); /* Azul claro / Turquesa */
+}
+
+.bill-value {
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Monedas */
+.coin-card {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  user-select: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12), inset 0 2px 3px rgba(255, 255, 255, 0.3);
+  transition: all 0.15s ease-in-out;
+}
+
+.coin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18);
+}
+
+.coin-card:active {
+  transform: translateY(1px) scale(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Colores de las Monedas */
+.coin-10 {
+  /* $10 - Centro dorado y anillo plateado */
+  background: radial-gradient(circle, #fbc02d 45%, #b0bec5 47%, #cfd8dc 100%);
+  border: 2px solid #b0bec5;
+  color: #37474f;
+}
+
+.coin-5, .coin-2, .coin-1, .coin-05 {
+  /* Acabado plateado metálico */
+  background: radial-gradient(circle, #cfd8dc 0%, #b0bec5 70%, #90a4ae 100%);
+  border: 2px solid #cfd8dc;
+  color: #37474f;
+}
+
+/* Escalas proporcionales de tamaño de monedas */
+.coin-10 { width: 60px; height: 60px; }
+.coin-5 { width: 56px; height: 56px; }
+.coin-2 { width: 52px; height: 52px; }
+.coin-1 { width: 48px; height: 48px; }
+.coin-05 { width: 44px; height: 44px; }
+
+.coin-value {
+  font-size: 0.85rem;
+  text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Badges de Conteo */
+.bill-badge {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  background-color: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(2px);
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.coin-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  background-color: #0d6efd;
+  color: white;
+  font-size: 0.75rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Botones de Decremento Flotantes (-) */
+.btn-decrement {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.1s;
+}
+
+.btn-decrement:hover {
+  background-color: #bb2d3b;
+}
+
+.btn-decrement-coin {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.1s;
+  z-index: 5;
+}
+
+.btn-decrement-coin:hover {
+  background-color: #bb2d3b;
+}

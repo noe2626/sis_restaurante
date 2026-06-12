@@ -1,8 +1,243 @@
 <nav class="navbar navbar-dark bg-primary justify-content-between navbar-expand-lg">
     <a class="navbar-brand" style="margin-left: 20px;">Punto de venta</a>
     <form class="form-inline">
-        <button class="btn btn-primary my-2 my-sm-0 btn-outline-success" style="margin-right: 20px; width: 150px; color: white; border-color: white;" type="submit" (click)="depositarAlert()">Depositar</button>
-        <button class="btn btn-primary my-2 my-sm-0 btn-outline-success" style="margin-right: 20px; width: 150px; color: white; border-color: white;" type="submit" (click)="retirarAlert()">Retirar</button>
-        <button class="btn btn-primary my-2 my-sm-0 btn-outline-secondary" style="margin-right: 20px; width: 150px; color: white; border-color: white;" type="submit" (click)="alertCerrarSesion()">Cerrar Sesión</button>
+        <button class="btn btn-primary my-2 my-sm-0 btn-outline-success"
+            style="margin-right: 20px; width: 150px; color: white; border-color: white;" type="button"
+            (click)="depositarAlert()">Depositar</button>
+        <button class="btn btn-primary my-2 my-sm-0 btn-outline-success"
+            style="margin-right: 20px; width: 150px; color: white; border-color: white;" type="button"
+            (click)="retirarAlert()">Retirar</button>
+        <button class="btn btn-primary my-2 my-sm-0 btn-outline-secondary"
+            style="margin-right: 20px; width: 150px; color: white; border-color: white;" type="button"
+            (click)="alertCerrarSesion()">Cerrar Sesión</button>
     </form>
 </nav>
+
+<!-- Modal de Arqueo y Cierre de Caja -->
+<div class="modal fade" id="arqueoModal" tabindex="-1" role="dialog" aria-labelledby="arqueoModalLabel"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-gradient bg-primary text-white py-3">
+                <h5 class="modal-title d-flex align-items-center fw-bold" id="arqueoModalLabel">
+                    <i class="bi bi-cash-coin me-2" style="font-size: 1.4rem;"></i>
+                    Arqueo y Cierre de Caja Detallado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                    id="closeArqueoModalBtn"></button>
+            </div>
+
+            <div class="modal-body p-4 bg-light" *ngIf="resumenCierre">
+                <!-- Resumen de Sesión -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+                            <i class="bi bi-card-list me-1 text-primary"></i> Resumen Financiero del Sistema
+                        </h6>
+                    </div>
+                    <div class="card-body pt-0">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-2">
+                                <div class="p-2 bg-white rounded border border-light text-center">
+                                    <span class="text-muted d-block small mb-1 text-truncate"
+                                        title="Apertura">Apertura</span>
+                                    <span class="fw-bold text-dark" style="font-size: 0.95rem;">{{
+                                        resumenCierre.cantidad_apertura | currency }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <div class="p-2 bg-white rounded border border-light text-center">
+                                    <span class="text-muted d-block small mb-1 text-truncate"
+                                        title="Ventas (Efectivo)">Ventas (Efe)</span>
+                                    <span class="fw-bold text-success" style="font-size: 0.95rem;">+{{
+                                        resumenCierre.ventas_efectivo | currency }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <div class="p-2 bg-white rounded border border-light text-center">
+                                    <span class="text-muted d-block small mb-1 text-truncate"
+                                        title="Ventas (Tarjeta)">Ventas (Tar)</span>
+                                    <span class="fw-bold text-primary" style="font-size: 0.95rem;">+{{
+                                        resumenCierre.ventas_tarjeta | currency }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <div class="p-2 bg-white rounded border border-light text-center">
+                                    <span class="text-muted d-block small mb-1 text-truncate"
+                                        title="Ventas (Transferencia)">Ventas (Tra)</span>
+                                    <span class="fw-bold text-primary" style="font-size: 0.95rem;">+{{
+                                        resumenCierre.ventas_transferencia | currency }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <div class="p-2 bg-white rounded border border-light text-center">
+                                    <span class="text-muted d-block small mb-1 text-truncate"
+                                        title="Depósitos">Depósitos</span>
+                                    <span class="fw-bold text-info" style="font-size: 0.95rem;">+{{
+                                        resumenCierre.total_depositos | currency }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <div class="p-2 bg-white rounded border border-light text-center">
+                                    <span class="text-muted d-block small mb-1 text-truncate"
+                                        title="Retiros">Retiros</span>
+                                    <span class="fw-bold text-danger" style="font-size: 0.95rem;">-{{
+                                        resumenCierre.total_retiros | currency }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <div
+                                    class="mt-3 p-3 bg-primary bg-opacity-10 border border-primary border-opacity-20 rounded d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold text-primary">Saldo Esperado en Caja (Efectivo):</span>
+                                    <span class="fw-bold text-primary fs-4">{{ resumenCierre.efectivo_sistema | currency
+                                        }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mt-3 p-3 rounded bg-opacity-10 border-opacity-20 text-center mb-3" style="color: white;" [ngClass]="{
+                                            'bg-success border border-success text-success': diferencia === 0,
+                                            'bg-danger border border-danger text-danger': diferencia < 0,
+                                            'bg-warning border border-warning text-warning': diferencia > 0
+                                         }">
+                                    
+                                    <span class="fw-bold fs-3" *ngIf="diferencia === 0">Cuadre Perfecto</span>
+                                    <span class="fw-bold fs-3" *ngIf="diferencia < 0">{{ diferencia | currency }}
+                                        (Faltante)</span>
+                                    <span class="fw-bold fs-3" *ngIf="diferencia > 0">+{{ diferencia | currency }}
+                                        (Sobrante)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Calculadora de Billetes y Monedas -->
+                    <div class="col-md-7">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div
+                                class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+                                    <i class="bi bi-calculator me-1 text-primary"></i> Conteo Físico
+                                </h6>
+                                <button type="button" class="btn btn-outline-danger btn-sm py-1 px-2 fw-bold"
+                                    style="font-size: 0.75rem;" (click)="limpiarCalculadora()">
+                                    <i class="bi bi-trash3 me-1"></i>Limpiar
+                                </button>
+                            </div>
+                            <div class="card-body pt-0" style="max-height: 420px; overflow-y: auto;">
+                                <!-- Billetes -->
+                                <div class="mb-3">
+                                    <small class="text-muted fw-bold d-block mb-2">BILLETES</small>
+                                    <div class="row g-2">
+                                        <div class="col-6 col-sm-4" *ngFor="let den of listaBilletesObj">
+                                            <div class="bill-card position-relative {{den.class}}"
+                                                (click)="incrementarDenominacion(den.key)">
+                                                <!-- Botón decrementar flotante -->
+                                                <button type="button" class="btn-decrement"
+                                                    *ngIf="denominaciones[den.key] > 0"
+                                                    (click)="decrementarDenominacion(den.key, $event)">
+                                                    <i class="bi bi-dash"></i>
+                                                </button>
+
+                                                <div class="bill-value">{{den.label}}</div>
+
+                                                <!-- Contador -->
+                                                <span class="badge bill-badge" *ngIf="denominaciones[den.key] > 0">
+                                                    x{{denominaciones[den.key]}}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Monedas -->
+                                <div>
+                                    <small class="text-muted fw-bold d-block mb-2">MONEDAS</small>
+                                    <div class="d-flex flex-wrap gap-3 justify-content-start align-items-center">
+                                        <div class="coin-card position-relative {{den.class}}"
+                                            *ngFor="let den of listaMonedasObj"
+                                            (click)="incrementarDenominacion(den.key)">
+                                            <!-- Botón decrementar flotante -->
+                                            <button type="button" class="btn-decrement-coin"
+                                                *ngIf="denominaciones[den.key] > 0"
+                                                (click)="decrementarDenominacion(den.key, $event)">
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+
+                                            <div class="coin-value">{{den.label}}</div>
+
+                                            <!-- Contador -->
+                                            <span class="badge coin-badge" *ngIf="denominaciones[den.key] > 0">
+                                                {{denominaciones[den.key]}}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cuadre y Observaciones -->
+                    <div class="col-md-5">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+                                    <i class="bi bi-cash me-1 text-primary"></i> Arqueo Final
+                                </h6>
+                            </div>
+                            <div class="card-body pt-0 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="p-3 bg-light rounded text-center mb-3">
+                                        <span class="text-muted small d-block mb-1">Efectivo Físico Declarado</span>
+                                        <span class="fw-bold text-dark fs-3">{{ totalFisico | currency }}</span>
+                                    </div>
+
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <label class="form-label text-muted small fw-bold mb-1">Monto a
+                                                Retirar</label>
+                                            <input type="number" min="0" class="form-control text-center fw-bold"
+                                                [(ngModel)]="retiroCierre" (ngModelChange)="actualizarFondoRestante()"
+                                                placeholder="$0.00">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label text-muted small fw-bold mb-1">Queda en
+                                                Caja</label>
+                                            <input type="text"
+                                                class="form-control text-center fw-bold bg-white text-primary"
+                                                [value]="fondoRestante | currency" readonly>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted small fw-bold">Observaciones / Notas del
+                                        Turno</label>
+                                    <textarea class="form-control" rows="3" [(ngModel)]="notasCierre"
+                                        placeholder="Escribe aquí aclaraciones de faltantes/sobrantes..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light border-0 py-3 px-4">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary px-4 fw-bold" [disabled]="totalFisico < 0"
+                    (click)="confirmarCierre()">
+                    <i class="bi bi-check2-circle me-1"></i> Cerrar Caja Definitivamente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

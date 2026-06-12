@@ -31,6 +31,7 @@ export class NuevaVentaComponent implements OnInit {
   idCliente: any = null;
   precioProd: number = 0;
   manejaIva: boolean = false;
+  metodoPago: string = 'efectivo';
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
   constructor(
@@ -212,6 +213,7 @@ export class NuevaVentaComponent implements OnInit {
       iva: this.iva,
       idSucursal: parseInt(this.idSucursal) || 1,
       idCaja: idCaja ? parseInt(idCaja) : null,
+      metodo_pago: this.metodoPago,
       descuentos: 0,
       extras: 0,
       productos: this.dataSource.data.map(item => ({
