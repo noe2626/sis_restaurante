@@ -70,7 +70,6 @@
 .custom-ng-select {
   border: 1px solid #dee2e6;
   border-radius: 6px;
-  overflow: hidden;
 }
 
 mat-table, table {
