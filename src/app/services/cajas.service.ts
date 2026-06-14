@@ -22,6 +22,15 @@ export class CajasService {
     return this.http.get(`${this.apiUrl}cajas/${idSucursal}`, header);
   }
 
+  getActiveSession(idSucursal: number) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.get(`${this.apiUrl}cajas/active-session/${idSucursal}`, header);
+  }
+
   verificarCajas(idCaja:number) {
     let token = localStorage.getItem('userToken');
     var header = {
@@ -80,6 +89,42 @@ export class CajasService {
         .set('Authorization', `Bearer ${token}`)
     }
     return this.http.post(`${this.apiUrl}cajas/cerrar`, { idCaja, cantidad_cierre: cantidadCierre, desglose, notas, retiro_cierre: retiroCierre }, header);
+  }
+
+  getAllCajas() {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.get(`${this.apiUrl}admin/cajas`, header);
+  }
+
+  createCaja(payload: any) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.post(`${this.apiUrl}admin/cajas`, payload, header);
+  }
+
+  updateCaja(id: number, payload: any) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.put(`${this.apiUrl}admin/cajas/${id}`, payload, header);
+  }
+
+  deleteCaja(id: number) {
+    let token = localStorage.getItem('userToken');
+    var header = {
+      headers: new HttpHeaders()
+        .set('Authorization', `Bearer ${token}`)
+    }
+    return this.http.delete(`${this.apiUrl}admin/cajas/${id}`, header);
   }
 
 }

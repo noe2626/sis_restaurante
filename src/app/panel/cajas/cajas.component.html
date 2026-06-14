@@ -1,0 +1,191 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-cash-coin text-success me-3" style="font-size: 2rem;"></i>
+        Administración de Cajas
+      </h3>
+      <p class="text-muted mb-0">Registra y modifica las cajas de venta para cada sucursal y supervisa sus saldos en efectivo.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" [(ngModel)]="searchText" class="form-control border-0 py-2 fs-7 ps-0" placeholder="Buscar caja o sucursal...">
+      </div>
+      <button class="btn btn-success d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" (click)="abrirModalNuevo()">
+        <i class="bi bi-plus-circle-fill fs-5"></i>
+        Nueva Caja
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="d-flex justify-content-center my-5" *ngIf="loading">
+    <div class="spinner-border text-success" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden" *ngIf="!loading">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-success"></i> Cajas Registradas
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase fs-7 text-secondary">
+            <tr>
+              <th class="ps-4" style="width: 10%;">ID</th>
+              <th style="width: 25%;">Nombre de la Caja</th>
+              <th style="width: 25%;">Sucursal</th>
+              <th style="width: 20%;">Efectivo Actual</th>
+              <th style="width: 10%;">Estado</th>
+              <th class="pe-4 text-end" style="width: 10%;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let caja of cajasFiltradas">
+              <td class="ps-4 fw-semibold text-secondary">
+                #{{ caja.id }}
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle-caja bg-success text-white fw-bold me-3">
+                    <i class="bi bi-inbox-fill"></i>
+                  </div>
+                  <span class="fw-bold text-dark">{{ caja.caja }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center text-secondary fw-semibold">
+                  <i class="bi bi-shop me-2 text-primary"></i>
+                  <span>{{ caja.sucursal?.nombre || 'Sin sucursal' }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="fw-bold text-success fs-7">
+                  {{ (caja.efectivo || 0.0) | currency }}
+                </span>
+              </td>
+              <td>
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                  [ngClass]="caja.idStatus == 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                  <i class="bi me-1" [ngClass]="caja.idStatus == 1 ? 'bi-check-circle-fill' : 'bi-dash-circle-fill'"></i>
+                  {{ caja.idStatus == 1 ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td class="pe-4 text-end">
+                <div class="d-inline-flex gap-2">
+                  <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="abrirModalEditar(caja)" title="Editar caja" style="width: 32px; height: 32px;">
+                    <i class="bi bi-pencil-fill fs-8"></i>
+                  </button>
+                  <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" 
+                          [ngClass]="caja.idStatus == 1 ? 'btn-outline-danger' : 'btn-outline-success'"
+                          (click)="toggleEstatusCaja(caja)" 
+                          [title]="caja.idStatus == 1 ? 'Dar de baja caja' : 'Activar caja'" 
+                          style="width: 32px; height: 32px;">
+                    <i class="bi fs-8" [ngClass]="caja.idStatus == 1 ? 'bi-x-circle-fill' : 'bi-check-circle-fill'"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="cajasFiltradas.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-cash-coin fs-1 d-block mb-2 text-secondary"></i>
+                No se encontraron cajas registradas.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Caja -->
+<div class="modal fade" id="cajaAdminModal" tabindex="-1" aria-labelledby="cajaAdminModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-success text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="cajaAdminModalLabel">
+          <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square me-2' : 'bi-plus-circle-fill me-2'"></i>
+          {{ isEditMode ? 'Editar Caja' : 'Nueva Caja' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="cajaForm" (ngSubmit)="guardarCaja()">
+        <div class="modal-body p-4 bg-light">
+          
+          <!-- Nombre de Caja -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Nombre de la Caja</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-inbox text-muted"></i></span>
+              <input type="text" formControlName="caja" class="form-control border-0 py-2" placeholder="Ej. Caja 1, Caja Principal">
+            </div>
+            <div *ngIf="cajaForm.get('caja')?.touched && cajaForm.get('caja')?.invalid" class="text-danger small mt-1">
+              El nombre de la caja es requerido (máx. 255 caracteres).
+            </div>
+          </div>
+
+          <!-- Sucursal de pertenencia -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Sucursal</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
+              <select formControlName="idSucursal" class="form-select border-0 py-2">
+                <option value="" disabled selected>Selecciona una sucursal</option>
+                <option *ngFor="let suc of sucursales" [value]="suc.id">{{ suc.nombre }}</option>
+              </select>
+            </div>
+            <div *ngIf="cajaForm.get('idSucursal')?.touched && cajaForm.get('idSucursal')?.invalid" class="text-danger small mt-1">
+              Debes seleccionar la sucursal a la que pertenece la caja.
+            </div>
+          </div>
+
+          <!-- Saldo / Efectivo inicial (Solo para nueva caja) -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">
+              {{ isEditMode ? 'Saldo de Efectivo Actual' : 'Saldo de Efectivo Inicial' }}
+            </label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-currency-dollar text-muted"></i></span>
+              <input type="number" formControlName="efectivo" class="form-control border-0 py-2 text-success fw-bold" placeholder="0.00" min="0" step="0.01">
+            </div>
+            <small class="text-muted d-block mt-1" *ngIf="!isEditMode">Monto en efectivo con el que se registrará inicialmente la caja.</small>
+            <small class="text-muted d-block mt-1" *ngIf="isEditMode">El saldo actual de efectivo no puede ser alterado directamente por seguridad.</small>
+            <div *ngIf="cajaForm.get('efectivo')?.touched && cajaForm.get('efectivo')?.invalid" class="text-danger small mt-1">
+              El efectivo debe ser mayor o igual a 0.00.
+            </div>
+          </div>
+
+          <!-- Estado (Activo/Inactivo) - Solo al editar -->
+          <div class="mb-3" *ngIf="isEditMode">
+            <label class="form-label fw-semibold text-secondary">Estado</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-toggle-on text-muted"></i></span>
+              <select formControlName="idStatus" class="form-select border-0 py-2">
+                <option [value]="1">Activa</option>
+                <option [value]="0">Inactiva (Dada de baja)</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm fw-semibold text-white">
+            <i class="bi bi-check-circle-fill me-1"></i>
+            {{ isEditMode ? 'Guardar Cambios' : 'Crear Caja' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

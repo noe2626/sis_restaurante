@@ -1,0 +1,209 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-shop text-primary me-3" style="font-size: 2rem;"></i>
+        Administración de Sucursales
+      </h3>
+      <p class="text-muted mb-0">Registra y modifica las sucursales del negocio y configura los parámetros de facturación (IVA).</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" [(ngModel)]="searchText" class="form-control border-0 py-2 fs-7 ps-0" placeholder="Buscar sucursal o dirección...">
+      </div>
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" (click)="abrirModalNuevo()">
+        <i class="bi bi-plus-circle-fill fs-5"></i>
+        Nueva Sucursal
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="d-flex justify-content-center my-5" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden" *ngIf="!loading">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-primary"></i> Sucursales Registradas
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase fs-7 text-secondary">
+            <tr>
+              <th class="ps-4" style="width: 10%;">ID</th>
+              <th style="width: 25%;">Nombre de Sucursal</th>
+              <th style="width: 30%;">Dirección</th>
+              <th style="width: 15%;">Maneja IVA</th>
+              <th style="width: 15%;">Imprime Ticket</th>
+              <th style="width: 10%;">Estado</th>
+              <th class="pe-4 text-end" style="width: 10%;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sucursal of sucursalesFiltradas">
+              <td class="ps-4 fw-semibold text-secondary">
+                #{{ sucursal.id }}
+                <span class="badge bg-primary-subtle text-primary rounded-pill ms-2 fs-9" *ngIf="sucursal.id === 1">Matriz</span>
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle-suc bg-primary text-white fw-bold me-3">
+                    <i class="bi bi-shop"></i>
+                  </div>
+                  <span class="fw-bold text-dark">{{ sucursal.nombre }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="text-secondary fw-semibold">{{ sucursal.direccion }}</span>
+              </td>
+              <td>
+                <span class="badge rounded-pill px-3 py-2 fw-semibold fs-8"
+                  [ngClass]="sucursal.maneja_iva == 1 || sucursal.maneja_iva == true ? 'bg-success text-white' : 'bg-secondary text-white'">
+                  <i class="bi" [ngClass]="sucursal.maneja_iva == 1 || sucursal.maneja_iva == true ? 'bi-check-circle-fill me-1' : 'bi-x-circle-fill me-1'"></i>
+                  {{ sucursal.maneja_iva == 1 || sucursal.maneja_iva == true ? 'Sí' : 'No' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge rounded-pill px-3 py-2 fw-semibold fs-8"
+                  [ngClass]="sucursal.imprime_ticket == 1 || sucursal.imprime_ticket == true ? 'bg-success text-white' : 'bg-secondary text-white'">
+                  <i class="bi" [ngClass]="sucursal.imprime_ticket == 1 || sucursal.imprime_ticket == true ? 'bi-printer-fill me-1' : 'bi-printer me-1'"></i>
+                  {{ sucursal.imprime_ticket == 1 || sucursal.imprime_ticket == true ? 'Sí' : 'No' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                  [ngClass]="sucursal.estatus == 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                  <i class="bi me-1" [ngClass]="sucursal.estatus == 1 ? 'bi-check-circle-fill' : 'bi-dash-circle-fill'"></i>
+                  {{ sucursal.estatus == 1 ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="pe-4 text-end">
+                <div class="d-inline-flex gap-2">
+                  <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="abrirModalEditar(sucursal)" title="Editar sucursal" style="width: 32px; height: 32px;">
+                    <i class="bi bi-pencil-fill fs-8"></i>
+                  </button>
+                  <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" 
+                          [ngClass]="sucursal.estatus == 1 ? 'btn-outline-danger' : 'btn-outline-success'"
+                          [disabled]="sucursal.id === 1"
+                          (click)="toggleEstatusSucursal(sucursal)" 
+                          [title]="sucursal.id === 1 ? 'La sucursal matriz no puede ser desactivada' : (sucursal.estatus == 1 ? 'Dar de baja sucursal' : 'Activar sucursal')" 
+                          style="width: 32px; height: 32px;">
+                    <i class="bi fs-8" [ngClass]="sucursal.estatus == 1 ? 'bi-x-circle-fill' : 'bi-check-circle-fill'"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="sucursalesFiltradas.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-shop fs-1 d-block mb-2 text-secondary"></i>
+                No hay sucursales registradas.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Sucursal -->
+<div class="modal fade" id="sucursalAdminModal" tabindex="-1" aria-labelledby="sucursalAdminModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-primary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="sucursalAdminModalLabel">
+          <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square me-2' : 'bi-plus-circle-fill me-2'"></i>
+          {{ isEditMode ? 'Editar Sucursal' : 'Nueva Sucursal' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="sucursalForm" (ngSubmit)="guardarSucursal()">
+        <div class="modal-body p-4 bg-light">
+          
+          <!-- Nombre de Sucursal -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Nombre de Sucursal</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
+              <input type="text" formControlName="nombre" class="form-control border-0 py-2" placeholder="Ej. Sucursal Centro">
+            </div>
+            <div *ngIf="sucursalForm.get('nombre')?.touched && sucursalForm.get('nombre')?.invalid" class="text-danger small mt-1">
+              El nombre de la sucursal es requerido (máx. 255 caracteres).
+            </div>
+          </div>
+
+          <!-- Dirección -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Dirección</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-geo-alt text-muted"></i></span>
+              <input type="text" formControlName="direccion" class="form-control border-0 py-2" placeholder="Ej. Av. Reforma #123, Col. Centro">
+            </div>
+            <div *ngIf="sucursalForm.get('direccion')?.touched && sucursalForm.get('direccion')?.invalid" class="text-danger small mt-1">
+              La dirección es requerida (máx. 255 caracteres).
+            </div>
+          </div>
+
+          <!-- Maneja IVA -->
+          <div class="mb-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="switchIva" formControlName="maneja_iva">
+                <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" for="switchIva">
+                  <i class="bi bi-receipt text-muted me-2"></i>
+                  Esta sucursal cobra/maneja IVA
+                </label>
+              </div>
+              <small class="text-muted d-block mt-2">Habilítalo para que las ventas realizadas en esta sucursal desglocen y calculen el impuesto del IVA.</small>
+            </div>
+          </div>
+
+          <!-- Imprime Ticket -->
+          <div class="mb-3">
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="switchTicket" formControlName="imprime_ticket">
+                <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" for="switchTicket">
+                  <i class="bi bi-printer text-muted me-2"></i>
+                  Imprimir Ticket en POS
+                </label>
+              </div>
+              <small class="text-muted d-block mt-2">Habilítalo para que las ventas finalizadas en esta sucursal manden a imprimir el ticket físico.</small>
+            </div>
+          </div>
+
+          <!-- Estado (Activo/Inactivo) - Solo al editar y si no es la principal -->
+          <div class="mb-3" *ngIf="isEditMode && selectedSucursalId !== 1">
+            <label class="form-label fw-semibold text-secondary">Estado</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-toggle-on text-muted"></i></span>
+              <select formControlName="estatus" class="form-select border-0 py-2">
+                <option [value]="1">Activo</option>
+                <option [value]="0">Inactivo (Dado de baja)</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+            <i class="bi bi-check-circle-fill me-1"></i>
+            {{ isEditMode ? 'Guardar Cambios' : 'Crear Sucursal' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

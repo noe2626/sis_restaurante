@@ -1,0 +1,259 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-people-fill text-primary me-3" style="font-size: 2rem;"></i>
+        Administración de Usuarios y Roles
+      </h3>
+      <p class="text-muted mb-0">Gestiona las credenciales de acceso, asigna roles de trabajo y limita el acceso por sucursal.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" [(ngModel)]="searchText" class="form-control border-0 py-2 fs-7 ps-0" placeholder="Buscar usuario o rol...">
+      </div>
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" (click)="abrirModalNuevo()">
+        <i class="bi bi-person-plus-fill fs-5"></i>
+        Nuevo Usuario
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="d-flex justify-content-center my-5" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden" *ngIf="!loading">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-primary"></i> Lista de Usuarios Registrados
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase fs-7 text-secondary">
+            <tr>
+              <th class="ps-4" style="width: 5%;">ID</th>
+              <th style="width: 25%;">Nombre Completo</th>
+              <th style="width: 15%;">Usuario (Login)</th>
+              <th style="width: 15%;">Rol / Tipo</th>
+              <th style="width: 10%;">Estado</th>
+              <th style="width: 20%;">Sucursales Asignadas</th>
+              <th class="pe-4 text-end" style="width: 10%;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let usuario of usuariosFiltrados">
+              <td class="ps-4 fw-semibold text-secondary">#{{ usuario.id }}</td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle bg-primary text-white fw-bold me-3">
+                    {{ (usuario.name ? usuario.name.charAt(0) : '') | uppercase }}
+                  </div>
+                  <div>
+                    <span class="fw-bold text-dark d-block">{{ usuario.name }}</span>
+                    <small class="text-muted">Creado el {{ usuario.created_at | date:'dd/MM/yyyy' }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <code class="text-primary fw-semibold px-2 py-1 bg-primary-subtle rounded">{{ usuario.user }}</code>
+              </td>
+              <td>
+                <span class="badge rounded-pill px-3 py-2 fw-semibold fs-8"
+                  [ngClass]="{
+                    'bg-danger text-white': usuario.idTipo === 1,
+                    'bg-warning text-dark': usuario.idTipo === 2,
+                    'bg-info text-dark': usuario.idTipo === 3
+                  }">
+                  <i class="bi"
+                    [ngClass]="{
+                      'bi-shield-lock-fill me-1': usuario.idTipo === 1,
+                      'bi-eye-fill me-1': usuario.idTipo === 2,
+                      'bi-cash-coin me-1': usuario.idTipo === 3
+                    }"></i>
+                  {{ usuario.role?.nombre || 'Sin Rol' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                  [ngClass]="usuario.estatus == 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                  <i class="bi me-1" [ngClass]="usuario.estatus == 1 ? 'bi-check-circle-fill' : 'bi-dash-circle-fill'"></i>
+                  {{ usuario.estatus == 1 ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex flex-wrap gap-1 align-items-center">
+                  <!-- Si es admin principal -->
+                  <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1.5 fs-8 fw-semibold d-inline-flex align-items-center" *ngIf="usuario.user === 'admin'">
+                    <i class="bi bi-globe me-1"></i> Todas (Acceso Completo)
+                  </span>
+                  <!-- Si no es admin principal -->
+                  <ng-container *ngIf="usuario.user !== 'admin'">
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-2 py-1 fs-9 d-inline-flex align-items-center" *ngFor="let suc of usuario.sucursales">
+                      <i class="bi bi-store me-1"></i> {{ suc.nombre }}
+                    </span>
+                    <span class="text-muted small" *ngIf="!usuario.sucursales || usuario.sucursales.length === 0">Ninguna sucursal</span>
+                  </ng-container>
+                </div>
+              </td>
+              <td class="pe-4 text-end">
+                <div class="d-inline-flex gap-2">
+                  <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="abrirModalEditar(usuario)" title="Editar usuario" style="width: 32px; height: 32px;">
+                    <i class="bi bi-pencil-fill fs-8"></i>
+                  </button>
+                  <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" 
+                          [ngClass]="usuario.estatus == 1 ? 'btn-outline-danger' : 'btn-outline-success'"
+                          [disabled]="usuario.user === 'admin'"
+                          (click)="toggleEstatusUsuario(usuario)" 
+                          [title]="usuario.user === 'admin' ? 'El admin principal no se puede desactivar' : (usuario.estatus == 1 ? 'Dar de baja al usuario' : 'Activar usuario')" 
+                          style="width: 32px; height: 32px;">
+                    <i class="bi fs-8" [ngClass]="usuario.estatus == 1 ? 'bi-person-x-fill' : 'bi-person-check-fill'"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="usuariosFiltrados.length === 0">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="bi bi-people fs-1 d-block mb-2 text-secondary"></i>
+                No hay usuarios registrados en el sistema.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Usuario -->
+<div class="modal fade" id="usuarioModal" tabindex="-1" aria-labelledby="usuarioModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-primary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="usuarioModalLabel">
+          <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square me-2' : 'bi-person-plus-fill me-2'"></i>
+          {{ isEditMode ? 'Editar Usuario' : 'Nuevo Usuario' }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="userForm" (ngSubmit)="guardarUsuario()">
+        <div class="modal-body p-4 bg-light">
+          
+          <!-- Nombre Completo -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Nombre Completo</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-person text-muted"></i></span>
+              <input type="text" formControlName="name" class="form-control border-0 py-2" placeholder="Ej. Juan Pérez">
+            </div>
+            <div *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid" class="text-danger small mt-1">
+              El nombre completo es requerido (máx. 255 caracteres).
+            </div>
+          </div>
+
+          <!-- Usuario / Login -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Usuario (Username)</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-person-badge text-muted"></i></span>
+              <input type="text" formControlName="user" class="form-control border-0 py-2" placeholder="Ej. jperez" [readonly]="isEditMode && userForm.get('user')?.value === 'admin'">
+            </div>
+            <div *ngIf="userForm.get('user')?.touched && userForm.get('user')?.invalid" class="text-danger small mt-1">
+              El usuario es requerido y debe ser único.
+            </div>
+          </div>
+
+          <!-- Rol / Tipo -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Rol del Usuario</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-shield-check text-muted"></i></span>
+              <select formControlName="idTipo" class="form-select border-0 py-2" [disabled]="isEditMode && userForm.get('user')?.value === 'admin'">
+                <option [ngValue]="null" disabled selected>Seleccione un Rol</option>
+                <option *ngFor="let rol of roles" [ngValue]="rol.id">{{ rol.nombre }}</option>
+              </select>
+            </div>
+            <div *ngIf="userForm.get('idTipo')?.touched && userForm.get('idTipo')?.invalid" class="text-danger small mt-1">
+              Debe seleccionar un rol para el usuario.
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary d-flex justify-content-between align-items-center">
+              <span>Contraseña</span>
+              <span class="badge bg-secondary-subtle text-secondary small py-1 px-2" *ngIf="isEditMode">Opcional (llenar solo para cambiar)</span>
+            </label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-key text-muted"></i></span>
+              <input type="password" formControlName="password" class="form-control border-0 py-2" placeholder="Mínimo 4 caracteres">
+            </div>
+            <div *ngIf="userForm.get('password')?.touched && userForm.get('password')?.invalid" class="text-danger small mt-1">
+              Contraseña inválida (mínimo 4 caracteres).
+            </div>
+          </div>
+
+          <!-- Estado (Activo/Inactivo) -->
+          <div class="mb-3" *ngIf="isEditMode && userForm.get('user')?.value !== 'admin'">
+            <label class="form-label fw-semibold text-secondary">Estado</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-toggle-on text-muted"></i></span>
+              <select formControlName="estatus" class="form-select border-0 py-2">
+                <option [value]="1">Activo</option>
+                <option [value]="0">Inactivo (Dado de baja)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Asignar Sucursales -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary d-block mb-2">Asignar Sucursales</label>
+            
+            <!-- Si es admin principal -->
+            <div class="alert alert-info border-0 shadow-sm rounded-3 p-3 mb-0 d-flex align-items-center gap-2" *ngIf="isEditMode && userForm.get('user')?.value === 'admin'">
+              <i class="bi bi-info-circle-fill text-info fs-5"></i>
+              <span class="fs-7 text-info-emphasis fw-semibold">El usuario administrador tiene acceso automático a todas las sucursales del sistema.</span>
+            </div>
+
+            <!-- Si no es admin principal -->
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white" *ngIf="!(isEditMode && userForm.get('user')?.value === 'admin')">
+              <div class="row g-2">
+                <div class="col-6" *ngFor="let suc of sucursales">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" 
+                           [id]="'checkSuc_' + suc.id"
+                           [checked]="isSucursalChecked(suc.id)"
+                           (change)="onSucursalChange(suc.id, $event)">
+                    <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" [for]="'checkSuc_' + suc.id">
+                      <i class="bi bi-store text-muted me-1"></i> {{ suc.nombre }}
+                    </label>
+                  </div>
+                </div>
+                <div class="col-12 text-center text-muted py-2 small" *ngIf="sucursales.length === 0">
+                  No hay sucursales registradas.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+            <i class="bi bi-check-circle-fill me-1"></i>
+            {{ isEditMode ? 'Guardar Cambios' : 'Crear Usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

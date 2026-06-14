@@ -1,67 +1,103 @@
-<div class="container mt-3">
-    <div class="row">
-      <h5>Productos</h5>
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-box-seam-fill text-primary me-3" style="font-size: 2rem;"></i>
+        Productos
+      </h3>
+      <p class="text-muted mb-0">Gestiona la lista de productos del negocio y asocia sus recetas o componentes.</p>
     </div>
-  
-    <div class="row mb-2">
-      <div class="col-md-6">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="nuevoProducto()">Agregar</button>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar producto o código..." (input)="onSearch($event)" />
       </div>
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="nuevoProducto()">
+        <i class="bi bi-plus-circle-fill fs-5"></i>
+        Nuevo Producto
+      </button>
     </div>
-    <div class="row mt-3">
-        <div class="col-12">
-            <input class="form-control" type="text" placeholder="Buscar por nombre o código..." (input)="onSearch($event)" />
-        </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-primary"></i> Catálogo de Productos
+      </h6>
     </div>
-  
-    <div class="row mt-3">
-      <div class="col-12">
-        <table class="table table-hover">
-          <thead>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase fs-7 text-secondary">
             <tr>
-              <th style="width: 25%; text-align: left;">Producto</th>
+              <th class="ps-4" style="width: 25%; text-align: left;">Producto</th>
               <th style="width: 20%; text-align: left;">Código</th>
-              <th style="width: 10%;">Inventariar</th>
-              <th style="width: 10%;">Se vende</th>
-              <th style="width: 10%;">Se compra</th>
-              <th style="width: 10%;">Modificar</th>
-              <th style="width: 10%;">Inventario</th>
-              <th style="width: 10%;">Precio</th>
-              <th style="width: 10%;">Componentes</th>
+              <th style="width: 10%; text-align: center;">Inventariar</th>
+              <th style="width: 10%; text-align: center;">Se vende</th>
+              <th style="width: 10%; text-align: center;">Se compra</th>
+              <th style="width: 25%; text-align: center;" class="pe-4">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let producto of productosFiltrados">
-              <td>{{ producto.nombre }}</td>
-              <td>{{ producto.codigo }}</td>
-              <td class="icono">
-                <i style="color: rgb(43, 187, 103);" *ngIf="producto.inventariar" class="fa-solid fa-circle-check"></i>
+              <td class="ps-4">
+                <span class="fw-bold text-dark">{{ producto.nombre }}</span>
               </td>
-              <td class="icono">
-                <i style="color: rgb(43, 187, 103);" *ngIf="producto.se_vende" class="fa-solid fa-circle-check"></i>
+              <td>
+                <code class="text-primary fw-semibold px-2 py-1 bg-primary-subtle rounded">{{ producto.codigo }}</code>
               </td>
-              <td class="icono">
-                <i style="color: rgb(43, 187, 103);" *ngIf="producto.se_compra" class="fa-solid fa-circle-check"></i>
+              <td class="text-center">
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                  [ngClass]="producto.inventariar ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                  <i class="bi me-1" [ngClass]="producto.inventariar ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
+                  {{ producto.inventariar ? 'Sí' : 'No' }}
+                </span>
               </td>
-              <td class="icono">
-                <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="setEditar(producto)">
-                  <i style="color: gray;" class="fa-solid fa-pen-to-square"></i>
-                </a>
+              <td class="text-center">
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                  [ngClass]="producto.se_vende ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                  <i class="bi me-1" [ngClass]="producto.se_vende ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
+                  {{ producto.se_vende ? 'Sí' : 'No' }}
+                </span>
               </td>
-              <td class="icono">
-                <a *ngIf="producto.inventariar" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#inventarioModal" (click)="cargarInventariosData(producto.id, producto.nombre)">
-                  <i style="color: gray;" class="fa-solid fa-boxes-stacked"></i>
-                </a>
+              <td class="text-center">
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                  [ngClass]="producto.se_compra ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                  <i class="bi me-1" [ngClass]="producto.se_compra ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
+                  {{ producto.se_compra ? 'Sí' : 'No' }}
+                </span>
               </td>
-              <td class="icono">
-                <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#precioModal" (click)="cargarPreciosData(producto.id, producto.nombre)">
-                  <i style="color: green;" class="fa-solid fa-money-bill"></i>
-                </a>
+              <td class="text-center pe-4">
+                <div class="d-inline-flex gap-2">
+                  <!-- Modificar -->
+                  <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="setEditar(producto)" title="Editar producto" style="width: 32px; height: 32px;">
+                    <i class="bi bi-pencil-fill fs-8"></i>
+                  </button>
+                  <!-- Inventario -->
+                  <button class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="producto.inventariar" data-bs-toggle="modal" data-bs-target="#inventarioModal" (click)="cargarInventariosData(producto.id, producto.nombre)" title="Modificar Stock" style="width: 32px; height: 32px;">
+                    <i class="bi bi-boxes fs-8"></i>
+                  </button>
+                  <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center bg-light text-muted border-0" *ngIf="!producto.inventariar" disabled style="width: 32px; height: 32px;">
+                    <i class="bi bi-boxes fs-8"></i>
+                  </button>
+                  <!-- Precio -->
+                  <button class="btn btn-outline-success btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#precioModal" (click)="cargarPreciosData(producto.id, producto.nombre)" title="Modificar Precios" style="width: 32px; height: 32px;">
+                    <i class="bi bi-currency-dollar fs-8"></i>
+                  </button>
+                  <!-- Componentes / Receta -->
+                  <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#nuevoModal" (click)="cargarComponentes(producto)" title="Ver Componentes / Receta" style="width: 32px; height: 32px;">
+                    <i class="bi bi-egg-fried fs-8"></i>
+                  </button>
+                </div>
               </td>
-              <td class="icono">
-                <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#nuevoModal" (click)="cargarComponentes(producto)">
-                  <i style="color: rgb(121, 65, 65);" class="fa-solid fa-burger"></i>
-                </a>
+            </tr>
+            <tr *ngIf="productosFiltrados.length === 0">
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="bi bi-box-seam fs-1 d-block mb-2 text-secondary"></i>
+                No se encontraron productos.
               </td>
             </tr>
           </tbody>
@@ -69,160 +105,270 @@
       </div>
     </div>
   </div>
-  
-  <!-- Modal: Producto -->
-  <div class="modal fade" id="productosModal" tabindex="-1" role="dialog" aria-labelledby="productosModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Información de producto</h5>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="formProd">
-            Producto:
-            <input type="text" class="form-control" placeholder="Producto" formControlName="nombre">
-            <br>
-            Código:
-            <input type="text" class="form-control" placeholder="Código" formControlName="codigo">
-            <br>
-            <div class="form-check form-switch mt-2">
-              <input class="form-check-input" type="checkbox" id="flexCheckChecked" formControlName="inventariar">
-              <label class="form-check-label" for="flexCheckChecked">Inventariar</label>
-            </div>
-            <div class="form-check form-switch mt-2">
-              <input class="form-check-input" type="checkbox" id="flexCheckSeVende" formControlName="se_vende">
-              <label class="form-check-label" for="flexCheckSeVende">Se vende en POS</label>
-            </div>
-            <div class="form-check form-switch mt-2">
-              <input class="form-check-input" type="checkbox" id="flexCheckSeCompra" formControlName="se_compra">
-              <label class="form-check-label" for="flexCheckSeCompra">Se compra (Insumo/Materia Prima)</label>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" (click)="onSubmit()">Guardar</button>
-        </div>
+</div>
+
+<!-- Modal: Producto -->
+<div class="modal fade" id="productosModal" tabindex="-1" aria-labelledby="productosModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-primary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="productosModalLabel">
+          <i class="bi bi-box-seam-fill me-2"></i>
+          Información del Producto
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-    </div>
-  </div>
-  
-  <!-- Modal: Precio -->
-  <div class="modal fade" id="precioModal" tabindex="-1" role="dialog" aria-labelledby="precioModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Modificación de precio</h5>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="formPrecio">
-            Sucursal:
-            <select formControlName="idSucursal" class="form-select" (change)="changeSucursalPrecio()">
-              <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
-            </select>
-            <br>
-            Producto:
-            <input formControlName="nombre" type="text" class="form-control" readonly>
-            <br>
-            Precio:
-            <input formControlName="precio" type="number" class="form-control" placeholder="Precio">
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" (click)="modificarPrecio()">Guardar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Modal: Inventario -->
-  <div class="modal fade" id="inventarioModal" tabindex="-1" role="dialog" aria-labelledby="inventarioModalLabel">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Modificación de inventario</h5>
-        </div>
-        <div class="modal-body">
-          <form [formGroup]="formInventario">
-            Sucursal:
-            <select formControlName="idSucursal" class="form-select" (change)="changeSucursalInventario()">
-              <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
-            </select>
-            <br>
-            Producto:
-            <label class="form-control">{{ formInventario.get('nombre')?.value }}</label>
-            <br>
-            Inventario:
-            <input formControlName="cantidad" type="number" class="form-control" placeholder="Inventario">
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" (click)="modificarInventario()">Guardar</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Modal: Nuevo (Extra acción) -->
-  <div class="modal fade" id="nuevoModal" tabindex="-1" role="dialog" aria-labelledby="nuevoModalLabel">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Componentes</h5>
-        </div>
-        <div class="modal-body">
-          <p>Producto: <strong>{{ productoSeleccionado?.nombre }}</strong></p>
-          <div class="row">
-            <div class="col-6">
-                <ng-select [items]="productosComponentes"
-                            bindLabel="nombre"
-                            bindValue="id"
-                            placeholder="Buscar Producto"
-                            class="custom-ng-select" 
-                            [virtualScroll]="true"
-                            [searchable]="true"
-                            [searchFn]="customSearch"
-                            [(ngModel)]="idComponente">
-                            <ng-template ng-option-tmp let-item="item">
-                            <div class="d-flex justify-content-between">
-                                <span>{{ item?.nombre }}</span>
-                                <small class="text-muted">{{ item?.codigo || 'N/A' }}</small>
-                            </div>
-                            </ng-template>
-                        </ng-select>
+
+      <div class="modal-body p-4 bg-light">
+        <form [formGroup]="formProd">
+          <!-- Nombre Producto -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Nombre de Producto</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-box-seam text-muted"></i></span>
+              <input type="text" class="form-control border-0 py-2" placeholder="Ej. Pollo Frito" formControlName="nombre">
             </div>
-            <div class="col-3">
-              <input [(ngModel)]="cantidadComponente" type="number" class="form-control">
-            </div>
-            <div class="col-3">
-                <button class="btn btn-primary w-100" (click)="agregarComponente()">Agregar</button>
+            <div *ngIf="formProd.get('nombre')?.touched && formProd.get('nombre')?.invalid" class="text-danger small mt-1">
+              El nombre es obligatorio.
             </div>
           </div>
-          <table *ngIf="componentes.length > 0" class="table tabla-componentes mt-3">
-            <thead>
+
+          <!-- Código -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Código / Clave</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-barcode text-muted"></i></span>
+              <input type="text" class="form-control border-0 py-2" placeholder="Ej. POL-001" formControlName="codigo">
+            </div>
+          </div>
+
+          <!-- Parámetros Switches -->
+          <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mt-3">
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="flexCheckChecked" formControlName="inventariar">
+              <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" for="flexCheckChecked">
+                <i class="bi bi-boxes text-muted me-2"></i> Inventariar stock
+              </label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="flexCheckSeVende" formControlName="se_vende">
+              <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" for="flexCheckSeVende">
+                <i class="bi bi-cart text-muted me-2"></i> Se vende en Punto de Venta
+              </label>
+            </div>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="flexCheckSeCompra" formControlName="se_compra">
+              <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" for="flexCheckSeCompra">
+                <i class="bi bi-truck text-muted me-2"></i> Se compra (Materia Prima/Insumo)
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold" (click)="onSubmit()">
+          <i class="bi bi-check-circle-fill me-1"></i> Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Precio -->
+<div class="modal fade" id="precioModal" tabindex="-1" aria-labelledby="precioModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-success text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="precioModalLabel">
+          <i class="bi bi-currency-dollar me-2"></i>
+          Modificación de Precio
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-light">
+        <form [formGroup]="formPrecio">
+          <!-- Sucursal -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Sucursal</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
+              <select formControlName="idSucursal" class="form-select border-0 py-2" (change)="changeSucursalPrecio()">
+                <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Producto -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Producto</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-box-seam text-muted"></i></span>
+              <input formControlName="nombre" type="text" class="form-control border-0 py-2 bg-white" readonly>
+            </div>
+          </div>
+
+          <!-- Precio -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Precio de Venta</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-currency-dollar text-muted"></i></span>
+              <input formControlName="precio" type="number" class="form-control border-0 py-2 text-success fw-bold" placeholder="0.00" min="0" step="0.01">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success rounded-pill px-4 shadow-sm fw-semibold text-white" (click)="modificarPrecio()">
+          <i class="bi bi-check-circle-fill me-1"></i> Guardar Precio
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Inventario -->
+<div class="modal fade" id="inventarioModal" tabindex="-1" aria-labelledby="inventarioModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-secondary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="inventarioModalLabel">
+          <i class="bi bi-boxes me-2"></i>
+          Modificación de Inventario
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-light">
+        <form [formGroup]="formInventario">
+          <!-- Sucursal -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Sucursal</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
+              <select formControlName="idSucursal" class="form-select border-0 py-2" (change)="changeSucursalInventario()">
+                <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Producto -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Producto</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-box-seam text-muted"></i></span>
+              <input type="text" class="form-control border-0 py-2 bg-white" [value]="formInventario.get('nombre')?.value" readonly>
+            </div>
+          </div>
+
+          <!-- Inventario / Cantidad -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Stock Físico Actual</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-hash text-muted"></i></span>
+              <input formControlName="cantidad" type="number" class="form-control border-0 py-2 fw-semibold text-dark" placeholder="Cantidad en existencia">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary rounded-pill px-4 shadow-sm fw-semibold text-white border-0" (click)="modificarInventario()">
+          <i class="bi bi-check-circle-fill me-1"></i> Guardar Inventario
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Componentes / Receta (Burger) -->
+<div class="modal fade" id="nuevoModal" tabindex="-1" aria-labelledby="nuevoModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-warning text-dark py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="nuevoModalLabel">
+          <i class="bi bi-egg-fried me-2"></i>
+          Ingredientes / Componentes del Producto
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-light">
+        <div class="alert alert-info border-0 shadow-sm rounded-3 d-flex align-items-center mb-4">
+          <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+          <div>
+            Producto principal: <strong>{{ productoSeleccionado?.nombre }}</strong>. Define qué ingredientes se descontarán del stock cuando se venda este producto.
+          </div>
+        </div>
+
+        <div class="row align-items-center g-2 mb-4">
+          <div class="col-md-6 col-sm-12">
+            <label class="form-label fw-semibold text-secondary fs-8">Buscar Ingrediente / Insumo</label>
+            <ng-select [items]="productosComponentes"
+                       bindLabel="nombre"
+                       bindValue="id"
+                       placeholder="Escribe el nombre del insumo..."
+                       class="custom-ng-select shadow-sm" 
+                       [virtualScroll]="true"
+                       [searchable]="true"
+                       [searchFn]="customSearch"
+                       [(ngModel)]="idComponente">
+              <ng-template ng-option-tmp let-item="item">
+                <div class="d-flex justify-content-between py-1">
+                  <span>{{ item?.nombre }}</span>
+                  <small class="text-muted fs-8">{{ item?.codigo || 'N/A' }}</small>
+                </div>
+              </ng-template>
+            </ng-select>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <label class="form-label fw-semibold text-secondary fs-8">Cantidad Requerida</label>
+            <input [(ngModel)]="cantidadComponente" type="number" class="form-control shadow-sm" placeholder="Ej. 0.500" min="0.001" step="0.001">
+          </div>
+          <div class="col-md-3 col-sm-6 mt-md-4">
+            <button class="btn btn-warning w-100 fw-semibold text-dark shadow-sm d-flex align-items-center justify-content-center gap-2" (click)="agregarComponente()">
+              <i class="bi bi-plus-circle-fill"></i> Agregar
+            </button>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mt-3" *ngIf="componentes.length > 0">
+          <table class="table align-middle mb-0">
+            <thead class="table-light text-uppercase fs-8 text-secondary">
               <tr>
-                <th style="width: 50%;">Componente</th>
-                <th style="width: 30%;" class="text-center">Cantidad</th>
-                <th></th>
+                <th class="ps-4" style="width: 60%;">Componente / Insumo</th>
+                <th style="width: 25%;" class="text-center">Cantidad a Descontar</th>
+                <th style="width: 15%;" class="text-center pe-4">Acción</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let componente of componentes">
-                <td>{{componente.producto}}</td>
-                <td class="text-center">{{componente.cantidad}}</td>
-                <td class="text-center">
-                  <i style="color: gray; cursor: pointer;" class="fa-solid fa-trash" (click)="eliminarComponente(componente)"></i>
+                <td class="ps-4 fw-semibold text-dark">{{ componente.producto }}</td>
+                <td class="text-center fw-bold text-secondary">{{ componente.cantidad }}</td>
+                <td class="text-center pe-4">
+                  <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" (click)="eliminarComponente(componente)" title="Eliminar componente" style="width: 32px; height: 32px;">
+                    <i class="bi bi-trash-fill fs-8"></i>
+                  </button>
                 </td>
               </tr>
             </tbody>
           </table>
-          <div class="text-center mt-5 mb-5" *ngIf="componentes.length === 0">
-            <h6 class="text-secondary">No hay componentes para este producto</h6>
-          </div>
         </div>
+
+        <div class="text-center py-5 text-muted bg-white rounded-3 shadow-sm" *ngIf="componentes.length === 0">
+          <i class="bi bi-egg-fried fs-1 d-block mb-2 text-secondary"></i>
+          Este producto no tiene componentes asociados.
+        </div>
+      </div>
+      
+      <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
-  
+</div>

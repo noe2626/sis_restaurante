@@ -27,6 +27,12 @@ import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.comp
 import { ClientesComponent } from './panel/clientes/clientes.component';
 import { PromocionesComponent } from './panel/promociones/promociones.component';
 import { DashboardComponent } from './panel/dashboard/dashboard.component';
+import { UsuariosComponent } from './panel/usuarios/usuarios.component';
+import { SucursalesAdminComponent } from './panel/sucursales/sucursales.component';
+import { CajasAdminComponent } from './panel/cajas/cajas.component';
+import { PreciosClienteComponent } from './panel/precios-cliente/precios-cliente.component';
+import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.component';
+import { ReportesComponent } from './panel/reportes/reportes.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +54,12 @@ import { DashboardComponent } from './panel/dashboard/dashboard.component';
     ClientesComponent,
     PromocionesComponent,
     DashboardComponent,
+    UsuariosComponent,
+    SucursalesAdminComponent,
+    CajasAdminComponent,
+    PreciosClienteComponent,
+    CanalesVentaComponent,
+    ReportesComponent,
   ],
   imports: [
     BrowserModule,

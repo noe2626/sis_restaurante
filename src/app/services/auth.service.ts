@@ -22,4 +22,12 @@ export class AuthService {
     };
     return this.http.post(`${this.apiUrl}pos/autorizar-precio`, credentials, header);
   }
+
+  logout() {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.post(`${this.apiUrl}logout`, {}, header);
+  }
 }

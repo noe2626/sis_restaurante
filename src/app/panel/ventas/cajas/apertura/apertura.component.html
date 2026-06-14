@@ -17,7 +17,8 @@
                 <label for="">Cantidad de apertura</label>
                 <input type="text" class="form-control" value="$ {{efectivoCaja}}" readonly>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-danger" (click)="logoutConfirm()"><i class="fa-solid fa-right-from-bracket me-1"></i> Salir</button>
                 <button type="button" class="btn btn-primary" (click)="abrirCaja()">Entrar</button>
             </div>
         </div>

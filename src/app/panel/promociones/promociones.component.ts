@@ -1,10 +1,13 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { PromocionesService } from '../../services/promociones.service';
 import { ProductosService } from '../../services/productos.service';
 import { SucursalesService } from '../../services/sucursales.service';
+import { isPlatformBrowser } from '@angular/common';
+import CryptoJS from 'crypto-js';
+import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -23,12 +26,16 @@ export class PromocionesComponent implements OnInit {
   productos: Array<any> = [];
   sucursales: Array<any> = [];
   filteredData = [...this.data];
+  
+  roleId: number = 0;
+  idSucursal: number = 0;
 
   constructor(
     private promocionesService: PromocionesService,
     private productosService: ProductosService,
     private sucursalesService: SucursalesService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.formPromo = this.fb.group({
       id: [null],
@@ -46,6 +53,18 @@ export class PromocionesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.idSucursal = parseInt(localStorage.getItem('idSucursal') || '0');
+      const encryptedIdTipo = localStorage.getItem('idTipo') || '';
+      if (encryptedIdTipo) {
+        try {
+          this.roleId = parseInt(CryptoJS.AES.decrypt(encryptedIdTipo, environment.secretKey).toString(CryptoJS.enc.Utf8));
+        } catch (e) {
+          console.error('Error decrypting role in promotions:', e);
+        }
+      }
+    }
+
     this.listarPromociones();
     this.listarProductos();
     this.listarSucursales();
@@ -93,7 +112,8 @@ export class PromocionesComponent implements OnInit {
   }
 
   listarPromociones() {
-    this.promocionesService.listarPromociones().subscribe({
+    const filterBranchId = this.roleId === 2 ? this.idSucursal : undefined;
+    this.promocionesService.listarPromociones(filterBranchId).subscribe({
       next: (data: any) => {
         if (Array.isArray(data)) {
           this.data = data;
@@ -149,7 +169,7 @@ export class PromocionesComponent implements OnInit {
     this.formPromo.reset({
       id: null,
       idProducto: null,
-      idSucursal: null,
+      idSucursal: this.roleId === 2 ? this.idSucursal : null,
       descripcion: null,
       tipo: 'fijo',
       valor: 0,
@@ -159,6 +179,14 @@ export class PromocionesComponent implements OnInit {
       fecha_fin: null,
       activo: true
     });
+    
+    if (this.roleId === 2) {
+      this.formPromo.get('idSucursal')?.setValue(this.idSucursal);
+      this.formPromo.get('idSucursal')?.disable();
+    } else {
+      this.formPromo.get('idSucursal')?.enable();
+    }
+    
     this.onTipoChange();
   }
 
@@ -176,6 +204,14 @@ export class PromocionesComponent implements OnInit {
       fecha_fin: promo.fecha_fin,
       activo: promo.activo === 1 || promo.activo === true
     });
+    
+    if (this.roleId === 2) {
+      this.formPromo.get('idSucursal')?.setValue(this.idSucursal);
+      this.formPromo.get('idSucursal')?.disable();
+    } else {
+      this.formPromo.get('idSucursal')?.enable();
+    }
+    
     this.onTipoChange();
   }
 

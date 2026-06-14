@@ -7,6 +7,7 @@ import { VentasService } from '../../services/ventas.service';
 import { ClientesService } from '../../services/clientes.service';
 import { PreciosService } from '../../services/precios.service';
 import { AuthService } from '../../services/auth.service';
+import { CanalesVentaService } from '../../services/canales-venta.service';
 import Swal from 'sweetalert2';
 import * as bootstrap from "bootstrap";
 import CryptoJS from 'crypto-js';
@@ -29,6 +30,8 @@ export class VentasComponent implements OnInit{
   iva: number = 0;
   extras: number = 0;
   descuentos: number = 0;
+  canalesVenta: any[] = [];
+  idCanalVenta: any = null;
   typeaheadInput$ = new Subject<string>();
   pago:any = 0;
   cambio:number = 0;
@@ -36,6 +39,7 @@ export class VentasComponent implements OnInit{
   idSucursal:any = 0;
   productosRapidos: any[] = [];
   manejaIva: boolean = false;
+  imprimeTicket: boolean = true;
 
   constructor(
     private fb: FormBuilder,
@@ -44,6 +48,7 @@ export class VentasComponent implements OnInit{
     private clientesService: ClientesService,
     private preciosService: PreciosService,
     private authService: AuthService,
+    private canalesVentaService: CanalesVentaService,
     private renderer: Renderer2
   ) {
     this.formProd = this.fb.group({
@@ -52,6 +57,7 @@ export class VentasComponent implements OnInit{
     });
     this.idSucursal=localStorage.getItem('idSucursal');
     this.manejaIva = localStorage.getItem('manejaIva') === '1';
+    this.imprimeTicket = localStorage.getItem('imprimeTicket') !== '0';
   }
 
 
@@ -60,6 +66,7 @@ export class VentasComponent implements OnInit{
     this.listarProductos();
     this.listarProductosMasVendidos();
     this.listarClientes();
+    this.listarCanalesVenta();
   }
 
   listarProductos(): void {
@@ -110,10 +117,28 @@ export class VentasComponent implements OnInit{
   listarClientes(): void {
     this.clientesService.listarClientes().subscribe({
       next: (data: any) => {
-        this.clientes = data || [];
+        this.clientes = data.data || data || [];
       },
       error: (err) => {
         console.log(err);
+      }
+    });
+  }
+
+  listarCanalesVenta(): void {
+    this.canalesVentaService.listarCanalesVenta(this.idSucursal).subscribe({
+      next: (data: any) => {
+        if (Array.isArray(data)) {
+          this.canalesVenta = data.filter((c: any) => c.activo === 1 || c.activo === true);
+          // Auto seleccionar "Comedor" (id = 1) por defecto si existe
+          const comedor = this.canalesVenta.find((c: any) => c.id === 1);
+          if (comedor) {
+            this.idCanalVenta = comedor.id;
+          }
+        }
+      },
+      error: (err) => {
+        console.log('Error al listar canales de venta:', err);
       }
     });
   }
@@ -211,6 +236,24 @@ export class VentasComponent implements OnInit{
 
   calcularTotal(): void {
     this.subTotal = this.carrito.reduce((sum, item) => sum + item.subtotal, 0);
+    
+    // Calcular extras (cargos de envío) si hay un canal seleccionado
+    if (this.idCanalVenta) {
+      const canal = this.canalesVenta.find(c => c.id === this.idCanalVenta);
+      if (canal && parseFloat(canal.cargo_cliente) > 0) {
+        const minimoEnvioGratis = parseFloat(canal.minimo_envio_gratis);
+        if (minimoEnvioGratis > 0 && this.subTotal >= minimoEnvioGratis) {
+          this.extras = 0;
+        } else {
+          this.extras = parseFloat(canal.cargo_cliente);
+        }
+      } else {
+        this.extras = 0;
+      }
+    } else {
+      this.extras = 0;
+    }
+
     const descuentos = this.descuentos;
     const extras = this.extras;
     if (this.manejaIva) {
@@ -263,6 +306,7 @@ export class VentasComponent implements OnInit{
       idSucursal: this.idSucursal,
       idCaja: decryptedIdCaja,
       metodo_pago: this.metodoPago,
+      idCanalVenta: this.idCanalVenta,
       productos: this.carrito.map(item => ({
         idProducto: item.id,
         cantidad: item.cantidad,
@@ -312,7 +356,15 @@ export class VentasComponent implements OnInit{
     this.iva = 0;
     this.extras = 0;
     this.descuentos = 0;
+    const comedor = this.canalesVenta.find((c: any) => c.id === 1);
+    this.idCanalVenta = comedor ? comedor.id : null;
     this.formProd.reset({ idProducto: null, cantidad: 1 });
+  }
+
+  getCanalVentaNombre(): string {
+    if (!this.idCanalVenta) return 'Ninguno';
+    const canal = this.canalesVenta.find(c => c.id === this.idCanalVenta);
+    return canal ? canal.nombre : 'Ninguno';
   }
 
   // Método para agregar productos rápidamente

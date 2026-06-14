@@ -3,6 +3,8 @@ import { PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { SucursalesService } from '../../services/sucursales.service';
 import { Router } from '@angular/router';
+import CryptoJS from 'crypto-js';
+import { environment } from '../../../environments/environment';
 declare var bootstrap: any;
 
 @Component({
@@ -33,16 +35,32 @@ export class SucursalesComponent implements OnInit{
   }
 
   entrar(){
+    let roleId = 0;
     if (isPlatformBrowser(this.platformId)) { 
       localStorage.setItem('idSucursal',this.idSucursal.toString());
       let sucursalObj = this.sucursales.find((item:any) => item.idSucursal == this.idSucursal);
       localStorage.setItem('sucursal',sucursalObj.sucursal);
       localStorage.setItem('manejaIva', (sucursalObj.manejaIva ?? 0).toString());
+      localStorage.setItem('imprimeTicket', (sucursalObj.imprimeTicket ?? 1).toString());
+
+      const encryptedIdTipo = localStorage.getItem('idTipo') || '';
+      if (encryptedIdTipo) {
+        try {
+          roleId = parseInt(CryptoJS.AES.decrypt(encryptedIdTipo, environment.secretKey).toString(CryptoJS.enc.Utf8));
+        } catch (e) {
+          console.error('Error decrypting role in sucursales component:', e);
+        }
+      }
     }
     const modalElement = document.getElementById('sucursalModal'); 
     const modal = bootstrap.Modal.getInstance(modalElement);
     modal.hide();
-    this.router.navigate(['panel'])
+
+    if (roleId === 3) {
+      this.router.navigate(['ventas']);
+    } else {
+      this.router.navigate(['panel']);
+    }
   }
 
 }

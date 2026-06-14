@@ -1,182 +1,223 @@
-<div class="container mt-3">
-    <div class="row">
-        <h5>Compras</h5>
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-cart-check-fill text-primary me-3" style="font-size: 2rem;"></i>
+        Compras
+      </h3>
+      <p class="text-muted mb-0">Gestiona y consulta las órdenes de compra e insumos registrados en el negocio.</p>
     </div>
-    <div>
-        <button class="btn btn-primary" routerLink="editar">Registrar compra</button>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Proveedor o folio..." (input)="onSearch($event)" />
+      </div>
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" routerLink="editar">
+        <i class="bi bi-plus-circle-fill fs-5"></i>
+        Registrar Compra
+      </button>
     </div>
-    <div class="row mt-3">
-        <div class="col-12">
-            <input class="form-control" type="text" placeholder="Buscar por Proveedor o folio" (input)="onSearch($event)" />
-        </div>
-    </div>
-    <div class="row mt-0">
-        <div class="col-12">
-            <table mat-table [dataSource]="dataSource" class="table table-striped mt-0">
-                <ng-container matColumnDef="folio">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="text-align: center;"> Folio </th>
-                    <td mat-cell *matCellDef="let element" class="fw-bold text-dark" style="text-align: center;"> {{element.folio || 'N/A'}} </td>
-                </ng-container>
-                <ng-container matColumnDef="folio_proveedor">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="text-align: center;">Folio Prov</th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;"> {{element.folio_proveedor || 'N/A'}} </td>
-                </ng-container>
-                <ng-container matColumnDef="proveedor">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%; text-align: center;"> Proveedor </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;"> {{element.proveedor}} </td>
-                </ng-container>
-                <ng-container matColumnDef="fecha">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%; text-align: center;"> Fecha </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;"> {{element.fecha}} </td>
-                </ng-container>
-                <ng-container matColumnDef="estatus">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%; text-align: center;"> Estatus </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;">
-                        <span class="badge-status-list" style="color: white;" [ngClass]="{'bg-success text-white': element.estatus == 'Completada', 'bg-danger tDetalle de Ventaext-white': element.estatus == 'Cancelada'}">
-                            {{element.estatus || 'Completada'}}
-                        </span>
-                    </td>
-                </ng-container>
-                <ng-container matColumnDef="total">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="text-align: center;"> Total </th>
-                    <td mat-cell *matCellDef="let element" class="fw-bold text-dark" style="text-align: center;"> {{element.total | currency}} </td>
-                </ng-container>
-                <ng-container matColumnDef="detalle">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: center;"> Acciones </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;">
-                        <button class="btn btn-sm btn-premium btn-premium-secondary p-2" (click)="verDetalle(element.id)" title="Ver Detalle de Compra">
-                            <i class="fa-solid fa-eye"></i>
-                        </button>
-                        <button *ngIf="element.estatus == 'Completada'" class="btn btn-sm btn-premium btn-premium-danger p-2" style="margin-left: 10px;" (click)="cancelarCompra(element.id)" title="Cancelar Compra">
-                            <i class="fa-solid fa-ban"></i>
-                        </button>
-                        <button *ngIf="element.estatus != 'Completada'" class="btn btn-sm btn-premium btn-premium-secondary p-2" style="margin-left: 10px;" title="Cancelar Compra" disabled>
-                            <i class="fa-solid fa-ban"></i>
-                        </button>
-                    </td>
-                </ng-container>
+  </div>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-            </table>
-            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
-            </mat-paginator>
-        </div>
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-primary"></i> Historial de Compras
+      </h6>
     </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">
+          
+          <!-- Folio Column -->
+          <ng-container matColumnDef="folio">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 10%;"> Folio </th>
+            <td mat-cell *matCellDef="let element" class="ps-4 fw-bold text-dark">
+              {{ element.folio || 'N/A' }}
+            </td>
+          </ng-container>
+
+          <!-- Folio Proveedor Column -->
+          <ng-container matColumnDef="folio_proveedor">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Folio Prov </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="badge bg-secondary-subtle text-secondary rounded px-2 py-1 fs-9 fw-bold border" *ngIf="element.folio_proveedor">
+                {{ element.folio_proveedor }}
+              </span>
+              <span class="text-muted fs-8" *ngIf="!element.folio_proveedor">-</span>
+            </td>
+          </ng-container>
+
+          <!-- Proveedor Column -->
+          <ng-container matColumnDef="proveedor">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Proveedor </th>
+            <td mat-cell *matCellDef="let element" class="fw-semibold text-secondary">
+              {{ element.proveedor }}
+            </td>
+          </ng-container>
+
+          <!-- Fecha Column -->
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Fecha </th>
+            <td mat-cell *matCellDef="let element" class="small text-secondary fw-semibold">
+              {{ element.fecha }}
+            </td>
+          </ng-container>
+
+          <!-- Estatus Column -->
+          <ng-container matColumnDef="estatus">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 15%;"> Estatus </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                [ngClass]="element.estatus == 'Cancelada' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
+                <i class="bi me-1" [ngClass]="element.estatus == 'Cancelada' ? 'bi-x-circle-fill' : 'bi-check-circle-fill'"></i>
+                {{ element.estatus || 'Completada' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Total Column -->
+          <ng-container matColumnDef="total">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 10%;"> Total </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-bold text-dark">
+              {{ (element.total || 0) | currency }}
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="detalle">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 10%;"> Acciones </th>
+            <td mat-cell *matCellDef="let element" class="text-center pe-4">
+              <div class="d-inline-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="verDetalle(element.id)" title="Ver Detalle de Compra" style="width: 32px; height: 32px;">
+                  <i class="bi bi-eye-fill fs-8"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus == 'Completada'" (click)="cancelarCompra(element.id)" title="Cancelar Compra" style="width: 32px; height: 32px;">
+                  <i class="bi bi-x-circle-fill fs-8"></i>
+                </button>
+                <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center bg-light text-muted border-0" *ngIf="element.estatus != 'Completada'" disabled style="width: 32px; height: 32px;">
+                  <i class="bi bi-x-circle-fill fs-8"></i>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        
+        <div *ngIf="totalItems === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-cart-x fs-1 d-block mb-2 text-secondary"></i>
+          No se encontraron compras.
+        </div>
+      </div>
+      
+      <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page" class="border-top">
+      </mat-paginator>
+    </div>
+  </div>
 </div>
 
 <!-- Modal Detalle de Compra -->
 <div class="modal fade" id="detalleCompraModal" tabindex="-1" aria-labelledby="detalleCompraModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="detalleCompraModalLabel">
-          <i class="fa-solid fa-cart-flatbed me-2"></i>Detalle de Compra: {{ compraSeleccionada?.folio || ('#' + compraSeleccionada?.id) }}
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-primary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="detalleCompraModalLabel">
+          <i class="bi bi-receipt me-2"></i>Detalle de Compra: {{ compraSeleccionada?.folio || ('#' + compraSeleccionada?.id) }}
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeDetalleCompraModalBtn"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="closeDetalleCompraModalBtn"></button>
       </div>
-      <div class="modal-body" *ngIf="compraSeleccionada">
+      <div class="modal-body p-4 bg-light" *ngIf="compraSeleccionada">
         
-        <!-- Info Section Card -->
-        <div class="info-section">
-          <div class="row">
-            <div class="col-md-2 col-sm-6 mb-3 mb-md-0">
-              <div class="info-label">Folio Interno</div>
-              <div class="info-value text-primary">{{ compraSeleccionada.folio || 'N/A' }}</div>
+        <!-- Info Cards Grid -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Folio Interno</span>
+              <span class="fs-6 fw-bold text-primary mt-1">{{ compraSeleccionada.folio || 'N/A' }}</span>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3 mb-md-0">
-              <div class="info-label">Proveedor</div>
-              <div class="info-value text-truncate">{{ compraSeleccionada.proveedor ? compraSeleccionada.proveedor.nombre : 'Proveedor General' }}</div>
-              <div class="text-muted small mt-1" *ngIf="compraSeleccionada.proveedor?.rfc">RFC: {{ compraSeleccionada.proveedor.rfc }}</div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Proveedor</span>
+              <span class="fs-6 fw-bold text-dark mt-1 text-truncate">{{ compraSeleccionada.proveedor ? compraSeleccionada.proveedor.nombre : 'Proveedor General' }}</span>
+              <span class="text-muted small mt-0.5" style="font-size: 0.75rem;" *ngIf="compraSeleccionada.proveedor?.rfc">RFC: {{ compraSeleccionada.proveedor.rfc }}</span>
             </div>
-            <div class="col-md-2 col-sm-6 mb-3 mb-md-0">
-              <div class="info-label text-center">Folio Proveedor</div>
-              <div class="info-value text-truncate text-center">
-                <span *ngIf="compraSeleccionada.folio_proveedor" class="badge bg-secondary text-white px-2 py-1" style="font-size: 0.8rem;">
-                  {{ compraSeleccionada.folio_proveedor }}
-                </span>
-                <span *ngIf="!compraSeleccionada.folio_proveedor" class="text-muted">-</span>
-              </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Folio Proveedor</span>
+              <span class="fs-6 fw-bold text-secondary mt-1">{{ compraSeleccionada.folio_proveedor || 'N/A' }}</span>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3 mb-md-0 text-md-center">
-              <div class="info-label">Fecha / Hora</div>
-              <div class="info-value">{{ compraSeleccionada.fecha | date:'yyyy-MM-dd HH:mm' }}</div>
-            </div>
-            <div class="col-md-2 col-sm-6 text-md-center">
-              <div class="info-label">Estatus</div>
-              <div>
-                <span class="status-badge" [ngClass]="{'completada': compraSeleccionada.estatus == 1, 'cancelada': compraSeleccionada.estatus == 0}">
-                  {{ compraSeleccionada.estatus == 1 ? 'Completada' : 'Cancelada' }}
-                </span>
-              </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Fecha / Hora</span>
+              <span class="fs-6 fw-semibold text-secondary mt-1">{{ compraSeleccionada.fecha }}</span>
             </div>
           </div>
         </div>
-        
-        <!-- Styled Products Table -->
-        <div class="table-responsive">
-          <table class="table detail-table align-middle">
-            <thead>
+
+        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+          <table class="table align-middle mb-0">
+            <thead class="table-light text-uppercase fs-8 text-secondary">
               <tr>
-                <th style="width: 35%;">Producto</th>
-                <th style="width: 15%;">Código</th>
-                <th style="width: 12%; text-align: center;">Cantidad</th>
-                <th style="width: 15%; text-align: right;">Costo Unitario</th>
-                <th style="width: 13%; text-align: center;">IVA (%)</th>
-                <th style="width: 15%; text-align: right;">Subtotal</th>
-                <th style="width: 15%; text-align: right;">Total</th>
+                <th class="ps-4" style="width: 50%;">Producto / Insumo</th>
+                <th style="width: 15%;" class="text-end">Cantidad</th>
+                <th style="width: 15%;" class="text-end">Precio U.</th>
+                <th style="width: 20%;" class="text-end pe-4">Subtotal</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let prod of compraSeleccionada.productos">
-                <td class="fw-semibold text-dark">{{ prod.nombre }}</td>
-                <td><code>{{ prod.codigo || 'N/A' }}</code></td>
-                <td class="text-center fw-bold">{{ prod.pivot.cantidad }}</td>
-                <td class="text-end">{{ prod.pivot.precio | currency }}</td>
-                <td class="text-center">{{ prod.pivot.iva || 0 }}%</td>
-                <td class="text-end">{{ prod.pivot.subtotal | currency }}</td>
-                <td class="text-end fw-bold text-dark">{{ prod.pivot.total | currency }}</td>
+                <td class="ps-4">
+                  <span class="fw-bold text-dark">{{ prod.nombre }}</span>
+                  <code class="text-muted small ms-2 bg-light px-2 py-0.5 border rounded" *ngIf="prod.codigo">{{ prod.codigo }}</code>
+                </td>
+                <td class="text-end fw-semibold">{{ prod.pivot.cantidad }}</td>
+                <td class="text-end text-secondary">{{ prod.pivot.precio | currency }}</td>
+                <td class="text-end fw-bold text-dark pe-4">{{ prod.pivot.subtotal | currency }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- Totals Card -->
-        <div class="row justify-content-end mt-4">
-          <div class="col-md-5">
-            <div class="totals-card">
-              <div class="total-row">
-                <span>Subtotal</span>
-                <span>{{ compraSeleccionada.subtotal | currency }}</span>
+        <!-- Totales Layout -->
+        <div class="row mt-4 justify-content-end">
+          <div class="col-md-4 col-sm-12">
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-secondary fw-semibold">Subtotal:</span>
+                <span class="fw-bold text-dark">{{ compraSeleccionada.subtotal | currency }}</span>
               </div>
-              <div class="total-row discount" *ngIf="compraSeleccionada.descuentos > 0">
-                <span>Descuento</span>
-                <span>-{{ compraSeleccionada.descuentos | currency }}</span>
+              <div class="d-flex justify-content-between mb-2" *ngIf="compraSeleccionada.descuentos > 0">
+                <span class="text-danger fw-semibold">Descuentos:</span>
+                <span class="fw-bold text-danger">-{{ compraSeleccionada.descuentos | currency }}</span>
               </div>
-              <div class="total-row" *ngIf="compraSeleccionada.iva > 0">
-                <span>IVA</span>
-                <span>{{ compraSeleccionada.iva | currency }}</span>
+              <div class="d-flex justify-content-between mb-2" *ngIf="compraSeleccionada.iva > 0">
+                <span class="text-secondary fw-semibold">IVA:</span>
+                <span class="fw-bold text-dark">{{ compraSeleccionada.iva | currency }}</span>
               </div>
-              <div class="total-row" *ngIf="compraSeleccionada.extras > 0">
-                <span>Cargos Extras</span>
-                <span>{{ compraSeleccionada.extras | currency }}</span>
+              <div class="d-flex justify-content-between mb-2" *ngIf="compraSeleccionada.extras > 0">
+                <span class="text-secondary fw-semibold">Extras:</span>
+                <span class="fw-bold text-dark">{{ compraSeleccionada.extras | currency }}</span>
               </div>
-              <div class="total-row fs-5 pt-2 text-primary">
-                <span>Total</span>
-                <span>{{ compraSeleccionada.total | currency }}</span>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-dark fw-bold fs-6">Total Compra:</span>
+                <span class="fw-bold text-success fs-5">{{ compraSeleccionada.total | currency }}</span>
               </div>
             </div>
           </div>
         </div>
+
       </div>
-      <div class="modal-footer d-flex justify-content-between">
-          <button *ngIf="compraSeleccionada && compraSeleccionada.estatus == 1" type="button" class="btn btn-premium btn-premium-danger" (click)="cancelarCompra(compraSeleccionada.id)">
-            Cancelar Compra
-          </button>
-        <button type="button" class="btn btn-premium btn-premium-secondary" data-bs-dismiss="modal">
-          Cerrar
-        </button>
+      <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar Detalle</button>
       </div>
     </div>
   </div>

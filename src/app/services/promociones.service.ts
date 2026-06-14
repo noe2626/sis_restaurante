@@ -11,12 +11,13 @@ export class PromocionesService {
 
   constructor(private http: HttpClient) { }
 
-  listarPromociones(){
+  listarPromociones(idSucursal?: number){
     let token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
     };
-    return this.http.get(`${this.apiUrl}promociones`, header);
+    const url = idSucursal ? `${this.apiUrl}promociones?idSucursal=${idSucursal}` : `${this.apiUrl}promociones`;
+    return this.http.get(url, header);
   }
 
   guardarPromocion(promocion: any) {

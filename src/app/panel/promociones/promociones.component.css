@@ -1,15 +1,67 @@
-.th-table {
-    font-weight: bold;
-    color: #495057;
+.table > :not(caption) > * > * {
+  padding: 1rem 0.75rem;
 }
 
-table {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
-    overflow: hidden;
+.fs-7 {
+  font-size: 0.875rem !important;
+}
+
+.fs-8 {
+  font-size: 0.75rem !important;
+}
+
+.fs-9 {
+  font-size: 0.65rem !important;
+}
+
+.tracking-wider {
+  letter-spacing: 0.08em;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.input-group-text {
+  border-right: none;
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: none;
+  background-color: #fff;
 }
 
 .badge {
-    font-size: 0.85em;
-    padding: 0.4em 0.6em;
+  letter-spacing: 0.02em;
+}
+
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-danger-subtle {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.bg-secondary-subtle {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.015);
+  transition: background-color 0.2s ease;
+}
+
+.search-container {
+  border: 1px solid #dee2e6;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.search-container:focus-within {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+mat-table, table {
+  width: 100%;
 }

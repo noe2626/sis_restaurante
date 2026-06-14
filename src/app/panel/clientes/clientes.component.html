@@ -1,93 +1,167 @@
-<div class="container mt-3">
-    <div class="row">
-        <h5>Clientes</h5>
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-people-fill text-primary me-3" style="font-size: 2rem;"></i>
+        Clientes
+      </h3>
+      <p class="text-muted mb-0">Gestiona el catálogo de clientes del negocio y su información de contacto.</p>
     </div>
-    <div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#clientesModal"
-        (click)="nuevoCliente()">Agregar</button>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Nombre/Email..." (input)="onSearch($event)" />
+      </div>
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="nuevoCliente()">
+        <i class="bi bi-person-plus-fill fs-5"></i>
+        Nuevo Cliente
+      </button>
     </div>
-    <div class="row mt-3">
-        <div class="col-12">
-            <input class="form-control" type="text" placeholder="Buscar por Nombre/Email..." (input)="onSearch($event)" />
-        </div>
-    </div>
-    <div class="row mt-2">
-        <div class="col-12">
-            <table mat-table [dataSource]="dataSource">
-                <ng-container matColumnDef="nombre">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 30%;"> Nombre </th>
-                    <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
-                </ng-container>
-                <ng-container matColumnDef="email">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 30%;"> Email </th>
-                    <td mat-cell *matCellDef="let element"> {{element.email}} </td>
-                </ng-container>
-                <ng-container matColumnDef="telefono">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Teléfono </th>
-                    <td mat-cell *matCellDef="let element"> {{element.telefono}} </td>
-                </ng-container>
-                <ng-container matColumnDef="modificar">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Modificar </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;"> 
-                        <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="setEditar(element)">
-                            <i style="color: gray;" class="fa-solid fa-pen-to-square"></i>
-                        </a> 
-                    </td>
-                </ng-container>
-                <ng-container matColumnDef="eliminar">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Eliminar </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;"> 
-                        <a *ngIf="element.id !== 1" style="cursor: pointer;" (click)="eliminar(element.id)">
-                            <i style="color: red;" class="fa-solid fa-trash"></i>
-                        </a>
-                        <span *ngIf="element.id === 1" style="color: lightgray; cursor: not-allowed;" title="No se puede eliminar el cliente público general">
-                            <i class="fa-solid fa-trash"></i>
-                        </span>
-                    </td>
-                </ng-container>
+  </div>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
-            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
-            </mat-paginator>
-        </div>
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-primary"></i> Clientes Registrados
+      </h6>
     </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 30%;"> Nombre </th>
+            <td mat-cell *matCellDef="let element" class="ps-4">
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle-cli bg-primary text-white fw-bold me-3">
+                  <i class="bi bi-person-fill"></i>
+                </div>
+                <span class="fw-bold text-dark">{{ element.nombre }}</span>
+              </div>
+            </td>
+          </ng-container>
 
-    <div class="modal fade" id="clientesModal" tabindex="-1" role="dialog" aria-labelledby="clientesModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clientesModalLabel">Información del cliente</h5>
-                </div>
-                <div class="modal-body">
-                    <form [formGroup]="formCli">
-                        <label class="form-label font-weight-bold">Nombre:</label>
-                        <input type="text" class="form-control" placeholder="Nombre completo" formControlName="nombre">
-                        <div *ngIf="formCli.get('nombre')?.touched && formCli.get('nombre')?.invalid" class="text-danger small">
-                            El nombre es obligatorio.
-                        </div>
-                        <br>
-                        <label class="form-label font-weight-bold">Email:</label>
-                        <input type="email" class="form-control" placeholder="nombre@correo.com" formControlName="email">
-                        <div *ngIf="formCli.get('email')?.touched && formCli.get('email')?.invalid" class="text-danger small">
-                            <span *ngIf="formCli.get('email')?.errors?.['required']">El correo es obligatorio.</span>
-                            <span *ngIf="formCli.get('email')?.errors?.['email']">Ingrese un correo válido.</span>
-                        </div>
-                        <br>
-                        <label class="form-label font-weight-bold">Teléfono:</label>
-                        <input type="text" class="form-control" placeholder="Teléfono a 10 dígitos" formControlName="telefono">
-                        <div *ngIf="formCli.get('telefono')?.touched && formCli.get('telefono')?.invalid" class="text-danger small">
-                            El teléfono es obligatorio.
-                        </div>
-                        <br>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" (click)="guardar()" [disabled]="formCli.invalid">Guardar</button>
-                </div>
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 30%;"> Email </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="text-secondary fw-semibold">{{ element.email }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Teléfono Column -->
+          <ng-container matColumnDef="telefono">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Teléfono </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold fs-8">
+                <i class="bi bi-telephone-fill me-1"></i> {{ element.telefono }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Modificar Column -->
+          <ng-container matColumnDef="modificar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 10%;"> Editar </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="setEditar(element)" title="Editar cliente" style="width: 32px; height: 32px;">
+                <i class="bi bi-pencil-fill fs-8"></i>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Eliminar Column -->
+          <ng-container matColumnDef="eliminar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 10%;"> Eliminar </th>
+            <td mat-cell *matCellDef="let element" class="text-center pe-4">
+              <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" *ngIf="element.id !== 1" (click)="eliminar(element.id)" title="Eliminar cliente" style="width: 32px; height: 32px;">
+                <i class="bi bi-trash-fill fs-8"></i>
+              </button>
+              <span *ngIf="element.id === 1" class="text-muted small fs-9 d-inline-block py-1 px-2 rounded-pill bg-light" title="No se puede eliminar el cliente público general">
+                <i class="bi bi-lock-fill text-muted me-1"></i> Protegido
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        
+        <div *ngIf="totalItems === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-people fs-1 d-block mb-2 text-secondary"></i>
+          No hay clientes registrados.
+        </div>
+      </div>
+      
+      <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page" class="border-top">
+      </mat-paginator>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Cliente -->
+<div class="modal fade" id="clientesModal" tabindex="-1" aria-labelledby="clientesModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-primary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="clientesModalLabel">
+          <i class="bi bi-person-plus-fill me-2"></i>
+          Información del Cliente
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="formCli">
+        <div class="modal-body p-4 bg-light">
+          
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Nombre Completo</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-person text-muted"></i></span>
+              <input type="text" formControlName="nombre" class="form-control border-0 py-2" placeholder="Ej. Juan Pérez">
             </div>
+            <div *ngIf="formCli.get('nombre')?.touched && formCli.get('nombre')?.invalid" class="text-danger small mt-1">
+              El nombre es obligatorio.
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Correo Electrónico</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-envelope text-muted"></i></span>
+              <input type="email" formControlName="email" class="form-control border-0 py-2" placeholder="nombre@correo.com">
+            </div>
+            <div *ngIf="formCli.get('email')?.touched && formCli.get('email')?.invalid" class="text-danger small mt-1">
+              <span *ngIf="formCli.get('email')?.errors?.['required']">El correo es obligatorio.</span>
+              <span *ngIf="formCli.get('email')?.errors?.['email']">Ingrese un correo válido.</span>
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Teléfono</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-telephone text-muted"></i></span>
+              <input type="text" formControlName="telefono" class="form-control border-0 py-2" placeholder="Ej. 5512345678">
+            </div>
+            <div *ngIf="formCli.get('telefono')?.touched && formCli.get('telefono')?.invalid" class="text-danger small mt-1">
+              El teléfono es obligatorio.
+            </div>
+          </div>
+
         </div>
+        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold" (click)="guardar()" [disabled]="formCli.invalid">
+            <i class="bi bi-check-circle-fill me-1"></i> Guardar
+          </button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>

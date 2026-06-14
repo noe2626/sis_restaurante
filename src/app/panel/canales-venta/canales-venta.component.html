@@ -1,0 +1,282 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-sliders text-danger me-3" style="font-size: 2rem;"></i>
+        Canales de Venta y Terceros
+      </h3>
+      <p class="text-muted mb-0">Gestiona los canales de reparto, comisiones externas, cargos de envío y egresos de caja.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar canal..." (input)="onSearch($event)" />
+      </div>
+      <button class="btn btn-danger d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold text-white border-0 bg-gradient" data-bs-toggle="modal" data-bs-target="#canalesVentaModal" (click)="nuevoCanalVenta()">
+        <i class="bi bi-plus-circle-fill fs-5"></i>
+        Nuevo Canal
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-danger"></i> Canales Registrados
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 20%;"> Nombre </th>
+            <td mat-cell *matCellDef="let element" class="ps-4">
+              <span class="fw-bold text-dark">{{ element.nombre }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Sucursal Column -->
+          <ng-container matColumnDef="sucursal">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Sucursal </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2.5 py-1.5 fw-semibold fs-8" *ngIf="element.sucursal">
+                <i class="bi bi-shop me-1"></i>{{ element.sucursal.nombre }}
+              </span>
+              <span class="badge bg-dark-subtle text-dark rounded-pill px-2.5 py-1.5 fw-semibold fs-8" *ngIf="!element.sucursal">
+                <i class="bi bi-globe me-1"></i>Global
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Costo Fijo Column -->
+          <ng-container matColumnDef="costo_fijo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 10%;"> Costo Fijo </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-semibold">
+              {{ element.costo_fijo | currency }}
+            </td>
+          </ng-container>
+
+          <!-- % Comision Column -->
+          <ng-container matColumnDef="porcentaje_comision">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 10%;"> % Comisión </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-semibold">
+              {{ element.porcentaje_comision }}%
+            </td>
+          </ng-container>
+
+          <!-- Cargo Cliente Column -->
+          <ng-container matColumnDef="cargo_cliente">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 15%;"> Envío Cliente </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-bold text-primary">
+              {{ element.cargo_cliente | currency }}
+            </td>
+          </ng-container>
+
+          <!-- Minimo Envio Gratis Column -->
+          <ng-container matColumnDef="minimo_envio_gratis">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 15%;"> Envío Gratis Desde </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-semibold text-success">
+              <span *ngIf="element.minimo_envio_gratis > 0">{{ element.minimo_envio_gratis | currency }}</span>
+              <span class="text-muted small" *ngIf="!element.minimo_envio_gratis || element.minimo_envio_gratis == 0">N/A</span>
+            </td>
+          </ng-container>
+
+          <!-- Descuenta Caja Column -->
+          <ng-container matColumnDef="descuenta_caja">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 10%;"> Resta Caja </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                [ngClass]="element.descuenta_caja == 1 || element.descuenta_caja === true ? 'bg-danger-subtle text-danger' : 'bg-light text-secondary border'">
+                {{ (element.descuenta_caja == 1 || element.descuenta_caja === true) ? 'Sí (Efectivo)' : 'No' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Activo Column -->
+          <ng-container matColumnDef="activo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 10%;"> Estado </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                [ngClass]="element.activo == 1 || element.activo === true ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                {{ (element.activo == 1 || element.activo === true) ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Modificar Column -->
+          <ng-container matColumnDef="modificar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 5%;"> Editar </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#canalesVentaModal" (click)="setEditar(element)" title="Editar canal" style="width: 32px; height: 32px;">
+                <i class="bi bi-pencil-fill fs-8"></i>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Eliminar Column -->
+          <ng-container matColumnDef="eliminar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 5%;"> Eliminar </th>
+            <td mat-cell *matCellDef="let element" class="text-center pe-4">
+              <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" (click)="eliminar(element.id)" [disabled]="element.id === 1 || element.id === 2" title="Eliminar canal" style="width: 32px; height: 32px;">
+                <i class="bi bi-trash-fill fs-8"></i>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <div *ngIf="totalItems === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-sliders fs-1 d-block mb-2 text-secondary"></i>
+          No hay canales de venta registrados.
+        </div>
+      </div>
+      
+      <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page" class="border-top">
+      </mat-paginator>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Crear/Editar Canal de Venta -->
+<div class="modal fade" id="canalesVentaModal" tabindex="-1" aria-labelledby="canalesVentaModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-danger text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="canalesVentaModalLabel">
+          <i class="bi bi-sliders me-2"></i>
+          Configurar Canal de Venta
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="closeModalBtn"></button>
+      </div>
+
+      <form [formGroup]="formCanal">
+        <div class="modal-body p-4 bg-light">
+          
+          <div class="row">
+            <!-- Nombre -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold text-secondary">Nombre del Canal / Servicio *</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-card-text text-muted"></i></span>
+                <input type="text" class="form-control border-0 py-2" placeholder="Ej. Envios McQueen o Uber Eats" formControlName="nombre" [readonly]="formCanal.get('id')?.value === 1 || formCanal.get('id')?.value === 2">
+              </div>
+              <div *ngIf="formCanal.get('id')?.value === 1 || formCanal.get('id')?.value === 2" class="text-muted small mt-1">
+                El nombre de los canales fijos del sistema no puede ser modificado.
+              </div>
+              <div *ngIf="formCanal.get('nombre')?.touched && formCanal.get('nombre')?.invalid" class="text-danger small mt-1">
+                El nombre es requerido (máx. 255 caracteres).
+              </div>
+            </div>
+
+            <!-- Sucursal -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold text-secondary">Sucursal de Operación</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
+                <select class="form-select border-0 py-2" formControlName="idSucursal" [disabled]="formCanal.get('id')?.value === 1 || formCanal.get('id')?.value === 2">
+                  <option [ngValue]="null">Global (Todas las Sucursales)</option>
+                  <option *ngFor="let suc of sucursales" [ngValue]="suc.idSucursal || suc.id">{{ suc.sucursal || suc.nombre }}</option>
+                </select>
+              </div>
+              <div *ngIf="formCanal.get('id')?.value === 1 || formCanal.get('id')?.value === 2" class="text-muted small mt-1">
+                Los canales fijos del sistema son globales y no se pueden asociar a una sucursal específica.
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Costo Fijo Tercero -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold text-secondary">Costo Fijo de Entrega / Servicio ($) *</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-currency-dollar text-muted"></i></span>
+                <input type="number" step="0.01" class="form-control border-0 py-2" formControlName="costo_fijo">
+              </div>
+              <div *ngIf="formCanal.get('costo_fijo')?.touched && formCanal.get('costo_fijo')?.invalid" class="text-danger small mt-1">
+                Ingrese un costo válido (mínimo 0).
+              </div>
+            </div>
+
+            <!-- Porcentaje Comision Tercero -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold text-secondary">Comisión del Tercero (%) *</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-percent text-muted"></i></span>
+                <input type="number" step="0.01" class="form-control border-0 py-2" formControlName="porcentaje_comision">
+              </div>
+              <div *ngIf="formCanal.get('porcentaje_comision')?.touched && formCanal.get('porcentaje_comision')?.invalid" class="text-danger small mt-1">
+                Ingrese un porcentaje válido (de 0 a 100).
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Cargo de Envio Cliente -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold text-secondary">Cargo de Envío al Cliente ($) *</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-currency-dollar text-muted"></i></span>
+                <input type="number" step="0.01" class="form-control border-0 py-2" formControlName="cargo_cliente">
+              </div>
+              <div *ngIf="formCanal.get('cargo_cliente')?.touched && formCanal.get('cargo_cliente')?.invalid" class="text-danger small mt-1">
+                Ingrese un cargo válido (mínimo 0).
+              </div>
+            </div>
+
+            <!-- Minimo Envio Gratis -->
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold text-secondary">Compra mínima para Envío Gratis ($) *</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <span class="input-group-text bg-white border-0"><i class="bi bi-gift text-muted"></i></span>
+                <input type="number" step="0.01" class="form-control border-0 py-2" placeholder="0 para desactivar" formControlName="minimo_envio_gratis">
+              </div>
+              <div *ngIf="formCanal.get('minimo_envio_gratis')?.touched && formCanal.get('minimo_envio_gratis')?.invalid" class="text-danger small mt-1">
+                Ingrese un monto mínimo válido (mínimo 0).
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Descuenta Caja -->
+            <div class="col-md-6 mb-3">
+              <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 d-flex align-items-center justify-content-center">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="flexSwitchCheckDescuenta" formControlName="descuenta_caja">
+                  <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" for="flexSwitchCheckDescuenta">
+                    <i class="bi bi-cash-dash text-danger me-2"></i> Descontar efectivo de Caja
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activo -->
+            <div class="col-md-6 mb-3">
+              <div class="card border-0 shadow-sm rounded-3 p-3 bg-white h-100 d-flex align-items-center justify-content-center">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input cursor-pointer" type="checkbox" role="switch" id="flexSwitchCheckActivo" formControlName="activo">
+                  <label class="form-check-label text-dark fw-semibold fs-7 cursor-pointer" for="flexSwitchCheckActivo">
+                    <i class="bi bi-check-circle text-success me-2"></i> Canal Activo
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger rounded-pill px-4 shadow-sm fw-semibold text-white border-0 bg-gradient" (click)="guardar()" [disabled]="formCanal.invalid">
+            <i class="bi bi-check-circle-fill me-1"></i> Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

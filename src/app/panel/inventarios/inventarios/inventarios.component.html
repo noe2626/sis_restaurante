@@ -1,52 +1,93 @@
-<div class="container mt-3">
-    <div class="row">
-        <div class="col-4">
-            Sucursal:
-            <select (change)="this.listarProductos()" [(ngModel)]="idSucursal" id="idSucursal" class="form-select">
-                <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}
-                </option>
-            </select>
-        </div>
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-boxes text-success me-3" style="font-size: 2rem;"></i>
+        Inventario Físico
+      </h3>
+      <p class="text-muted mb-0">Consulta y actualiza el stock físico y los precios de venta por sucursal.</p>
     </div>
-    <div class="row mt-3">
-        <div class="col-12">
-            <input class="form-control" type="text" placeholder="Buscar Nombre/Código..." (input)="onSearch($event)" />
-        </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Filtro Sucursal -->
+      <div class="d-flex align-items-center bg-white shadow-sm rounded-pill px-3 py-1 border border-light" style="max-width: 280px;">
+        <span class="text-secondary small fw-bold me-2"><i class="bi bi-shop"></i></span>
+        <select (change)="this.listarProductos()" [(ngModel)]="idSucursal" id="idSucursal" class="form-select border-0 bg-transparent py-1 fs-7 ps-0 fw-semibold cursor-pointer">
+          <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
+        </select>
+      </div>
+
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 230px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Nombre/Código..." (input)="onSearch($event)" />
+      </div>
     </div>
-    <div class="row mt-2">
-        <div class="col-12">
-            <table  mat-table [dataSource]="dataSource">
-                <ng-container matColumnDef="producto">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 45%;"> Nombre </th>
-                    <td mat-cell *matCellDef="let element"> {{element.producto}} </td>
-                </ng-container>
-                <ng-container matColumnDef="codigo">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Código </th>
-                    <td mat-cell *matCellDef="let element"> {{element.codigo}} </td>
-                </ng-container>
-                <ng-container matColumnDef="cantidad">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Cantidad </th>
-                    <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input *ngIf="element.inventariar" [(ngModel)]="element.cantidad" type="number" class="input-cantidad"/> </td>
-                </ng-container>
-                <ng-container matColumnDef="precio">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Precio </th>
-                    <td mat-cell *matCellDef="let element" style="padding-right: 0; padding-left: 0;"><input [(ngModel)]="element.precio" type="number" class="input-cantidad"/> </td>
-                </ng-container>
+  </div>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-            </table>
-            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
-            </mat-paginator>
-
-        </div>
-
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-success"></i> Control de Stock y Precios
+      </h6>
+      <button class="btn btn-success d-inline-flex align-items-center gap-2 px-4 py-1.5 rounded-pill shadow-sm fw-semibold text-white border-0 bg-gradient" (click)="guardar()">
+        <i class="bi bi-check-circle-fill fs-6"></i>
+        Guardar Cambios
+      </button>
     </div>
-    <div class="row">
-        <div class="offset-10 col-2">
-            <button class="btn btn-primary mt-3" style="width: 100%;" (click)="guardar()">Guardar</button>
-        </div>
-    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="producto">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 45%;"> Nombre </th>
+            <td mat-cell *matCellDef="let element" class="ps-4 fw-bold text-dark">
+              {{ element.producto }}
+            </td>
+          </ng-container>
 
+          <!-- Código Column -->
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Código </th>
+            <td mat-cell *matCellDef="let element">
+              <code class="text-success fw-semibold px-2 py-1 bg-success-subtle rounded">{{ element.codigo }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Cantidad Column -->
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 15%;"> Cantidad </th>
+            <td mat-cell *matCellDef="let element" class="text-end pe-3">
+              <input *ngIf="element.inventariar" [(ngModel)]="element.cantidad" type="number" class="form-control form-control-sm text-end d-inline-block shadow-sm fw-semibold" style="max-width: 100px; border-color: #dee2e6;" min="0" />
+              <span *ngIf="!element.inventariar" class="text-muted small fs-8">No inventariable</span>
+            </td>
+          </ng-container>
+
+          <!-- Precio Column -->
+          <ng-container matColumnDef="precio">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end pe-4" style="width: 15%;"> Precio </th>
+            <td mat-cell *matCellDef="let element" class="text-end pe-4">
+              <div class="input-group input-group-sm d-inline-flex shadow-sm rounded overflow-hidden" style="max-width: 100px;">
+                <span class="input-group-text bg-light border-end-0" style="font-size: 0.75rem; border-color: #dee2e6;">$</span>
+                <input [(ngModel)]="element.precio" type="number" class="form-control form-control-sm text-end border-start-0 fw-bold text-success" style="border-color: #dee2e6;" min="0" step="0.01" />
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        
+        <div *ngIf="totalItems === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-boxes fs-1 d-block mb-2 text-secondary"></i>
+          No hay productos en inventario para esta sucursal.
+        </div>
+      </div>
+      
+      <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page" class="border-top">
+      </mat-paginator>
+    </div>
+  </div>
 </div>

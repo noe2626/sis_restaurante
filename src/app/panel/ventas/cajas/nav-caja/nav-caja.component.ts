@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CajasService } from '../../../../services/cajas.service';
 import CryptoJS from 'crypto-js';
 import { environment } from '../../../../../environments/environment';
 import Swal from 'sweetalert2';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../../services/auth.service';
 declare var bootstrap: any;
 
 @Component({
@@ -42,8 +44,11 @@ export class NavCajaComponent {
   retiroCierre: number = 0;
   fondoRestante: number = 0;
 
-  constructor(private service:CajasService,
-    private router: Router
+  constructor(
+    private service: CajasService,
+    private router: Router,
+    private authService: AuthService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ){
 
   }
@@ -300,7 +305,21 @@ export class NavCajaComponent {
             text: `La sesión de caja ha sido cerrada con un total físico de $${this.totalFisico.toFixed(2)}.`,
             confirmButtonText: 'Entendido'
           }).then(() => {
-            this.router.navigate(['panel']);
+            let roleId = 0;
+            const encryptedIdTipo = localStorage.getItem('idTipo') || '';
+            if (encryptedIdTipo) {
+              try {
+                roleId = parseInt(CryptoJS.AES.decrypt(encryptedIdTipo, environment.secretKey).toString(CryptoJS.enc.Utf8));
+              } catch (e) {
+                console.error('Error decrypting role in nav-caja:', e);
+              }
+            }
+
+            if (roleId === 3) {
+              window.location.reload();
+            } else {
+              this.router.navigate(['panel']);
+            }
           });
         } else {
           Swal.fire('Error', res.message || 'Error al guardar el arqueo de caja.', 'error');
@@ -339,6 +358,49 @@ export class NavCajaComponent {
     if (this.resumenCierre) {
       this.diferencia = -this.resumenCierre.efectivo_sistema;
     }
+  }
+
+  logoutConfirm(): void {
+    Swal.fire({
+      title: '¿Cerrar sesión de usuario?',
+      text: 'Se cerrará tu sesión actual en el sistema.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, salir',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.logout();
+      }
+    });
+  }
+
+  logout(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.clearSessionAndRedirect();
+      },
+      error: (err) => {
+        console.error('Error al cerrar sesión en servidor:', err);
+        this.clearSessionAndRedirect();
+      }
+    });
+  }
+
+  private clearSessionAndRedirect(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('idUsuario');
+      localStorage.removeItem('idTipo');
+      localStorage.removeItem('idSucursal');
+      localStorage.removeItem('sucursal');
+      localStorage.removeItem('manejaIva');
+      localStorage.removeItem('idCaja');
+      localStorage.removeItem('caja');
+    }
+    this.router.navigate(['/login']);
   }
 
 }

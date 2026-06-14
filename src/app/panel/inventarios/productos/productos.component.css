@@ -1,11 +1,78 @@
-th{
-    text-align: center;
+.table > :not(caption) > * > * {
+  padding: 1rem 0.75rem;
 }
 
-.icono{
-    text-align: center;
+.fs-7 {
+  font-size: 0.875rem !important;
 }
 
-.tabla-componentes{
- width: 100%;
+.fs-8 {
+  font-size: 0.75rem !important;
+}
+
+.fs-9 {
+  font-size: 0.65rem !important;
+}
+
+.tracking-wider {
+  letter-spacing: 0.08em;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.input-group-text {
+  border-right: none;
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: none;
+  background-color: #fff;
+}
+
+.badge {
+  letter-spacing: 0.02em;
+}
+
+.bg-success-subtle {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-secondary-subtle {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+}
+
+.bg-primary-subtle {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.015);
+  transition: background-color 0.2s ease;
+}
+
+.search-container {
+  border: 1px solid #dee2e6;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.search-container:focus-within {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.custom-ng-select .ng-select-container {
+  border: none !important;
+  box-shadow: none !important;
+  background: white;
+}
+.custom-ng-select {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+mat-table, table {
+  width: 100%;
 }

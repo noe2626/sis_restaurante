@@ -1,62 +1,112 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom px-3 py-2 shadow-sm">
+  <div class="container-fluid">
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link fw-semibold" routerLink="/panel/dashboard">
-            <i class="fa-solid fa-house" style="color: gray;"></i>
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
+        <li class="nav-item" *ngIf="roleId === 1 || roleId === 2">
+          <a class="nav-link fw-semibold" routerLink="/panel/dashboard" title="Dashboard / Inicio">
+            <i class="fa-solid fa-house" style="color: gray; font-size: 1.1rem;"></i>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle fw-semibold" id="navbarDropdownVentas" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Ventas
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" routerLink="/ventas">Punto de venta</a>
-            <a class="dropdown-item" routerLink="/panel/ventas">Ventas</a>
-            <a class="dropdown-item" routerLink="/panel/clientes">Clientes</a>
-            
-          </div>
+          <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdownVentas">
+            <li><a class="dropdown-item" routerLink="/ventas"><i class="bi bi-cpu me-2 text-primary"></i>Punto de venta</a></li>
+            <li *ngIf="roleId === 1 || roleId === 2"><a class="dropdown-item" routerLink="/panel/ventas"><i class="bi bi-list-stars me-2 text-success"></i>Historial de Ventas</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/clientes"><i class="bi bi-people me-2 text-info"></i>Clientes</a></li>
+          </ul>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <li class="nav-item dropdown" *ngIf="roleId === 1 || roleId === 2">
+          <a class="nav-link dropdown-toggle fw-semibold" id="navbarDropdownCompras" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Compras
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" routerLink="/panel/compras">Compras</a>
-            <a class="dropdown-item" routerLink="/panel/proveedores">Proveedores</a>
-          </div>
+          <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdownCompras">
+            <li><a class="dropdown-item" routerLink="/panel/compras"><i class="bi bi-bag me-2 text-primary"></i>Historial de Compras</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/proveedores"><i class="bi bi-truck me-2 text-warning"></i>Proveedores</a></li>
+          </ul>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <li class="nav-item dropdown" *ngIf="roleId === 1 || roleId === 2">
+          <a class="nav-link dropdown-toggle fw-semibold" id="navbarDropdownInventario" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Inventario
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" routerLink="/panel/productos">Productos</a>
-            <a class="dropdown-item" routerLink="/panel/inventarios">Inventarios</a>
-          </div>
+          <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdownInventario">
+            <li><a class="dropdown-item" routerLink="/panel/productos"><i class="bi bi-box me-2 text-primary"></i>Productos</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/inventarios"><i class="bi bi-journal-text me-2 text-info"></i>Inventarios</a></li>
+          </ul>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Administracion
+        <li class="nav-item dropdown" *ngIf="roleId === 1 || roleId === 2">
+          <a class="nav-link dropdown-toggle fw-semibold" id="navbarDropdownAdmin" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Administración
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" routerLink="/panel/promociones">Promociones</a>
-          </div>
+          <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdownAdmin">
+            <li><a class="dropdown-item" routerLink="/panel/promociones"><i class="bi bi-tags me-2 text-danger"></i>Promociones</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/precios-cliente"><i class="bi bi-person-badge me-2 text-warning"></i>Precios Especiales</a></li>
+          </ul>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <li class="nav-item dropdown" *ngIf="roleId === 1">
+          <a class="nav-link dropdown-toggle fw-semibold" id="navbarDropdownConfig" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Configuración
           </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" routerLink="/panel/promociones">Usuarios</a>
-          </div>
+          <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdownConfig">
+            <li><a class="dropdown-item" routerLink="/panel/usuarios"><i class="bi bi-person-gear me-2 text-secondary"></i>Usuarios</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/sucursales"><i class="bi bi-shop me-2 text-primary"></i>Sucursales</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/cajas"><i class="bi bi-cash me-2 text-success"></i>Cajas</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/canales-venta"><i class="bi bi-sliders me-2 text-warning"></i>Canales de Venta</a></li>
+          </ul>
+        </li>
+        <li class="nav-item" *ngIf="roleId === 1 || roleId === 2">
+          <a class="nav-link fw-semibold" routerLink="/panel/reportes">Reportes</a>
+        </li>
+      </ul>
+
+      <!-- Lado derecho: Sucursal y Cerrar Sesión -->
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item dropdown me-3" *ngIf="sucursalNombre">
+          <!-- Si tiene más de una sucursal, mostramos el dropdown interactivo -->
+          <ng-container *ngIf="userSucursales.length > 1; else unicaSucursal">
+            <a class="nav-link dropdown-toggle btn btn-light border d-flex align-items-center px-3 py-2 rounded-pill shadow-sm fw-semibold text-dark" 
+               id="navbarDropdownSucursal" role="button" data-bs-toggle="dropdown" aria-expanded="false" 
+               style="cursor: pointer;" title="Cambiar de sucursal">
+              <i class="fa-solid fa-store text-primary me-2"></i>
+              <span>{{ sucursalNombre }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="navbarDropdownSucursal" style="min-width: 200px; border-radius: 12px; margin-top: 8px;">
+              <li>
+                <h6 class="dropdown-header text-uppercase fs-7 fw-bold text-secondary">Mis Sucursales</h6>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li *ngFor="let suc of userSucursales">
+                <a class="dropdown-item d-flex align-items-center justify-content-between py-2 px-3" 
+                   (click)="cambiarSucursal(suc)" 
+                   [class.active]="suc.sucursal === sucursalNombre"
+                   style="cursor: pointer; border-radius: 8px;">
+                  <span>
+                    <i class="fa-solid fa-store me-2" [class.text-white]="suc.sucursal === sucursalNombre"></i>
+                    {{ suc.sucursal }}
+                  </span>
+                  <i *ngIf="suc.sucursal === sucursalNombre" class="fa-solid fa-check ms-2" [class.text-white]="suc.sucursal === sucursalNombre" [class.text-success]="suc.sucursal !== sucursalNombre"></i>
+                </a>
+              </li>
+            </ul>
+          </ng-container>
+          <!-- Si solo tiene una sucursal, mostramos un badge estático y limpio -->
+          <ng-template #unicaSucursal>
+            <span class="badge bg-secondary py-2 px-3 fw-semibold rounded-pill d-flex align-items-center shadow-sm">
+              <i class="fa-solid fa-store me-2"></i> {{ sucursalNombre }}
+            </span>
+          </ng-template>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/panel/ventas">Reportes</a>
+          <button class="btn btn-outline-danger btn-sm d-flex align-items-center px-3 py-2 rounded-pill shadow-sm" (click)="logout()" title="Cerrar sesión de usuario">
+            <i class="fa-solid fa-right-from-bracket me-2"></i>
+            <span class="fw-semibold">Cerrar Sesión</span>
+          </button>
         </li>
       </ul>
     </div>
-  </nav>
+  </div>
+</nav>

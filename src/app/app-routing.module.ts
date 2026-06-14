@@ -14,27 +14,48 @@ import { NuevaVentaComponent } from './panel/ventas/nueva-venta/nueva-venta.comp
 import { ClientesComponent } from './panel/clientes/clientes.component';
 import { PromocionesComponent } from './panel/promociones/promociones.component';
 import { DashboardComponent } from './panel/dashboard/dashboard.component';
+import { UsuariosComponent } from './panel/usuarios/usuarios.component';
+import { SucursalesAdminComponent } from './panel/sucursales/sucursales.component';
+import { CajasAdminComponent } from './panel/cajas/cajas.component';
+import { PreciosClienteComponent } from './panel/precios-cliente/precios-cliente.component';
+import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.component';
+import { ReportesComponent } from './panel/reportes/reportes.component';
+
+// Guards
+import { authGuard } from './guards/auth.guard';
+import { loginGuard } from './guards/login.guard';
+import { branchGuard } from './guards/branch.guard';
+import { roleGuard } from './guards/role.guard';
 
 const routes: Routes = [
-  {path: '',component: LoginComponent},
-  {path: 'login',component: LoginComponent},
-  {path: 'panel',component: InicioComponent,
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent, canActivate: [loginGuard] },
+  {
+    path: 'panel',
+    component: InicioComponent,
+    canActivate: [authGuard, branchGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'productos', component: ProductosComponent},
-      { path: 'inventarios', component: InventariosComponent},
-      { path: 'proveedores', component: ProveedoresComponent},
-      { path: 'compras', component: ComprasComponent},
-      { path: 'compras/editar', component: EditarCompraComponent},
-      { path: 'ventas', component: VentasListaComponent},
-      { path: 'ventas/nueva', component: NuevaVentaComponent},
-      { path: 'clientes', component: ClientesComponent },
-      { path: 'promociones', component: PromocionesComponent }
+      { path: 'dashboard', component: DashboardComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'productos', component: ProductosComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'inventarios', component: InventariosComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'proveedores', component: ProveedoresComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'compras', component: ComprasComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'compras/editar', component: EditarCompraComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'ventas', component: VentasListaComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'ventas/nueva', component: NuevaVentaComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'clientes', component: ClientesComponent, canActivate: [roleGuard], data: { roles: [1, 2, 3] } },
+      { path: 'promociones', component: PromocionesComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'precios-cliente', component: PreciosClienteComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'canales-venta', component: CanalesVentaComponent, canActivate: [roleGuard], data: { roles: [1] } },
+      { path: 'reportes', component: ReportesComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'usuarios', component: UsuariosComponent, canActivate: [roleGuard], data: { roles: [1] } },
+      { path: 'sucursales', component: SucursalesAdminComponent, canActivate: [roleGuard], data: { roles: [1] } },
+      { path: 'cajas', component: CajasAdminComponent, canActivate: [roleGuard], data: { roles: [1] } }
     ]
   },
-  {path: 'sucursales',component: SucursalesComponent},
-  {path: 'ventas', component: VentasComponent}
+  { path: 'sucursales', component: SucursalesComponent, canActivate: [authGuard] },
+  { path: 'ventas', component: VentasComponent, canActivate: [authGuard, branchGuard], canActivateChild: [roleGuard], data: { roles: [1, 2, 3] } }
 ];
 
 @NgModule({

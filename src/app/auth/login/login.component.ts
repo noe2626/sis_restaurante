@@ -32,8 +32,10 @@ export class LoginComponent {
       next: (data:any) => {
         if (data.success) {
           const encryptedIdUsuario = CryptoJS.AES.encrypt(data.data.id.toString(), environment.secretKey).toString();
+          const encryptedIdTipo = CryptoJS.AES.encrypt(data.data.idTipo.toString(), environment.secretKey).toString();
           localStorage.setItem('userToken',data.data.token);
           localStorage.setItem('idUsuario',encryptedIdUsuario);
+          localStorage.setItem('idTipo', encryptedIdTipo);
           this.router.navigate(['sucursales'])
         }
       },

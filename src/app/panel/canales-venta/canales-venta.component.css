@@ -1,0 +1,97 @@
+.card {
+  border-radius: 16px;
+  background-color: #ffffff;
+}
+
+.table th {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  background-color: #f8f9fa !important;
+  color: #6c757d !important;
+  border-bottom: 2px solid #dee2e6;
+  padding: 1rem 0.75rem;
+}
+
+.table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #f1f2f4;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(220, 53, 69, 0.02) !important;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.search-container {
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease-in-out;
+}
+
+.search-container:focus-within {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.15);
+}
+
+.btn-danger.bg-gradient {
+  background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-danger.bg-gradient:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-outline-primary, .btn-outline-danger {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-outline-primary:hover {
+  transform: scale(1.1);
+}
+
+.btn-outline-danger:hover {
+  transform: scale(1.1);
+}
+
+.modal-content {
+  overflow: hidden;
+}
+
+.modal-header.bg-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%) !important;
+}
+
+.form-select, .form-control {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-select:focus, .form-control:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.1) !important;
+}
+
+.badge {
+  letter-spacing: 0.02em;
+}
+
+.fs-9 {
+  font-size: 0.65rem;
+}
+.fs-8 {
+  font-size: 0.75rem;
+}
+.fs-7 {
+  font-size: 0.85rem;
+}
+
+.tracking-wider {
+  letter-spacing: 0.08em;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

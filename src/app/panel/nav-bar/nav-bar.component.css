@@ -1,0 +1,28 @@
+/* Custom premium styles for navbar and dropdowns */
+.dropdown-menu {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item:active {
+  background-color: #0d6efd !important;
+}
+
+.nav-link.dropdown-toggle::after {
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}

@@ -1,0 +1,20 @@
+import { inject, PLATFORM_ID } from '@angular/core';
+import { Router, CanActivateFn } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+
+export const branchGuard: CanActivateFn = (route, state) => {
+  const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
+
+  if (!isPlatformBrowser(platformId)) {
+    return true;
+  }
+
+  const idSucursal = localStorage.getItem('idSucursal');
+  if (idSucursal) {
+    return true;
+  }
+
+  router.navigate(['/sucursales']);
+  return false;
+};

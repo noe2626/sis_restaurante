@@ -1,0 +1,71 @@
+.avatar-circle-prov {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #6c757d, #adb5bd);
+}
+
+.table > :not(caption) > * > * {
+  padding: 1rem 0.75rem;
+}
+
+.fs-7 {
+  font-size: 0.875rem !important;
+}
+
+.fs-8 {
+  font-size: 0.75rem !important;
+}
+
+.fs-9 {
+  font-size: 0.65rem !important;
+}
+
+.tracking-wider {
+  letter-spacing: 0.08em;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.input-group-text {
+  border-right: none;
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: none;
+  background-color: #fff;
+}
+
+.badge {
+  letter-spacing: 0.02em;
+}
+
+.bg-secondary-subtle {
+  background-color: rgba(108, 117, 125, 0.1) !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.015);
+  transition: background-color 0.2s ease;
+}
+
+.search-container {
+  border: 1px solid #dee2e6;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.search-container:focus-within {
+  border-color: #6c757d;
+  box-shadow: 0 0 0 0.25rem rgba(108, 117, 125, 0.25) !important;
+}
+
+mat-table, table {
+  width: 100%;
+}

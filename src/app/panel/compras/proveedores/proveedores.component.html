@@ -1,90 +1,187 @@
-<div class="container mt-3">
-    <div class="row">
-        <h5>Proveedores</h5>
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-truck text-secondary me-3" style="font-size: 2rem;"></i>
+        Proveedores
+      </h3>
+      <p class="text-muted mb-0">Administra la base de datos de proveedores e información de facturación (RFC).</p>
     </div>
-    <div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#proveedoresModal"
-        (click)="nuevoProveedor()">Agregar</button>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Nombre/RFC..." (input)="onSearch($event)" />
+      </div>
+      <button class="btn btn-secondary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold bg-gradient border-0 text-white" data-bs-toggle="modal" data-bs-target="#proveedoresModal" (click)="nuevoProveedor()">
+        <i class="bi bi-person-plus-fill fs-5"></i>
+        Nuevo Proveedor
+      </button>
     </div>
-    <div class="row mt-3">
-        <div class="col-12">
-            <input class="form-control" type="text" placeholder="Buscar por Nombre/Email..." (input)="onSearch($event)" />
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-secondary"></i> Proveedores Registrados
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 25%;"> Nombre </th>
+            <td mat-cell *matCellDef="let element" class="ps-4">
+              <div class="d-flex align-items-center">
+                <div class="avatar-circle-prov bg-secondary text-white fw-bold me-3">
+                  <i class="bi bi-building"></i>
+                </div>
+                <span class="fw-bold text-dark">{{ element.nombre }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Email </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="text-secondary fw-semibold">{{ element.email }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Teléfono Column -->
+          <ng-container matColumnDef="telefono">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Teléfono </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold fs-8">
+                <i class="bi bi-telephone-fill me-1"></i> {{ element.telefono }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- RFC Column -->
+          <ng-container matColumnDef="rfc">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> RFC </th>
+            <td mat-cell *matCellDef="let element">
+              <code class="text-secondary fw-bold px-2 py-1 bg-light border rounded">{{ element.rfc }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Modificar Column -->
+          <ng-container matColumnDef="modificar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 5%;"> Editar </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#proveedoresModal" (click)="setEditar(element)" title="Editar proveedor" style="width: 32px; height: 32px;">
+                <i class="bi bi-pencil-fill fs-8"></i>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Eliminar Column -->
+          <ng-container matColumnDef="eliminar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 5%;"> Eliminar </th>
+            <td mat-cell *matCellDef="let element" class="text-center pe-4">
+              <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" *ngIf="element.id !== 1" (click)="eliminar(element.id)" title="Eliminar proveedor" style="width: 32px; height: 32px;">
+                <i class="bi bi-trash-fill fs-8"></i>
+              </button>
+              <span *ngIf="element.id === 1" class="text-muted small fs-9 d-inline-block py-1 px-2 rounded-pill bg-light" title="No se puede eliminar el proveedor principal">
+                <i class="bi bi-lock-fill text-muted me-1"></i> Protegido
+              </span>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        
+        <div *ngIf="totalItems === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-truck fs-1 d-block mb-2 text-secondary"></i>
+          No hay proveedores registrados.
         </div>
+      </div>
+      
+      <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page" class="border-top">
+      </mat-paginator>
     </div>
-    <div class="row mt-2">
-        <div class="col-12">
-            <table  mat-table [dataSource]="dataSource">
-                <ng-container matColumnDef="nombre">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Nombre </th>
-                    <td mat-cell *matCellDef="let element"> {{element.nombre}} </td>
-                </ng-container>
-                <ng-container matColumnDef="email">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 25%;"> Email </th>
-                    <td mat-cell *matCellDef="let element"> {{element.email}} </td>
-                </ng-container>
-                <ng-container matColumnDef="telefono">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> Teléfono </th>
-                    <td mat-cell *matCellDef="let element"> {{element.telefono}} </td>
-                </ng-container>
-                <ng-container matColumnDef="rfc">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 20%;"> RFC </th>
-                    <td mat-cell *matCellDef="let element"> {{element.rfc}} </td>
-                </ng-container>
-                <ng-container matColumnDef="modificar">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Modificar </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;"> <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#proveedoresModal"
-                        (click)="setEditar(element)"><i style="color: gray;"
-                            class="fa-solid fa-pen-to-square"></i></a> </td>
-                </ng-container>
-                <ng-container matColumnDef="eliminar">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 10%; text-align: center;"> Eliminar </th>
-                    <td mat-cell *matCellDef="let element" style="text-align: center;"> 
-                        <a *ngIf="element.id !== 1" style="cursor: pointer;" (click)="eliminar(element.id)">
-                            <i style="color: red;" class="fa-solid fa-trash"></i>
-                        </a>
-                        <span *ngIf="element.id === 1" style="color: lightgray; cursor: not-allowed;" title="No se puede eliminar el proveedor general">
-                            <i class="fa-solid fa-trash"></i>
-                        </span>
-                    </td>
-                </ng-container>
+  </div>
+</div>
 
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+<!-- Modal para Crear/Editar Proveedor -->
+<div class="modal fade" id="proveedoresModal" tabindex="-1" aria-labelledby="proveedoresModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-secondary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="proveedoresModalLabel">
+          <i class="bi bi-person-plus-fill me-2"></i>
+          Información del Proveedor
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
 
-            </table>
-            <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page">
-            </mat-paginator>
-        </div>
-    </div>
-
-    <div class="modal fade" id="proveedoresModal" tabindex="-1" role="dialog" aria-labelledby="proveedoresModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="proveedoresModalLabel">Información de proveedor</h5>
-                </div>
-                <div class="modal-body">
-                    <form [formGroup]="formPro">
-                        Proveedor:
-                        <input type="text" class="form-control" placeholder="Nombre" formControlName="nombre">
-                        <br>
-                        Email:
-                        <input type="text" class="form-control" placeholder="Email" formControlName="email">
-                        <br>
-                        Teléfono:
-                        <input type="text" class="form-control" placeholder="Teléfono" formControlName="telefono">
-                        <br>
-                        RFC:
-                        <input type="text" class="form-control" placeholder="RFC" formControlName="rfc">
-                        <br>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" (click)="guardar()">Guardar</button>
-                </div>
+      <form [formGroup]="formPro">
+        <div class="modal-body p-4 bg-light">
+          
+          <!-- Nombre -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Nombre / Razón Social</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-building text-muted"></i></span>
+              <input type="text" formControlName="nombre" class="form-control border-0 py-2" placeholder="Ej. Distribuidores del Norte S.A.">
             </div>
-        </div>
-    </div>
+            <div *ngIf="formPro.get('nombre')?.touched && formPro.get('nombre')?.invalid" class="text-danger small mt-1">
+              El nombre es obligatorio.
+            </div>
+          </div>
 
+          <!-- Email -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Correo Electrónico</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-envelope text-muted"></i></span>
+              <input type="email" formControlName="email" class="form-control border-0 py-2" placeholder="ejemplo@proveedor.com">
+            </div>
+            <div *ngIf="formPro.get('email')?.touched && formPro.get('email')?.invalid" class="text-danger small mt-1">
+              <span *ngIf="formPro.get('email')?.errors?.['required']">El correo es obligatorio.</span>
+              <span *ngIf="formPro.get('email')?.errors?.['email']">Ingrese un correo válido.</span>
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Teléfono de Contacto</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-telephone text-muted"></i></span>
+              <input type="text" formControlName="telefono" class="form-control border-0 py-2" placeholder="Ej. 8181234567">
+            </div>
+            <div *ngIf="formPro.get('telefono')?.touched && formPro.get('telefono')?.invalid" class="text-danger small mt-1">
+              El teléfono es obligatorio.
+            </div>
+          </div>
+
+          <!-- RFC -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">RFC (Identificación Fiscal)</label>
+            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-file-earmark-text text-muted"></i></span>
+              <input type="text" formControlName="rfc" class="form-control border-0 py-2" placeholder="Ej. DNO180101ABC">
+            </div>
+            <div *ngIf="formPro.get('rfc')?.touched && formPro.get('rfc')?.invalid" class="text-danger small mt-1">
+              El RFC es obligatorio.
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-secondary rounded-pill px-4 shadow-sm fw-semibold text-white bg-gradient border-0" (click)="guardar()" [disabled]="formPro.invalid">
+            <i class="bi bi-check-circle-fill me-1"></i> Guardar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
