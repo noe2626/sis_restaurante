@@ -46,15 +46,17 @@ export class ProductosComponent implements OnInit {
       se_compra: [true, Validators.required]
     });
 
+    const defaultSucursalId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('idSucursal') || '0') : 0;
+
     this.formPrecio = this.fb.group({
-      idSucursal: [localStorage.getItem('idSucursal'), Validators.required],
+      idSucursal: [defaultSucursalId, Validators.required],
       idProducto: [0, Validators.required],
       nombre: [null, Validators.required],
       precio: [0.0, Validators.required],
     });
 
     this.formInventario = this.fb.group({
-      idSucursal: [localStorage.getItem('idSucursal'), Validators.required],
+      idSucursal: [defaultSucursalId, Validators.required],
       idProducto: [0, Validators.required],
       nombre: [null, Validators.required],
       cantidad: [0, Validators.required],
@@ -134,15 +136,17 @@ export class ProductosComponent implements OnInit {
   }
 
   cargarPreciosData(idProducto: any, producto: string) {
-    this.formPrecio.patchValue({ idProducto: idProducto, nombre: producto });
+    const defaultSucursalId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('idSucursal') || '0') : 0;
+    this.formPrecio.patchValue({ idSucursal: defaultSucursalId, idProducto: idProducto, nombre: producto });
     this.getSucursales();
     this.getPrecioProducto();
   }
 
   cargarInventariosData(idProducto: any, producto: string) {
+    const defaultSucursalId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('idSucursal') || '0') : 0;
     this.getSucursales();
     this.getInventarioProducto();
-    this.formInventario.patchValue({ idProducto: idProducto, nombre: producto });
+    this.formInventario.patchValue({ idSucursal: defaultSucursalId, idProducto: idProducto, nombre: producto });
   }
 
   changeSucursalPrecio() {

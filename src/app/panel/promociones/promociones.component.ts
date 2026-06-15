@@ -40,7 +40,7 @@ export class PromocionesComponent implements OnInit {
     this.formPromo = this.fb.group({
       id: [null],
       idProducto: [null, Validators.required],
-      idSucursal: [null],
+      idSucursal: [0],
       descripcion: [null, Validators.required],
       tipo: ['fijo', Validators.required],
       valor: [0, [Validators.required, Validators.min(0)]],
@@ -176,7 +176,7 @@ export class PromocionesComponent implements OnInit {
     this.formPromo.reset({
       id: null,
       idProducto: null,
-      idSucursal: this.roleId === 2 ? this.idSucursal : null,
+      idSucursal: this.roleId === 2 ? this.idSucursal : 0,
       descripcion: null,
       tipo: 'fijo',
       valor: 0,
@@ -201,7 +201,7 @@ export class PromocionesComponent implements OnInit {
     this.formPromo.reset({
       id: promo.id,
       idProducto: promo.idProducto,
-      idSucursal: promo.idSucursal,
+      idSucursal: promo.idSucursal === null || promo.idSucursal === undefined ? 0 : promo.idSucursal,
       descripcion: promo.descripcion,
       tipo: promo.tipo,
       valor: promo.valor,
@@ -230,6 +230,9 @@ export class PromocionesComponent implements OnInit {
 
     // Usar getRawValue para obtener también campos deshabilitados
     const promocion = this.formPromo.getRawValue();
+    if (promocion.idSucursal === 0 || promocion.idSucursal === '0') {
+      promocion.idSucursal = null;
+    }
     
     // Convertir activo a booleano/número
     promocion.activo = promocion.activo ? 1 : 0;

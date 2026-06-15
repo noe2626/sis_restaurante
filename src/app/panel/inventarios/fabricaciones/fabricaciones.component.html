@@ -17,7 +17,7 @@
   </div>
 
   <!-- Contenedor Principal (Tabla) -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="card border-0 shadow-sm rounded-4 ">
     <div class="card-header bg-white py-3 border-bottom-0">
       <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
         <i class="bi bi-list-nested me-2 text-primary"></i> Historial de Fabricaciones
@@ -131,7 +131,7 @@
           <div class="row g-3 mb-4">
             <div class="col-md-6">
               <label class="form-label fw-bold text-secondary">Cantidad Fabricada *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <input type="number" step="0.01" class="form-control border-0 py-2.5" [(ngModel)]="nuevaFabricacion.cantidad" name="cantidad" placeholder="0.00" required min="0.01" (ngModelChange)="recalcularInsumos()" />
                 <span class="input-group-text border-0 bg-white text-muted py-2.5 px-3 fw-semibold">
                   {{ getUnidadMedidaSeleccionada() }}
@@ -159,7 +159,7 @@
               <div class="row g-2">
                 <div class="col-md-6">
                   <label class="form-label small fw-semibold text-muted mb-1">Cant. de Inventario (Fresco)</label>
-                  <div class="input-group input-group-sm shadow-sm rounded-2 overflow-hidden">
+                  <div class="input-group input-group-sm shadow-sm rounded-2 ">
                     <input type="number" step="0.01" class="form-control border-0 py-1" [(ngModel)]="ins.cantidadEstandar" name="cantidadEstandar_{{idx}}" placeholder="0.00" required min="0" />
                     <span class="input-group-text border-0 bg-white text-muted py-1 px-2 fw-semibold small">
                       {{ ins.unidad_medida }}
@@ -168,7 +168,7 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small fw-semibold text-muted mb-1">Cant. desde Merma</label>
-                  <div class="input-group input-group-sm shadow-sm rounded-2 overflow-hidden">
+                  <div class="input-group input-group-sm shadow-sm rounded-2 ">
                     <input type="number" step="0.01" class="form-control border-0 py-1" [(ngModel)]="ins.cantidadMerma" name="cantidadMerma_{{idx}}" placeholder="0.00" required min="0" />
                     <span class="input-group-text border-0 bg-white text-muted py-1 px-2 fw-semibold small">
                       {{ ins.unidad_medida }}

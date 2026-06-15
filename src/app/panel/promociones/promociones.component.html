@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar producto o descripción..." (input)="onSearch($event)" />
       </div>
@@ -22,7 +22,7 @@
   </div>
 
   <!-- Contenedor Principal (Tabla) -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="card border-0 shadow-sm rounded-4 ">
     <div class="card-header bg-white py-3 border-bottom-0">
       <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
         <i class="bi bi-list-nested me-2 text-danger"></i> Promociones Registradas
@@ -172,7 +172,7 @@
             <!-- Producto -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Producto *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
                 <ng-select class="custom-ng-select border-0"
                            formControlName="idProducto"
@@ -195,13 +195,13 @@
             <!-- Sucursal -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Sucursal (Vacío para Global)</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
                 <ng-select class="custom-ng-select border-0"
                            formControlName="idSucursal"
                            [clearable]="false"
                            placeholder="Seleccione una sucursal">
-                  <ng-option [value]="null" *ngIf="roleId !== 2">Global (Todas las Sucursales)</ng-option>
+                  <ng-option [value]="0" *ngIf="roleId !== 2">Global (Todas las Sucursales)</ng-option>
                   <ng-option *ngFor="let s of sucursales" [value]="s.idSucursal">{{ s.sucursal }}</ng-option>
                 </ng-select>
               </div>
@@ -211,7 +211,7 @@
           <!-- Descripción -->
           <div class="mb-3">
             <label class="form-label fw-semibold text-secondary">Descripción / Nombre Promo *</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-card-text text-muted"></i></span>
               <input type="text" class="form-control border-0 py-2" placeholder="Ej. 2x1 en Pollos o 15% Descuento Jueves" formControlName="descripcion">
             </div>
@@ -224,7 +224,7 @@
             <!-- Tipo -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Tipo de Promoción *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-sliders text-muted"></i></span>
                 <ng-select class="custom-ng-select border-0"
                            formControlName="tipo"
@@ -244,7 +244,7 @@
               <label class="form-label fw-semibold text-secondary">
                 Valor ({{ formPromo.get('tipo')?.value === 'porcentaje' ? '%' : '$' }}) *
               </label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-currency-dollar text-muted"></i></span>
                 <input type="number" step="0.01" class="form-control border-0 py-2" formControlName="valor">
               </div>
@@ -261,7 +261,7 @@
               <label class="form-label fw-semibold text-secondary">
                 {{ formPromo.get('tipo')?.value === 'mayoreo' ? 'Cantidad Mínima Requerida *' : 'Cantidad Compra (X) *' }}
               </label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-bag-plus text-muted"></i></span>
                 <input type="number" class="form-control border-0 py-2" placeholder="Ej. 5" formControlName="cantidad_compra">
               </div>
@@ -273,7 +273,7 @@
             <!-- Cantidad Gratis -->
             <div class="col-md-6 mb-3" *ngIf="formPromo.get('tipo')?.value === 'oferta_dinamica'">
               <label class="form-label fw-semibold text-secondary">Cantidad Gratis (Y) *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-gift text-muted"></i></span>
                 <input type="number" class="form-control border-0 py-2" placeholder="Ej. 1" formControlName="cantidad_gratis">
               </div>
@@ -287,7 +287,7 @@
             <!-- Fecha Inicio -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Fecha Inicio *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-calendar-date text-muted"></i></span>
                 <input type="date" class="form-control border-0 py-2" formControlName="fecha_inicio">
               </div>
@@ -299,7 +299,7 @@
             <!-- Fecha Fin -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Fecha Fin *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-calendar-date text-muted"></i></span>
                 <input type="date" class="form-control border-0 py-2" formControlName="fecha_fin">
               </div>

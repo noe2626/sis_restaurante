@@ -44,7 +44,7 @@ export class PreciosClienteComponent implements OnInit {
       id: [null],
       idCliente: [null, Validators.required],
       idProducto: [null, Validators.required],
-      idSucursal: [null],
+      idSucursal: [0],
       tipo_ajuste: ['fijo', Validators.required],
       valor_ajuste: [0, [Validators.required, Validators.min(0)]],
       activo: [true]
@@ -159,7 +159,7 @@ export class PreciosClienteComponent implements OnInit {
       id: null,
       idCliente: null,
       idProducto: null,
-      idSucursal: this.roleId === 2 ? this.idSucursal : null,
+      idSucursal: this.roleId === 2 ? this.idSucursal : 0,
       tipo_ajuste: 'fijo',
       valor_ajuste: 0,
       activo: true
@@ -178,7 +178,7 @@ export class PreciosClienteComponent implements OnInit {
       id: precio.id,
       idCliente: precio.idCliente,
       idProducto: precio.idProducto,
-      idSucursal: precio.idSucursal,
+      idSucursal: precio.idSucursal === null || precio.idSucursal === undefined ? 0 : precio.idSucursal,
       tipo_ajuste: precio.tipo_ajuste || 'fijo',
       valor_ajuste: precio.valor_ajuste !== undefined ? precio.valor_ajuste : precio.precio_especial,
       activo: precio.activo === 1 || precio.activo === true
@@ -199,6 +199,9 @@ export class PreciosClienteComponent implements OnInit {
     }
 
     const priceData = this.formPrecio.getRawValue();
+    if (priceData.idSucursal === 0 || priceData.idSucursal === '0') {
+      priceData.idSucursal = null;
+    }
     priceData.activo = priceData.activo ? 1 : 0;
 
     this.preciosClienteService.guardarPrecioCliente(priceData).subscribe({

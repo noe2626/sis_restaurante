@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input type="text" [(ngModel)]="searchText" class="form-control border-0 py-2 fs-7 ps-0" placeholder="Buscar caja o sucursal...">
       </div>
@@ -29,7 +29,7 @@
   </div>
 
   <!-- Contenedor Principal (Tabla) -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden" *ngIf="!loading">
+  <div class="card border-0 shadow-sm rounded-4 " *ngIf="!loading">
     <div class="card-header bg-white py-3 border-bottom-0">
       <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
         <i class="bi bi-list-nested me-2 text-success"></i> Cajas Registradas
@@ -125,7 +125,7 @@
           <!-- Nombre de Caja -->
           <div class="mb-3">
             <label class="form-label fw-semibold text-secondary">Nombre de la Caja</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-inbox text-muted"></i></span>
               <input type="text" formControlName="caja" class="form-control border-0 py-2" placeholder="Ej. Caja 1, Caja Principal">
             </div>
@@ -158,7 +158,7 @@
             <label class="form-label fw-semibold text-secondary">
               {{ isEditMode ? 'Saldo de Efectivo Actual' : 'Saldo de Efectivo Inicial' }}
             </label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-currency-dollar text-muted"></i></span>
               <input type="number" formControlName="efectivo" class="form-control border-0 py-2 text-success fw-bold" placeholder="0.00" min="0" step="0.01">
             </div>
@@ -172,12 +172,14 @@
           <!-- Estado (Activo/Inactivo) - Solo al editar -->
           <div class="mb-3" *ngIf="isEditMode">
             <label class="form-label fw-semibold text-secondary">Estado</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-toggle-on text-muted"></i></span>
-              <select formControlName="idStatus" class="form-select border-0 py-2">
-                <option [value]="1">Activa</option>
-                <option [value]="0">Inactiva (Dada de baja)</option>
-              </select>
+              <ng-select formControlName="idStatus"
+                         [clearable]="false"
+                         class="custom-ng-select border-0">
+                <ng-option [value]="1">Activa</ng-option>
+                <ng-option [value]="0">Inactiva (Dada de baja)</ng-option>
+              </ng-select>
             </div>
           </div>
 

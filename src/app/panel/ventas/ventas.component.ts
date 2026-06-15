@@ -375,6 +375,16 @@ export class VentasComponent implements OnInit{
     return canal ? canal.nombre : 'Ninguno';
   }
 
+  get costoTotalCanal(): number {
+    if (!this.idCanalVenta) return 0;
+    const canal = this.canalesVenta.find(c => c.id === this.idCanalVenta);
+    if (!canal) return 0;
+    const costoFijo = parseFloat(canal.costo_fijo) || 0;
+    const porcentajeComision = parseFloat(canal.porcentaje_comision) || 0;
+    const comisionMonto = this.subTotal * (porcentajeComision / 100);
+    return costoFijo + comisionMonto;
+  }
+
   // Método para agregar productos rápidamente
   agregarProductoRapido(producto: any): void {
     const item = { 

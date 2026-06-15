@@ -35,7 +35,7 @@ export class CanalesVentaComponent implements OnInit {
     this.formCanal = this.fb.group({
       id: [null],
       nombre: ['', [Validators.required, Validators.maxLength(255)]],
-      idSucursal: [null],
+      idSucursal: [0],
       costo_fijo: [0, [Validators.required, Validators.min(0)]],
       porcentaje_comision: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
       cargo_cliente: [0, [Validators.required, Validators.min(0)]],
@@ -110,7 +110,7 @@ export class CanalesVentaComponent implements OnInit {
     this.formCanal.reset({
       id: null,
       nombre: '',
-      idSucursal: null,
+      idSucursal: 0,
       costo_fijo: 0,
       porcentaje_comision: 0,
       cargo_cliente: 0,
@@ -124,7 +124,7 @@ export class CanalesVentaComponent implements OnInit {
     this.formCanal.reset({
       id: canal.id,
       nombre: canal.nombre,
-      idSucursal: canal.idSucursal,
+      idSucursal: canal.idSucursal === null || canal.idSucursal === undefined ? 0 : canal.idSucursal,
       costo_fijo: canal.costo_fijo,
       porcentaje_comision: canal.porcentaje_comision,
       cargo_cliente: canal.cargo_cliente,
@@ -141,6 +141,9 @@ export class CanalesVentaComponent implements OnInit {
     }
 
     const canalData = this.formCanal.getRawValue();
+    if (canalData.idSucursal === 0 || canalData.idSucursal === '0') {
+      canalData.idSucursal = null;
+    }
     canalData.activo = canalData.activo ? 1 : 0;
     canalData.descuenta_caja = canalData.descuenta_caja ? 1 : 0;
 

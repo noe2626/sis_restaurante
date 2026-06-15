@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar cliente o producto..." (input)="onSearch($event)" />
       </div>
@@ -22,7 +22,7 @@
   </div>
 
   <!-- Contenedor Principal (Tabla) -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="card border-0 shadow-sm rounded-4 ">
     <div class="card-header bg-white py-3 border-bottom-0">
       <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
         <i class="bi bi-list-nested me-2 text-danger"></i> Precios Especiales Registrados
@@ -160,7 +160,7 @@
             <!-- Cliente -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Cliente *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-person-fill text-muted"></i></span>
                 <ng-select class="custom-ng-select border-0"
                            formControlName="idCliente"
@@ -182,7 +182,7 @@
             <!-- Producto -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Producto *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
                 <ng-select class="custom-ng-select border-0"
                            formControlName="idProducto"
@@ -207,13 +207,13 @@
             <!-- Sucursal -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Sucursal (Vacío para Global)</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
                 <ng-select class="custom-ng-select border-0"
                            formControlName="idSucursal"
                            [clearable]="false"
                            placeholder="Seleccione una sucursal">
-                  <ng-option [value]="null" *ngIf="roleId !== 2">Global (Todas las Sucursales)</ng-option>
+                  <ng-option [value]="0" *ngIf="roleId !== 2">Global (Todas las Sucursales)</ng-option>
                   <ng-option *ngFor="let s of sucursales" [value]="s.idSucursal">{{ s.sucursal }}</ng-option>
                 </ng-select>
               </div>
@@ -222,7 +222,7 @@
             <!-- Tipo de Ajuste -->
             <div class="col-md-6 mb-3">
               <label class="form-label fw-semibold text-secondary">Tipo de Ajuste *</label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-sliders text-muted"></i></span>
                 <ng-select class="custom-ng-select border-0"
                            formControlName="tipo_ajuste"
@@ -244,7 +244,7 @@
               <label class="form-label fw-semibold text-secondary">
                 Valor del Ajuste ({{ formPrecio.get('tipo_ajuste')?.value?.includes('porcentaje') ? '%' : '$' }}) *
               </label>
-              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+              <div class="input-group shadow-sm rounded-3 ">
                 <span class="input-group-text bg-white border-0">
                   <i class="bi" [ngClass]="formPrecio.get('tipo_ajuste')?.value?.includes('porcentaje') ? 'bi-percent' : 'bi-currency-dollar'"></i>
                 </span>

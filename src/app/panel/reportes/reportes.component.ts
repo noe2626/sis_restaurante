@@ -15,7 +15,7 @@ export class ReportesComponent implements OnInit {
 
   fechaInicio: string = '';
   fechaFin: string = '';
-  idSucursalSelected: number | null = null;
+  idSucursalSelected: number = 0;
   roleId: number = 0;
   sucursales: any[] = [];
   
@@ -92,7 +92,7 @@ export class ReportesComponent implements OnInit {
     }
 
     this.loading = true;
-    const filterSucursal = this.idSucursalSelected ? this.idSucursalSelected : undefined;
+    const filterSucursal = (this.idSucursalSelected && this.idSucursalSelected !== 0) ? this.idSucursalSelected : undefined;
 
     if (this.activeTab === 'general') {
       this.reportesService.obtenerReporte(this.fechaInicio, this.fechaFin, filterSucursal).subscribe({

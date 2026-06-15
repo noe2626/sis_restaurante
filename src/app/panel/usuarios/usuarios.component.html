@@ -10,7 +10,7 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill overflow-hidden bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input type="text" [(ngModel)]="searchText" class="form-control border-0 py-2 fs-7 ps-0" placeholder="Buscar usuario o rol...">
       </div>
@@ -29,7 +29,7 @@
   </div>
 
   <!-- Contenedor Principal (Tabla) -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden" *ngIf="!loading">
+  <div class="card border-0 shadow-sm rounded-4 " *ngIf="!loading">
     <div class="card-header bg-white py-3 border-bottom-0">
       <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
         <i class="bi bi-list-nested me-2 text-primary"></i> Lista de Usuarios Registrados
@@ -151,7 +151,7 @@
           <!-- Nombre Completo -->
           <div class="mb-3">
             <label class="form-label fw-semibold text-secondary">Nombre Completo</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-person text-muted"></i></span>
               <input type="text" formControlName="name" class="form-control border-0 py-2" placeholder="Ej. Juan Pérez">
             </div>
@@ -163,7 +163,7 @@
           <!-- Usuario / Login -->
           <div class="mb-3">
             <label class="form-label fw-semibold text-secondary">Usuario (Username)</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-person-badge text-muted"></i></span>
               <input type="text" formControlName="user" class="form-control border-0 py-2" placeholder="Ej. jperez" [readonly]="isEditMode && userForm.get('user')?.value === 'admin'">
             </div>
@@ -175,7 +175,7 @@
           <!-- Rol / Tipo -->
           <div class="mb-3">
             <label class="form-label fw-semibold text-secondary">Rol del Usuario</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-shield-check text-muted"></i></span>
               <ng-select formControlName="idTipo"
                          [items]="roles"
@@ -198,7 +198,7 @@
               <span>Contraseña</span>
               <span class="badge bg-secondary-subtle text-secondary small py-1 px-2" *ngIf="isEditMode">Opcional (llenar solo para cambiar)</span>
             </label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-key text-muted"></i></span>
               <input type="password" formControlName="password" class="form-control border-0 py-2" placeholder="Mínimo 4 caracteres">
             </div>
@@ -210,7 +210,7 @@
           <!-- Estado (Activo/Inactivo) -->
           <div class="mb-3" *ngIf="isEditMode && userForm.get('user')?.value !== 'admin'">
             <label class="form-label fw-semibold text-secondary">Estado</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3 ">
               <span class="input-group-text bg-white border-0"><i class="bi bi-toggle-on text-muted"></i></span>
               <ng-select formControlName="estatus"
                          [clearable]="false"
