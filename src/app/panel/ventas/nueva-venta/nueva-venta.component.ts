@@ -22,7 +22,7 @@ export class NuevaVentaComponent implements OnInit {
   productos: any[] = [];
   clientes: any[] = [];
   dataSource = new MatTableDataSource<any>([]);
-  displayedColumns: string[] = ['producto', 'codigo', 'cantidad', 'precio', 'iva', 'subtotal', 'total', 'eliminar'];
+  displayedColumns: string[] = ['producto', 'codigo', 'cantidad', 'unidad_medida', 'precio', 'iva', 'subtotal', 'total', 'eliminar'];
   totalItems = 0;
   subtotal: number = 0;
   iva: number = 0;
@@ -91,7 +91,7 @@ export class NuevaVentaComponent implements OnInit {
     if (this.idProducto) {
       this.preciosService.obtenerPrecioBase(this.idProducto, this.idSucursal).subscribe({
         next: (data: any) => {
-          this.precioProd = data.precio_base || 0;
+          this.precioProd = Number(data.precio_base) || 0;
         },
         error: (err) => {
           console.log('Error al obtener el precio base:', err);
@@ -113,28 +113,28 @@ export class NuevaVentaComponent implements OnInit {
   agregarProducto() {
     if (!this.idProducto) return;
 
-    const productoExistente = this.dataSource.data.find(prod => prod.id === this.idProducto);
+    const productoExistente = this.dataSource.data.find(prod => prod.id == this.idProducto);
     if (productoExistente) {
-      productoExistente.cantidad++;
+      productoExistente.cantidad = (Number(productoExistente.cantidad) || 0) + 1;
       this.calcularTotales(productoExistente);
       this.idProducto = null;
       this.precioProd = 0;
       return;
     }
 
-    const producto = this.productos.find((prod) => prod.id === this.idProducto);
+    const producto = this.productos.find((prod) => prod.id == this.idProducto);
     if (producto) {
+      const precio = Number(this.precioProd) || 0;
       const prodObj = {
         ...producto,
         cantidad: 1,
-        precio: this.precioProd,
-        subtotal: this.precioProd,
-        total: this.precioProd + (this.precioProd * (this.manejaIva ? 0.16 : 0)),
+        precio: precio,
+        subtotal: precio,
+        total: precio + (precio * (this.manejaIva ? 0.16 : 0)),
         iva: this.manejaIva ? 16 : 0
       };
 
-      this.dataSource.data.push(prodObj);
-      this.dataSource.data = [...this.dataSource.data];
+      this.dataSource.data = [...this.dataSource.data, prodObj];
       this.dataSource.paginator = this.paginator;
       this.totalItems = this.dataSource.data.length;
 
@@ -145,15 +145,19 @@ export class NuevaVentaComponent implements OnInit {
   }
 
   eliminarProducto(index: number) {
-    this.dataSource.data.splice(index, 1);
-    this.dataSource.data = [...this.dataSource.data];
+    const currentData = [...this.dataSource.data];
+    currentData.splice(index, 1);
+    this.dataSource.data = currentData;
     this.totalItems = this.dataSource.data.length;
     this.recalcularTodo();
   }
 
   calcularTotales(producto: any) {
-    producto.subtotal = producto.cantidad * producto.precio;
-    producto.total = producto.subtotal + (producto.subtotal * (producto.iva / 100));
+    const cantidad = Number(producto.cantidad) || 0;
+    const precio = Number(producto.precio) || 0;
+    const iva = Number(producto.iva) || 0;
+    producto.subtotal = cantidad * precio;
+    producto.total = producto.subtotal + (producto.subtotal * (iva / 100));
     this.recalcularTodo();
   }
 
@@ -161,8 +165,10 @@ export class NuevaVentaComponent implements OnInit {
     this.subtotal = 0;
     this.iva = 0;
     this.dataSource.data.forEach((prod: any) => {
-      this.subtotal += prod.subtotal;
-      this.iva += prod.subtotal * (prod.iva / 100);
+      const subtotal = Number(prod.subtotal) || 0;
+      const iva = Number(prod.iva) || 0;
+      this.subtotal += subtotal;
+      this.iva += subtotal * (iva / 100);
     });
     this.total = this.subtotal + this.iva;
   }

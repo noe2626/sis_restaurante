@@ -1,0 +1,169 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-trash text-danger me-3" style="font-size: 2rem;"></i>
+        Mermas de Inventario
+      </h3>
+      <p class="text-muted mb-0">Registra y administra pérdidas o desperdicios de insumos y productos.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <button class="btn btn-danger d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold bg-gradient border-0 text-white" (click)="abrirModal()">
+        <i class="bi bi-plus-circle-fill fs-5"></i>
+        Registrar Merma
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-danger"></i> Historial de Mermas
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase fs-8 text-secondary">
+            <tr>
+              <th class="ps-4">Fecha</th>
+              <th>Producto</th>
+              <th class="text-end">Cantidad</th>
+              <th class="text-start ps-3">Medida</th>
+              <th>Motivo</th>
+              <th style="width: 30%;">Notas / Observaciones</th>
+              <th>Usuario</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let merma of mermas">
+              <td class="ps-4 text-secondary fw-semibold">
+                {{ merma.fecha | date:'yyyy-MM-dd HH:mm' }}
+              </td>
+              <td class="fw-bold text-dark">
+                {{ merma.producto?.nombre || 'N/A' }}
+              </td>
+              <td class="text-end fw-bold text-danger">
+                -{{ merma.cantidad | number:'1.2-2' }}
+              </td>
+              <td class="text-start fw-semibold text-secondary ps-3">
+                {{ merma.producto?.unidad_medida }}
+              </td>
+              <td>
+                <span class="badge rounded-pill bg-warning text-dark px-3 py-1.5 fw-semibold" style="font-size: 0.78rem;">
+                  {{ merma.motivo }}
+                </span>
+              </td>
+              <td class="text-muted fs-8">
+                {{ merma.notas || '-' }}
+              </td>
+              <td class="fw-semibold text-secondary">
+                {{ merma.user?.name || 'N/A' }}
+              </td>
+              <td class="text-center">
+                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" (click)="eliminar(merma.id)" title="Anular Merma" style="width: 32px; height: 32px;">
+                  <i class="bi bi-x-circle-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="mermas.length === 0 && !loading">
+              <td colspan="8" class="text-center py-5 text-muted fw-semibold">
+                No hay mermas registradas en esta sucursal.
+              </td>
+            </tr>
+            <tr *ngIf="loading">
+              <td colspan="8" class="text-center py-5 text-muted">
+                <div class="spinner-border text-danger spinner-border-sm me-2" role="status"></div>
+                Cargando mermas...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registrar Merma -->
+<div class="modal fade" id="mermaModal" tabindex="-1" aria-labelledby="mermaModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-danger text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="mermaModalLabel">
+          <i class="bi bi-trash-fill me-2"></i> Registrar Merma de Inventario
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        <form (ngSubmit)="guardar()" #mermaForm="ngForm">
+          
+          <!-- Producto -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary">Seleccionar Producto / Insumo *</label>
+            <ng-select [items]="productos"
+                       bindLabel="nombre"
+                       bindValue="id"
+                       [(ngModel)]="nuevaMerma.idProducto"
+                       name="idProducto"
+                       required
+                       [clearable]="false"
+                       placeholder="-- Selecciona un Producto/Insumo --"
+                       [searchFn]="customSearch"
+                       class="ng-select-bootstrap border-0 shadow-sm">
+              <ng-template ng-option-tmp let-item="item">
+                {{ item.nombre }} <span *ngIf="item.codigo">({{ item.codigo }})</span> [{{ item.unidad_medida }}]
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <!-- Cantidad y Fecha -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold text-secondary">Cantidad a Descontar *</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <input type="number" step="0.01" class="form-control border-0 py-2.5" [(ngModel)]="nuevaMerma.cantidad" name="cantidad" placeholder="0.00" required min="0.01" />
+                <span class="input-group-text border-0 bg-white text-muted py-2.5 px-3 fw-semibold">
+                  {{ getUnidadMedidaSeleccionada() }}
+                </span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold text-secondary">Fecha / Hora *</label>
+              <input type="datetime-local" class="form-control border-0 shadow-sm rounded-3 py-2.5" [(ngModel)]="nuevaMerma.fecha" name="fecha" required />
+            </div>
+          </div>
+
+          <!-- Motivo -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary">Motivo de Merma *</label>
+            <ng-select [items]="motivosSugeridos"
+                       [(ngModel)]="nuevaMerma.motivo"
+                       name="motivo"
+                       required
+                       [clearable]="false"
+                       placeholder="-- Selecciona el motivo --"
+                       class="ng-select-bootstrap border-0 shadow-sm">
+            </ng-select>
+          </div>
+
+          <!-- Notas -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary">Notas / Observaciones</label>
+            <textarea class="form-control border-0 shadow-sm rounded-3 py-2" [(ngModel)]="nuevaMerma.notas" name="notas" rows="3" placeholder="Detalles de la pérdida..."></textarea>
+          </div>
+
+          <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2 px-0 pb-0">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm" [disabled]="!mermaForm.form.valid">
+              Confirmar Registro
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

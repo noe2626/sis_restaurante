@@ -17,7 +17,7 @@
                         bindValue="id"
                         [(ngModel)]="idCliente"
                         placeholder="Buscar Cliente"
-                        class="custom-ng-select" 
+                        class="" 
                         [appendTo]="'body'"
                         [virtualScroll]="true"
                         [searchable]="true"
@@ -31,11 +31,14 @@
         </div>
         <div class="col-5">
             <label class="form-label font-weight-bold">Método de Pago</label>
-            <select class="form-select" [(ngModel)]="metodoPago" style="height: 38px;">
-                <option value="efectivo">Efectivo</option>
-                <option value="tarjeta">Tarjeta (Débito/Crédito)</option>
-                <option value="transferencia">Transferencia Bancaria</option>
-            </select>
+            <ng-select [(ngModel)]="metodoPago"
+                       [clearable]="false"
+                       placeholder="Seleccionar Método"
+                       class="ng-select-bootstrap w-100">
+                <ng-option value="efectivo">Efectivo</ng-option>
+                <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
+                <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+            </ng-select>
         </div>
     </div>
     <br>
@@ -46,7 +49,7 @@
                         bindLabel="nombre"
                         bindValue="id"
                         placeholder="Buscar Producto"
-                        class="custom-ng-select" 
+                        class="" 
                         [appendTo]="'body'"
                         [virtualScroll]="true"
                         [searchable]="true"
@@ -55,7 +58,7 @@
                         (change)="onProductoChange()">
                 <ng-template ng-option-tmp let-item="item">
                     <div class="d-flex justify-content-between">
-                        <span>{{ item?.nombre }}</span>
+                        <span>{{ item?.nombre }} <small class="text-muted">({{ item?.unidad_medida }})</small></span>
                         <small class="text-muted">{{ item?.codigo || 'N/A' }}</small>
                     </div>
                 </ng-template>
@@ -87,8 +90,12 @@
                         <input [(ngModel)]="element.cantidad" type="number" min="1" class="form-control text-right" (change)="calcularTotales(element)"/>
                     </td>
                 </ng-container>
+                <ng-container matColumnDef="unidad_medida">
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 8%; text-align: center;"> Medida </th>
+                    <td mat-cell *matCellDef="let element" style="text-align: center;" class="fw-semibold text-secondary"> {{element.unidad_medida}} </td>
+                </ng-container>
                 <ng-container matColumnDef="precio">
-                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 15%; text-align: right;"> Precio </th>
+                    <th mat-header-cell *matHeaderCellDef class="th-table" style="width: 12%; text-align: right;"> Precio </th>
                     <td mat-cell *matCellDef="let element" style="padding-right: 5px; padding-left: 5px;">
                         <input [(ngModel)]="element.precio" type="number" min="0" class="form-control text-right" (change)="calcularTotales(element)"/>
                     </td>

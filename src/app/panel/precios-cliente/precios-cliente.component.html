@@ -45,6 +45,7 @@
             <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Producto </th>
             <td mat-cell *matCellDef="let element">
               <span class="fw-semibold text-dark">{{ element.producto?.nombre || 'Desconocido' }}</span>
+              <span class="text-muted small ms-1" *ngIf="element.producto?.unidad_medida">({{ element.producto.unidad_medida }})</span>
             </td>
           </ng-container>
 
@@ -161,10 +162,17 @@
               <label class="form-label fw-semibold text-secondary">Cliente *</label>
               <div class="input-group shadow-sm rounded-3 overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-person-fill text-muted"></i></span>
-                <select class="form-select border-0 py-2" formControlName="idCliente">
-                  <option [value]="null" disabled selected>Seleccione un cliente</option>
-                  <option *ngFor="let c of clientes" [value]="c.id">{{ c.nombre }} ({{ c.email }})</option>
-                </select>
+                <ng-select class="custom-ng-select border-0"
+                           formControlName="idCliente"
+                           [items]="clientes"
+                           bindLabel="nombre"
+                           bindValue="id"
+                           placeholder="Seleccione un cliente"
+                           [clearable]="false">
+                  <ng-template ng-option-tmp let-item="item">
+                    {{ item.nombre }} ({{ item.email }})
+                  </ng-template>
+                </ng-select>
               </div>
               <div *ngIf="formPrecio.get('idCliente')?.touched && formPrecio.get('idCliente')?.invalid" class="text-danger small mt-1">
                 El cliente es obligatorio.
@@ -176,10 +184,18 @@
               <label class="form-label fw-semibold text-secondary">Producto *</label>
               <div class="input-group shadow-sm rounded-3 overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-                <select class="form-select border-0 py-2" formControlName="idProducto">
-                  <option [value]="null" disabled selected>Seleccione un producto</option>
-                  <option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }} ({{ p.codigo }})</option>
-                </select>
+                <ng-select class="custom-ng-select border-0"
+                           formControlName="idProducto"
+                           [items]="productos"
+                           bindLabel="nombre"
+                           bindValue="id"
+                           placeholder="Seleccione un producto"
+                           [clearable]="false"
+                           [searchFn]="customSearch">
+                  <ng-template ng-option-tmp let-item="item">
+                    {{ item.nombre }} <span *ngIf="item.codigo">({{ item.codigo }})</span> [{{ item.unidad_medida }}]
+                  </ng-template>
+                </ng-select>
               </div>
               <div *ngIf="formPrecio.get('idProducto')?.touched && formPrecio.get('idProducto')?.invalid" class="text-danger small mt-1">
                 El producto es obligatorio.
@@ -193,10 +209,13 @@
               <label class="form-label fw-semibold text-secondary">Sucursal (Vacío para Global)</label>
               <div class="input-group shadow-sm rounded-3 overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
-                <select class="form-select border-0 py-2" formControlName="idSucursal">
-                  <option [value]="null" *ngIf="roleId !== 2">Global (Todas las Sucursales)</option>
-                  <option *ngFor="let s of sucursales" [value]="s.idSucursal">{{ s.sucursal }}</option>
-                </select>
+                <ng-select class="custom-ng-select border-0"
+                           formControlName="idSucursal"
+                           [clearable]="false"
+                           placeholder="Seleccione una sucursal">
+                  <ng-option [value]="null" *ngIf="roleId !== 2">Global (Todas las Sucursales)</ng-option>
+                  <ng-option *ngFor="let s of sucursales" [value]="s.idSucursal">{{ s.sucursal }}</ng-option>
+                </ng-select>
               </div>
             </div>
 
@@ -205,13 +224,16 @@
               <label class="form-label fw-semibold text-secondary">Tipo de Ajuste *</label>
               <div class="input-group shadow-sm rounded-3 overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-sliders text-muted"></i></span>
-                <select class="form-select border-0 py-2" formControlName="tipo_ajuste">
-                  <option value="fijo">Precio Fijo Especial ($)</option>
-                  <option value="descuento_porcentaje">Disminución en Porcentaje (%)</option>
-                  <option value="aumento_porcentaje">Aumento en Porcentaje (%)</option>
-                  <option value="descuento_fijo">Disminución en Monto Fijo ($)</option>
-                  <option value="aumento_fijo">Aumento en Monto Fijo ($)</option>
-                </select>
+                <ng-select class="custom-ng-select border-0"
+                           formControlName="tipo_ajuste"
+                           [clearable]="false"
+                           placeholder="Seleccione tipo de ajuste">
+                  <ng-option value="fijo">Precio Fijo Especial ($)</ng-option>
+                  <ng-option value="descuento_porcentaje">Disminución en Porcentaje (%)</ng-option>
+                  <ng-option value="aumento_porcentaje">Aumento en Porcentaje (%)</ng-option>
+                  <ng-option value="descuento_fijo">Disminución en Monto Fijo ($)</ng-option>
+                  <ng-option value="aumento_fijo">Aumento en Monto Fijo ($)</ng-option>
+                </ng-select>
               </div>
             </div>
           </div>

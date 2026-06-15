@@ -188,10 +188,12 @@
             <label class="form-label fw-semibold text-secondary">Estado</label>
             <div class="input-group shadow-sm rounded-3 overflow-hidden">
               <span class="input-group-text bg-white border-0"><i class="bi bi-toggle-on text-muted"></i></span>
-              <select formControlName="estatus" class="form-select border-0 py-2">
-                <option [value]="1">Activo</option>
-                <option [value]="0">Inactivo (Dado de baja)</option>
-              </select>
+              <ng-select formControlName="estatus"
+                         [clearable]="false"
+                         class="custom-ng-select border-0">
+                <ng-option [value]="1">Activo</ng-option>
+                <ng-option [value]="0">Inactivo (Dado de baja)</ng-option>
+              </ng-select>
             </div>
           </div>
 

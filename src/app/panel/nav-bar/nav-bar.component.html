@@ -5,7 +5,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
-        <li class="nav-item" *ngIf="roleId === 1 || roleId === 2">
+        <li class="nav-item" *ngIf="roleId === 1 || roleId === 2 || roleId === 3">
           <a class="nav-link fw-semibold" routerLink="/panel/dashboard" title="Dashboard / Inicio">
             <i class="fa-solid fa-house" style="color: gray; font-size: 1.1rem;"></i>
           </a>
@@ -36,6 +36,8 @@
           <ul class="dropdown-menu shadow" aria-labelledby="navbarDropdownInventario">
             <li><a class="dropdown-item" routerLink="/panel/productos"><i class="bi bi-box me-2 text-primary"></i>Productos</a></li>
             <li><a class="dropdown-item" routerLink="/panel/inventarios"><i class="bi bi-journal-text me-2 text-info"></i>Inventarios</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/mermas"><i class="bi bi-trash3 me-2 text-danger"></i>Mermas</a></li>
+            <li><a class="dropdown-item" routerLink="/panel/fabricaciones"><i class="bi bi-hammer me-2 text-warning"></i>Fabricación</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown" *ngIf="roleId === 1 || roleId === 2">

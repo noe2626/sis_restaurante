@@ -15,7 +15,7 @@ export class ProveedoresComponent {
   data: Array<any> = [];
   idSucursal:any;
   sucursales: any = null;
-  displayedColumns: string[] = ['nombre','email','telefono','rfc', 'modificar', 'eliminar']; 
+  displayedColumns: string[] = ['nombre','email','telefono','rfc', 'estatus', 'modificar', 'eliminar']; 
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
@@ -29,12 +29,12 @@ export class ProveedoresComponent {
     private proveedoresService: ProveedoresService,
     private fb: FormBuilder){
       this.formPro = this.fb.group({
-        id: [null, Validators.required],
+        id: [null],
         nombre: [null, Validators.required],
         email: [null, [Validators.required, Validators.email]],
         telefono: [null, Validators.required],
         rfc: [null, Validators.required],
-        estatus: [null, Validators.required],
+        estatus: [1],
       });
   }
 
@@ -133,7 +133,7 @@ export class ProveedoresComponent {
       email: null,
       telefono: null,
       rfc: null,
-      estatus: null,
+      estatus: 1,
     }
     this.formPro.setValue(proveedor);
   }
@@ -154,55 +154,97 @@ export class ProveedoresComponent {
     }
   }
 
-  eliminar(id: number) {
-    if (id === 1) {
+  toggleEstatus(prov: any) {
+    if (prov.id === 1) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se puede eliminar el proveedor general.'
+        text: 'No se puede desactivar el proveedor general.'
       });
       return;
     }
 
+    const nuevoEstado = prov.estatus == 1 ? 0 : 1;
+    const accion = nuevoEstado === 1 ? 'reactivar' : 'dar de baja';
+
     Swal.fire({
-      title: '¿Está seguro?',
-      text: '¿Desea eliminar este proveedor?',
+      title: `¿Quieres ${accion} al proveedor?`,
+      text: `El proveedor "${prov.nombre}" cambiará a estado ${nuevoEstado === 1 ? 'activo' : 'inactivo'}.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonColor: nuevoEstado === 1 ? '#28a745' : '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: `Sí, ${accion}`,
       cancelButtonText: 'Cancelar'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.proveedoresService.eliminarProveedor(id).subscribe({
-          next: (data: any) => {
-            if (data.success) {
-              this.listarProveedores();
-              Swal.fire({
-                icon: 'success',
-                title: 'Eliminado',
-                text: 'El proveedor ha sido eliminado.',
-                showConfirmButton: false,
-                timer: 1500
-              });
-            } else {
+        if (nuevoEstado === 0) {
+          this.proveedoresService.eliminarProveedor(prov.id).subscribe({
+            next: (data: any) => {
+              if (data.success) {
+                this.listarProveedores();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Dado de baja',
+                  text: 'El proveedor ha sido dado de baja.',
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.message || 'No se pudo dar de baja al proveedor.'
+                });
+              }
+            },
+            error: (err) => {
+              console.error(err);
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: data.message || 'No se pudo eliminar el proveedor.'
+                text: 'Hubo un error al dar de baja al proveedor.'
               });
             }
-          },
-          error: (err) => {
-            console.error(err);
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Hubo un error al eliminar el proveedor.'
-            });
-          }
-        });
+          });
+        } else {
+          const payload = {
+            id: prov.id,
+            nombre: prov.nombre,
+            email: prov.email,
+            telefono: prov.telefono,
+            rfc: prov.rfc,
+            estatus: 1
+          };
+          this.proveedoresService.guardarProveedor(payload).subscribe({
+            next: (data: any) => {
+              if (data.success) {
+                this.listarProveedores();
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Reactivado',
+                  text: 'El proveedor ha sido reactivado.',
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: data.message || 'No se pudo reactivar al proveedor.'
+                });
+              }
+            },
+            error: (err) => {
+              console.error(err);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Hubo un error al reactivar al proveedor.'
+              });
+            }
+          });
+        }
       }
     });
   }

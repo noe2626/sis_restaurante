@@ -22,7 +22,7 @@ export class EditarCompraComponent implements OnInit{
   productos: any[] = [];
   proveedores: any[] = [];
   dataSource = new MatTableDataSource<any>([]);
-  displayedColumns: string[] = ['producto','codigo','cantidad','precio','iva',  'subtotal','total','eliminar'];
+  displayedColumns: string[] = ['producto','codigo','cantidad','unidad_medida','precio','iva','subtotal','total','eliminar'];
   totalItems = 0;
   subtotal:number = 0;
   iva:number = 0;
@@ -70,7 +70,8 @@ export class EditarCompraComponent implements OnInit{
   listarProveedores(): void {
     this.proveedorService.listarProveedores().subscribe({
       next: (data: any) => {
-        this.proveedores = data.data;
+        const rawProveedores = data.data || [];
+        this.proveedores = rawProveedores.filter((p: any) => p.estatus == 1 || p.estatus == true);
         const defaultProv = this.proveedores.find(p => p.nombre.toLowerCase().includes('proveedor general') || p.nombre.toLowerCase().includes('general'));
         if (defaultProv) {
           this.idProveedor = defaultProv.id;
@@ -112,8 +113,7 @@ export class EditarCompraComponent implements OnInit{
       }
       var prodObj = {...producto,cantidad:1,precio:0,subtotal:0,total:0};
       
-      this.dataSource.data.push(prodObj);
-      this.dataSource.data = [...this.dataSource.data];
+      this.dataSource.data = [...this.dataSource.data, prodObj];
       this.dataSource.paginator = this.paginator;
       this.totalItems = this.dataSource.data.length;
       this.idProducto = null;
@@ -122,8 +122,9 @@ export class EditarCompraComponent implements OnInit{
   }
 
   eliminarProducto(index: number){
-    this.dataSource.data.splice(index, 1);
-    this.dataSource.data = [...this.dataSource.data];
+    const currentData = [...this.dataSource.data];
+    currentData.splice(index, 1);
+    this.dataSource.data = currentData;
     this.totalItems = this.dataSource.data.length;
     this.recalcularTodo();
   }

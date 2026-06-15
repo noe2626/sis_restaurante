@@ -1,0 +1,18 @@
+.avatar-circle-prov {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.table th {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.modal-header.bg-gradient {
+  background: linear-gradient(135deg, #d9534f 0%, #c9302c 100%);
+}

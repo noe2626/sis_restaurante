@@ -15,7 +15,7 @@ import { AuthService } from '../../../../services/auth.service';
 })
 export class AperturaComponent implements OnInit {
 
-  idCaja: number = 0;
+  idCaja: any = null;
   cajas: any = null;
   efectivoCaja = 0;
 
@@ -111,8 +111,12 @@ export class AperturaComponent implements OnInit {
   }
 
   cambiarCaja() {
+    if (!this.idCaja || !this.cajas) {
+      this.efectivoCaja = 0;
+      return;
+    }
     const cajaSeleccionada = this.cajas.find((caja: any) => caja.idCaja == this.idCaja);
-    this.efectivoCaja = cajaSeleccionada.efectivo;
+    this.efectivoCaja = cajaSeleccionada ? cajaSeleccionada.efectivo : 0;
   }
 
   abrirCaja() {
@@ -149,6 +153,14 @@ export class AperturaComponent implements OnInit {
         });
       },
     });
+  }
+  irAlDash(): void {
+    const modalElement = document.getElementById('aperturaModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal?.hide();
+    }
+    this.router.navigate(['/panel/dashboard']);
   }
   logoutConfirm(): void {
     const modalElement = document.getElementById('aperturaModal');

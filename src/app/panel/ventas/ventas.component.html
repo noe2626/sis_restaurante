@@ -7,23 +7,30 @@
 
             <!-- Selección de Cliente -->
             <div class="mb-3">
-                <div class="form-floating">
-                    <select class="form-select" [(ngModel)]="idCliente" (change)="calcularTotal()">
-                        <option [ngValue]="null">Seleccionar</option>
-                        <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nombre }}</option>
-                    </select>
-                    <label><i class="bi bi-person-circle me-2"></i>Cliente</label>
-                </div>
+                <label class="fs-7 text-secondary fw-semibold mb-1 d-block"><i class="bi bi-person-circle me-1"></i> Cliente</label>
+                <ng-select [(ngModel)]="idCliente" 
+                           (change)="calcularTotal()" 
+                           [items]="clientes" 
+                           bindLabel="nombre" 
+                           bindValue="id" 
+                           [clearable]="false" 
+                           placeholder="Seleccionar Cliente"
+                           class="ventas-select">
+                </ng-select>
             </div>
 
             <!-- Canal de Venta -->
             <div class="mb-3">
-                <div class="form-floating">
-                    <select class="form-select" [(ngModel)]="idCanalVenta" (change)="calcularTotal()">
-                        <option *ngFor="let canal of canalesVenta" [ngValue]="canal.id">{{ canal.nombre }}</option>
-                    </select>
-                    <label><i class="bi bi-sliders me-2"></i>Canal de Venta</label>
-                </div>
+                <label class="fs-7 text-secondary fw-semibold mb-1 d-block"><i class="bi bi-sliders me-1"></i> Canal de Venta</label>
+                <ng-select [(ngModel)]="idCanalVenta" 
+                           (change)="calcularTotal()" 
+                           [items]="canalesVenta" 
+                           bindLabel="nombre" 
+                           bindValue="id" 
+                           [clearable]="false" 
+                           placeholder="Seleccionar Canal"
+                           class="">
+                </ng-select>
             </div>
 
             <!-- Selección de Producto -->
@@ -40,7 +47,7 @@
                                     placeholder="Buscar Producto"
                                     formControlName="idProducto"
                                     (change)="onProductoChange()"
-                                    class="custom-ng-select" 
+                                    class="" 
                                     [appendTo]="'body'"
                                     [virtualScroll]="true"
                                     [searchable]="true"
@@ -202,11 +209,15 @@
                 <div class="row g-3 mb-2 mt-1">
                     <div class="col-12">
                         <label class="form-label"><i class="bi bi-credit-card-2-front me-2"></i>Método de Pago</label>
-                        <select class="form-select" [(ngModel)]="metodoPago" (change)="alCambiarMetodoPago()">
-                            <option value="efectivo">Efectivo</option>
-                            <option value="tarjeta">Tarjeta (Débito/Crédito)</option>
-                            <option value="transferencia">Transferencia Bancaria</option>
-                        </select>
+                        <ng-select [(ngModel)]="metodoPago"
+                                   (change)="alCambiarMetodoPago()"
+                                   [clearable]="false"
+                                   placeholder="Seleccionar Método"
+                                   class="ng-select-bootstrap w-100">
+                            <ng-option value="efectivo">Efectivo</ng-option>
+                            <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
+                            <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+                        </ng-select>
                     </div>
                 </div>
             </div>

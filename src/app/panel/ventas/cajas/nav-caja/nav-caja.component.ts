@@ -316,9 +316,9 @@ export class NavCajaComponent {
             }
 
             if (roleId === 3) {
-              window.location.reload();
+              this.router.navigate(['/panel/dashboard']);
             } else {
-              this.router.navigate(['panel']);
+              this.router.navigate(['/panel/dashboard']);
             }
           });
         } else {

@@ -81,6 +81,13 @@ export class PreciosClienteComponent implements OnInit {
     this.totalItems = this.filteredData.length;
   }
 
+  customSearch(term: string, item: any) {
+    term = term.toLowerCase();
+    const codigoMatch = item.codigo && item.codigo.toLowerCase().includes(term);
+    const nombreMatch = item.nombre.toLowerCase().includes(term);
+    return nombreMatch || codigoMatch;
+  }
+
   listarPreciosCliente() {
     const filterBranchId = this.roleId === 2 ? this.idSucursal : undefined;
     this.preciosClienteService.listarPreciosCliente(filterBranchId).subscribe({

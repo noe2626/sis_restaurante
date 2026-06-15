@@ -45,6 +45,7 @@
             <tr *ngFor="let producto of productosFiltrados">
               <td class="ps-4">
                 <span class="fw-bold text-dark">{{ producto.nombre }}</span>
+                <span class="text-muted small ms-2">({{ producto.unidad_medida }})</span>
               </td>
               <td>
                 <code class="text-primary fw-semibold px-2 py-1 bg-primary-subtle rounded">{{ producto.codigo }}</code>
@@ -88,7 +89,7 @@
                     <i class="bi bi-currency-dollar fs-8"></i>
                   </button>
                   <!-- Componentes / Receta -->
-                  <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#nuevoModal" (click)="cargarComponentes(producto)" title="Ver Componentes / Receta" style="width: 32px; height: 32px;">
+                  <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#nuevoModal" (click)="abrirModalConfig(producto)" title="Ver Componentes / Receta" style="width: 32px; height: 32px;">
                     <i class="bi bi-egg-fried fs-8"></i>
                   </button>
                 </div>
@@ -139,6 +140,21 @@
             <div class="input-group shadow-sm rounded-3 overflow-hidden">
               <span class="input-group-text bg-white border-0"><i class="bi bi-barcode text-muted"></i></span>
               <input type="text" class="form-control border-0 py-2" placeholder="Ej. POL-001" formControlName="codigo">
+            </div>
+          </div>
+
+          <!-- Unidad de Medida -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Unidad de Medida</label>
+            <div class="input-group shadow-sm rounded-3">
+              <span class="input-group-text bg-white border-0"><i class="fa-solid fa-weight-hanging text-muted"></i></span>
+              <ng-select formControlName="unidad_medida"
+                         [clearable]="false"
+                         class="custom-ng-select border-0">
+                <ng-option value="Pza">Pza (Pieza)</ng-option>
+                <ng-option value="Kg">Kg (Kilogramo)</ng-option>
+                <ng-option value="Lts">Lts (Litros)</ng-option>
+              </ng-select>
             </div>
           </div>
 
@@ -195,9 +211,14 @@
             <label class="form-label fw-semibold text-secondary">Sucursal</label>
             <div class="input-group shadow-sm rounded-3 overflow-hidden">
               <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
-              <select formControlName="idSucursal" class="form-select border-0 py-2" (change)="changeSucursalPrecio()">
-                <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
-              </select>
+              <ng-select formControlName="idSucursal"
+                         [items]="sucursales"
+                         bindLabel="sucursal"
+                         bindValue="idSucursal"
+                         [clearable]="false"
+                         (change)="changeSucursalPrecio()"
+                         class="custom-ng-select border-0">
+              </ng-select>
             </div>
           </div>
 
@@ -248,11 +269,16 @@
           <!-- Sucursal -->
           <div class="mb-3">
             <label class="form-label fw-semibold text-secondary">Sucursal</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3">
               <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
-              <select formControlName="idSucursal" class="form-select border-0 py-2" (change)="changeSucursalInventario()">
-                <option *ngFor="let sucursal of sucursales" [value]="sucursal.idSucursal">{{ sucursal.sucursal }}</option>
-              </select>
+              <ng-select formControlName="idSucursal"
+                         [items]="sucursales"
+                         bindLabel="sucursal"
+                         bindValue="idSucursal"
+                         [clearable]="false"
+                         (change)="changeSucursalInventario()"
+                         class="custom-ng-select border-0">
+              </ng-select>
             </div>
           </div>
 
@@ -293,76 +319,179 @@
       <div class="modal-header bg-gradient bg-warning text-dark py-3 rounded-top-4">
         <h5 class="modal-title fw-bold d-flex align-items-center" id="nuevoModalLabel">
           <i class="bi bi-egg-fried me-2"></i>
-          Ingredientes / Componentes del Producto
+          Ingredientes / Fórmulas del Producto
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <div class="modal-body p-4 bg-light">
-        <div class="alert alert-info border-0 shadow-sm rounded-3 d-flex align-items-center mb-4">
-          <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
-          <div>
-            Producto principal: <strong>{{ productoSeleccionado?.nombre }}</strong>. Define qué ingredientes se descontarán del stock cuando se venda este producto.
-          </div>
-        </div>
-
-        <div class="row align-items-center g-2 mb-4">
-          <div class="col-md-6 col-sm-12">
-            <label class="form-label fw-semibold text-secondary fs-8">Buscar Ingrediente / Insumo</label>
-            <ng-select [items]="productosComponentes"
-                       bindLabel="nombre"
-                       bindValue="id"
-                       placeholder="Escribe el nombre del insumo..."
-                       class="custom-ng-select shadow-sm" 
-                       [virtualScroll]="true"
-                       [searchable]="true"
-                       [searchFn]="customSearch"
-                       [(ngModel)]="idComponente">
-              <ng-template ng-option-tmp let-item="item">
-                <div class="d-flex justify-content-between py-1">
-                  <span>{{ item?.nombre }}</span>
-                  <small class="text-muted fs-8">{{ item?.codigo || 'N/A' }}</small>
-                </div>
-              </ng-template>
-            </ng-select>
-          </div>
-          <div class="col-md-3 col-sm-6">
-            <label class="form-label fw-semibold text-secondary fs-8">Cantidad Requerida</label>
-            <input [(ngModel)]="cantidadComponente" type="number" class="form-control shadow-sm" placeholder="Ej. 0.500" min="0.001" step="0.001">
-          </div>
-          <div class="col-md-3 col-sm-6 mt-md-4">
-            <button class="btn btn-warning w-100 fw-semibold text-dark shadow-sm d-flex align-items-center justify-content-center gap-2" (click)="agregarComponente()">
-              <i class="bi bi-plus-circle-fill"></i> Agregar
+        
+        <!-- Tabs Navs -->
+        <ul class="nav nav-pills nav-fill mb-4 p-1 bg-white shadow-sm rounded-pill" id="productConfigTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active rounded-pill fw-semibold" id="components-tab" data-bs-toggle="tab" data-bs-target="#components-tab-pane" type="button" role="tab" aria-controls="components-tab-pane" aria-selected="true">
+              <i class="bi bi-cart3 me-1"></i> Componentes (Venta POS)
             </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link rounded-pill fw-semibold" id="recipe-tab" data-bs-toggle="tab" data-bs-target="#recipe-tab-pane" type="button" role="tab" aria-controls="recipe-tab-pane" aria-selected="false">
+              <i class="bi bi-hammer me-1"></i> Receta (Fabricación)
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="productConfigTabContent">
+          <!-- Pestaña de Componentes -->
+          <div class="tab-pane fade show active" id="components-tab-pane" role="tabpanel" aria-labelledby="components-tab" tabindex="0">
+            <div class="alert alert-info border-0 shadow-sm rounded-3 d-flex align-items-center mb-4">
+              <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+              <div>
+                Producto principal: <strong>{{ productoSeleccionado?.nombre }}</strong>. Define qué ingredientes se descontarán del stock cuando se venda este producto directamente en el punto de venta.
+              </div>
+            </div>
+
+            <div class="row align-items-center g-2 mb-4">
+              <div class="col-md-6 col-sm-12">
+                <label class="form-label fw-semibold text-secondary fs-8">Buscar Ingrediente / Insumo</label>
+                <ng-select [items]="productosComponentes"
+                           bindLabel="nombre"
+                           bindValue="id"
+                           placeholder="Escribe el nombre del insumo..."
+                           class="custom-ng-select shadow-sm" 
+                           [virtualScroll]="true"
+                           [searchable]="true"
+                           [searchFn]="customSearch"
+                           [(ngModel)]="idComponente">
+                  <ng-template ng-option-tmp let-item="item">
+                    <div class="d-flex justify-content-between py-1">
+                      <span>{{ item?.nombre }} <small class="text-muted">({{ item?.unidad_medida }})</small></span>
+                      <small class="text-muted fs-8">{{ item?.codigo || 'N/A' }}</small>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <label class="form-label fw-semibold text-secondary fs-8">Cantidad Requerida</label>
+                <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                  <input [(ngModel)]="cantidadComponente" type="number" class="form-control border-0" placeholder="Ej. 0.500" min="0.001" step="0.001">
+                  <span class="input-group-text border-0 bg-white text-muted fw-semibold fs-8" *ngIf="getUnidadMedidaComponente()">
+                    {{ getUnidadMedidaComponente() }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 mt-md-4">
+                <button class="btn btn-warning w-100 fw-semibold text-dark shadow-sm d-flex align-items-center justify-content-center gap-2" (click)="agregarComponente()">
+                  <i class="bi bi-plus-circle-fill"></i> Agregar
+                </button>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden mt-3" *ngIf="componentes.length > 0">
+              <table class="table align-middle mb-0">
+                <thead class="table-light text-uppercase fs-8 text-secondary">
+                  <tr>
+                    <th class="ps-4" style="width: 50%;">Componente / Insumo</th>
+                    <th style="width: 20%;" class="text-center">Cantidad</th>
+                    <th style="width: 15%;" class="text-center">Medida</th>
+                    <th style="width: 15%;" class="text-center pe-4">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let componente of componentes">
+                    <td class="ps-4 fw-semibold text-dark">{{ componente.producto }}</td>
+                    <td class="text-center fw-bold text-secondary">{{ componente.cantidad }}</td>
+                    <td class="text-center fw-semibold text-muted">{{ componente.unidad_medida }}</td>
+                    <td class="text-center pe-4">
+                      <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" (click)="eliminarComponente(componente)" title="Eliminar componente" style="width: 32px; height: 32px;">
+                        <i class="bi bi-trash-fill fs-8"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="text-center py-5 text-muted bg-white rounded-3 shadow-sm" *ngIf="componentes.length === 0">
+              <i class="bi bi-egg-fried fs-1 d-block mb-2 text-secondary"></i>
+              Este producto no tiene componentes de venta asociados.
+            </div>
           </div>
-        </div>
 
-        <div class="card border-0 shadow-sm rounded-3 overflow-hidden mt-3" *ngIf="componentes.length > 0">
-          <table class="table align-middle mb-0">
-            <thead class="table-light text-uppercase fs-8 text-secondary">
-              <tr>
-                <th class="ps-4" style="width: 60%;">Componente / Insumo</th>
-                <th style="width: 25%;" class="text-center">Cantidad a Descontar</th>
-                <th style="width: 15%;" class="text-center pe-4">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let componente of componentes">
-                <td class="ps-4 fw-semibold text-dark">{{ componente.producto }}</td>
-                <td class="text-center fw-bold text-secondary">{{ componente.cantidad }}</td>
-                <td class="text-center pe-4">
-                  <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" (click)="eliminarComponente(componente)" title="Eliminar componente" style="width: 32px; height: 32px;">
-                    <i class="bi bi-trash-fill fs-8"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <!-- Pestaña de Receta -->
+          <div class="tab-pane fade" id="recipe-tab-pane" role="tabpanel" aria-labelledby="recipe-tab" tabindex="0">
+            <div class="alert alert-info border-0 shadow-sm rounded-3 d-flex align-items-center mb-4">
+              <i class="bi bi-info-circle-fill fs-4 me-3 text-info"></i>
+              <div>
+                Producto principal: <strong>{{ productoSeleccionado?.nombre }}</strong>. Define qué ingredientes y qué cantidad se consumen para **fabricar/producir** este producto.
+              </div>
+            </div>
 
-        <div class="text-center py-5 text-muted bg-white rounded-3 shadow-sm" *ngIf="componentes.length === 0">
-          <i class="bi bi-egg-fried fs-1 d-block mb-2 text-secondary"></i>
-          Este producto no tiene componentes asociados.
+            <div class="row align-items-center g-2 mb-4">
+              <div class="col-md-6 col-sm-12">
+                <label class="form-label fw-semibold text-secondary fs-8">Buscar Ingrediente de Receta</label>
+                <ng-select [items]="productosReceta"
+                           bindLabel="nombre"
+                           bindValue="id"
+                           placeholder="Escribe el nombre del insumo..."
+                           class="custom-ng-select shadow-sm" 
+                           [virtualScroll]="true"
+                           [searchable]="true"
+                           [searchFn]="customSearch"
+                           [(ngModel)]="idIngrediente">
+                  <ng-template ng-option-tmp let-item="item">
+                    <div class="d-flex justify-content-between py-1">
+                      <span>{{ item?.nombre }} <small class="text-muted">({{ item?.unidad_medida }})</small></span>
+                      <small class="text-muted fs-8">{{ item?.codigo || 'N/A' }}</small>
+                    </div>
+                  </ng-template>
+                </ng-select>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <label class="form-label fw-semibold text-secondary fs-8">Cantidad Requerida</label>
+                <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                  <input [(ngModel)]="cantidadIngrediente" type="number" class="form-control border-0" placeholder="Ej. 0.500" min="0.001" step="0.001">
+                  <span class="input-group-text border-0 bg-white text-muted fw-semibold fs-8" *ngIf="getUnidadMedidaIngrediente()">
+                    {{ getUnidadMedidaIngrediente() }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6 mt-md-4">
+                <button class="btn btn-primary w-100 fw-semibold text-white shadow-sm d-flex align-items-center justify-content-center gap-2 border-0 bg-gradient" (click)="agregarIngrediente()">
+                  <i class="bi bi-plus-circle-fill"></i> Agregar
+                </button>
+              </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden mt-3" *ngIf="receta.length > 0">
+              <table class="table align-middle mb-0">
+                <thead class="table-light text-uppercase fs-8 text-secondary">
+                  <tr>
+                    <th class="ps-4" style="width: 50%;">Ingrediente / Insumo</th>
+                    <th style="width: 20%;" class="text-center">Cantidad</th>
+                    <th style="width: 15%;" class="text-center">Medida</th>
+                    <th style="width: 15%;" class="text-center pe-4">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let ing of receta">
+                    <td class="ps-4 fw-semibold text-dark">{{ ing.producto }}</td>
+                    <td class="text-center fw-bold text-secondary">{{ ing.cantidad }}</td>
+                    <td class="text-center fw-semibold text-muted">{{ ing.unidad_medida }}</td>
+                    <td class="text-center pe-4">
+                      <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" (click)="eliminarIngrediente(ing)" title="Eliminar ingrediente de la receta" style="width: 32px; height: 32px;">
+                        <i class="bi bi-trash-fill fs-8"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="text-center py-5 text-muted bg-white rounded-3 shadow-sm" *ngIf="receta.length === 0">
+              <i class="bi bi-hammer fs-1 d-block mb-2 text-secondary"></i>
+              Este producto no tiene ingredientes de receta asociados.
+            </div>
+          </div>
         </div>
       </div>
       

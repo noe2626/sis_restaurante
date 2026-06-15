@@ -162,7 +162,7 @@ export class VentasComponent implements OnInit{
   agregarProducto(): void {
     const idProducto = this.formProd.get('idProducto')?.value;
     const cantidad = this.formProd.get('cantidad')?.value;
-    const producto = this.productos.find(p => p.id === idProducto);
+    const producto = this.productos.find(p => p.id == idProducto);
     if (producto) {
       const item = { 
         ...producto, 
@@ -176,9 +176,13 @@ export class VentasComponent implements OnInit{
       // Obtener el precio final y promoción al agregar el producto
       this.preciosService.obtenerPrecioFinal(idProducto, this.idSucursal, this.idCliente, cantidad).subscribe({
         next: (data: any) => {
-          if (data.aplica_promocion) {
+          if (data && data.success !== false) {
             item.precio = data.precio_final;
-            item.promocion = data.promocion_descripcion;
+            if (data.aplica_promocion) {
+              item.promocion = data.promocion_descripcion;
+            } else {
+              item.promocion = '';
+            }
           }
           item.subtotal = item.cantidad * item.precio;
           this.carrito.unshift(item);
@@ -199,9 +203,13 @@ export class VentasComponent implements OnInit{
   actualizarSubtotal(item: any): void {
     this.preciosService.obtenerPrecioFinal(item.id, this.idSucursal, this.idCliente, item.cantidad).subscribe({
       next: (data: any) => {
-        if (data.aplica_promocion) {
+        if (data && data.success !== false) {
           item.precio = data.precio_final;
-          item.promocion = data.promocion_descripcion;
+          if (data.aplica_promocion) {
+            item.promocion = data.promocion_descripcion;
+          } else {
+            item.promocion = '';
+          }
         } else {
           item.precio = item.precio_base || item.precio;
           item.promocion = '';
@@ -380,9 +388,13 @@ export class VentasComponent implements OnInit{
     
     this.preciosService.obtenerPrecioFinal(producto.id, this.idSucursal, this.idCliente, 1).subscribe({
       next: (data: any) => {
-        if (data.aplica_promocion) {
+        if (data && data.success !== false) {
           item.precio = data.precio_final;
-          item.promocion = data.promocion_descripcion;
+          if (data.aplica_promocion) {
+            item.promocion = data.promocion_descripcion;
+          } else {
+            item.promocion = '';
+          }
         }
         item.subtotal = item.cantidad * item.precio;
         this.carrito.unshift(item);

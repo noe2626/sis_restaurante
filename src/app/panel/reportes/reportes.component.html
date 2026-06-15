@@ -27,12 +27,18 @@
             </div>
           </div>
           <div class="col-md-4">
-            <div class="form-floating">
-              <select class="form-select border-0 bg-light rounded-3 py-2" id="idSucursal" [(ngModel)]="idSucursalSelected" (change)="onFilterChange()">
-                <option [ngValue]="null" *ngIf="roleId === 1">Todas las Sucursales</option>
-                <option *ngFor="let suc of sucursales" [ngValue]="suc.idSucursal || suc.id">{{ suc.sucursal || suc.nombre }}</option>
-              </select>
-              <label for="idSucursal" class="fs-7 text-secondary">Sucursal</label>
+            <div>
+              <label for="idSucursal" class="fs-8 text-secondary fw-semibold mb-1 d-block">Sucursal</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" 
+                         [(ngModel)]="idSucursalSelected" 
+                         (change)="onFilterChange()"
+                         [clearable]="false"
+                         id="idSucursal">
+                <ng-option [value]="null" *ngIf="roleId === 1">Todas las Sucursales</ng-option>
+                <ng-option *ngFor="let suc of sucursales" [value]="suc.idSucursal || suc.id">
+                  {{ suc.sucursal || suc.nombre }}
+                </ng-option>
+              </ng-select>
             </div>
           </div>
         </div>
@@ -269,7 +275,7 @@
                     </span>
                     <span class="fw-semibold text-dark">{{ item.nombre }}</span>
                   </td>
-                  <td class="text-center fw-bold text-secondary">{{ item.cantidad_total }}</td>
+                  <td class="text-center fw-bold text-secondary">{{ item.cantidad_total }} {{ item.unidad_medida }}</td>
                   <td class="text-end fw-bold text-dark">{{ item.monto_total | currency }}</td>
                 </tr>
                 <tr *ngIf="!reportData.productos_mas_vendidos || reportData.productos_mas_vendidos.length === 0">

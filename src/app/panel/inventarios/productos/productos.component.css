@@ -62,15 +62,14 @@
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
 }
 
-.custom-ng-select .ng-select-container {
+
+::ng-deep .ng-dropdown-panel{
   border: none !important;
-  box-shadow: none !important;
-  background: white;
 }
+  
 .custom-ng-select {
   border: 1px solid #dee2e6;
   border-radius: 6px;
-  overflow: hidden;
 }
 
 mat-table, table {

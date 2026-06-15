@@ -1,0 +1,220 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-hammer text-primary me-3" style="font-size: 2rem;"></i>
+        Fabricación / Producción
+      </h3>
+      <p class="text-muted mb-0">Registra y administra lotes de productos elaborados en la sucursal.</p>
+    </div>
+    <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold bg-gradient border-0 text-white" (click)="abrirModal()">
+        <i class="bi bi-plus-circle-fill fs-5"></i>
+        Nueva Fabricación
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom-0">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-list-nested me-2 text-primary"></i> Historial de Fabricaciones
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase fs-8 text-secondary">
+            <tr>
+              <th class="ps-4">Fecha</th>
+              <th>Producto Elaborado</th>
+              <th class="text-end">Cantidad</th>
+              <th class="text-start ps-3">Medida</th>
+              <th style="width: 35%;">Insumos Utilizados</th>
+              <th>Registrado Por</th>
+              <th class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fab of fabricaciones">
+              <td class="ps-4 text-secondary fw-semibold">
+                {{ fab.fecha | date:'yyyy-MM-dd HH:mm' }}
+              </td>
+              <td class="fw-bold text-dark">
+                {{ fab.producto?.nombre || 'N/A' }}
+              </td>
+              <td class="text-end fw-bold text-success">
+                +{{ fab.cantidad | number:'1.2-2' }}
+              </td>
+              <td class="text-start fw-semibold text-secondary ps-3">
+                {{ fab.producto?.unidad_medida }}
+              </td>
+              <td>
+                <ul class="list-unstyled mb-0 small">
+                  <li *ngFor="let ins of fab.insumos" class="mb-1">
+                    <span class="fw-semibold text-secondary">• {{ ins.producto?.nombre }}:</span>
+                    <span *ngIf="ins.cantidadEstandar > 0" class="badge bg-light text-dark border ms-1">
+                      {{ ins.cantidadEstandar | number:'1.2-2' }} {{ ins.producto?.unidad_medida }} (Estándar)
+                    </span>
+                    <span *ngIf="ins.cantidadMerma > 0" class="badge bg-purple-subtle text-purple border border-purple-subtle ms-1">
+                      {{ ins.cantidadMerma | number:'1.2-2' }} {{ ins.producto?.unidad_medida }} (Merma #{{ ins.idMerma }})
+                    </span>
+                  </li>
+                  <li *ngIf="!fab.insumos || fab.insumos.length === 0" class="text-muted italic">
+                    Sin insumos registrados (elaboración directa).
+                  </li>
+                </ul>
+              </td>
+              <td class="fw-semibold text-secondary">
+                {{ fab.user?.name || 'N/A' }}
+              </td>
+              <td class="text-center">
+                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" (click)="eliminar(fab.id)" title="Anular Fabricación" style="width: 32px; height: 32px;">
+                  <i class="bi bi-x-circle-fill"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="fabricaciones.length === 0 && !loading">
+              <td colspan="7" class="text-center py-5 text-muted fw-semibold">
+                No hay fabricaciones registradas en esta sucursal.
+              </td>
+            </tr>
+            <tr *ngIf="loading">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                Cargando fabricaciones...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registrar Fabricación -->
+<div class="modal fade" id="fabricacionModal" tabindex="-1" aria-labelledby="fabricacionModalLabel" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-primary text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="fabricacionModalLabel">
+          <i class="bi bi-hammer me-2"></i> Registrar Nueva Fabricación
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 bg-light" style="max-height: 75vh; overflow-y: auto;">
+        <form (ngSubmit)="guardar()" #fabricForm="ngForm">
+          
+          <!-- Producto a Elaborar -->
+          <div class="mb-3">
+            <label class="form-label fw-bold text-secondary">Producto a Elaborar (Con Receta) *</label>
+            <ng-select [items]="productos"
+                       bindLabel="nombre"
+                       bindValue="id"
+                       [(ngModel)]="nuevaFabricacion.idProducto"
+                       name="idProducto"
+                       required
+                       [clearable]="false"
+                       placeholder="-- Selecciona un Producto --"
+                       (change)="onProductoChange()"
+                       [searchFn]="customSearch"
+                       class="ng-select-bootstrap border-0 shadow-sm">
+              <ng-template ng-option-tmp let-item="item">
+                {{ item.nombre }} [{{ item.unidad_medida }}]
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <!-- Cantidad y Fecha -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-bold text-secondary">Cantidad Fabricada *</label>
+              <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                <input type="number" step="0.01" class="form-control border-0 py-2.5" [(ngModel)]="nuevaFabricacion.cantidad" name="cantidad" placeholder="0.00" required min="0.01" (ngModelChange)="recalcularInsumos()" />
+                <span class="input-group-text border-0 bg-white text-muted py-2.5 px-3 fw-semibold">
+                  {{ getUnidadMedidaSeleccionada() }}
+                </span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold text-secondary">Fecha / Hora *</label>
+              <input type="datetime-local" class="form-control border-0 shadow-sm rounded-3 py-2.5" [(ngModel)]="nuevaFabricacion.fecha" name="fecha" required />
+            </div>
+          </div>
+
+          <!-- Detalle de Insumos / Receta -->
+          <div class="mb-3" *ngIf="nuevaFabricacion.insumos && nuevaFabricacion.insumos.length > 0">
+            <h6 class="fw-bold text-dark border-bottom pb-2 mb-3">
+              <i class="bi bi-box-seam me-2 text-primary"></i>
+              Detalle de Insumos y Consumo
+            </h6>
+            
+            <div class="card border-0 shadow-sm rounded-3 p-3 bg-white mb-3" *ngFor="let ins of nuevaFabricacion.insumos; let idx = index">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold text-dark fs-6">{{ ins.producto }}</span>
+                <span class="badge bg-light text-secondary border small">Requerido Receta: {{ ins.cantidadRequerida | number:'1.2-2' }} {{ ins.unidad_medida }}</span>
+              </div>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold text-muted mb-1">Cant. de Inventario (Fresco)</label>
+                  <div class="input-group input-group-sm shadow-sm rounded-2 overflow-hidden">
+                    <input type="number" step="0.01" class="form-control border-0 py-1" [(ngModel)]="ins.cantidadEstandar" name="cantidadEstandar_{{idx}}" placeholder="0.00" required min="0" />
+                    <span class="input-group-text border-0 bg-white text-muted py-1 px-2 fw-semibold small">
+                      {{ ins.unidad_medida }}
+                    </span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold text-muted mb-1">Cant. desde Merma</label>
+                  <div class="input-group input-group-sm shadow-sm rounded-2 overflow-hidden">
+                    <input type="number" step="0.01" class="form-control border-0 py-1" [(ngModel)]="ins.cantidadMerma" name="cantidadMerma_{{idx}}" placeholder="0.00" required min="0" />
+                    <span class="input-group-text border-0 bg-white text-muted py-1 px-2 fw-semibold small">
+                      {{ ins.unidad_medida }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Dropdown de Selección de Merma si la cantidad de merma es > 0 -->
+              <div class="mt-2" *ngIf="ins.cantidadMerma > 0">
+                <label class="form-label small fw-bold text-danger mb-1">Seleccionar Registro de Merma *</label>
+                <ng-select [(ngModel)]="ins.idMerma"
+                           name="idMerma_{{idx}}"
+                           required
+                           [items]="getMermasFiltradas(ins.idProducto)"
+                           bindValue="id"
+                           [clearable]="false"
+                           placeholder="-- Selecciona la Merma de Origen --"
+                           class="ng-select-bootstrap">
+                  <ng-template ng-label-tmp let-item="item">
+                    Merma #{{ item.id }} - {{ item.cantidad }} {{ ins.unidad_medida }}
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    Merma #{{ item.id }} - {{ item.cantidad }} {{ ins.unidad_medida }} - Motivo: {{ item.motivo }} ({{ item.fecha | date:'dd/MM HH:mm' }})
+                  </ng-template>
+                </ng-select>
+                <div *ngIf="getMermasFiltradas(ins.idProducto).length === 0" class="form-text text-danger mt-1">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i> No hay mermas de este insumo registradas en la sucursal.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="nuevaFabricacion.idProducto > 0 && nuevaFabricacion.insumos.length === 0" class="alert alert-warning py-2 small mb-3">
+            <i class="bi bi-exclamation-circle me-1"></i> Este producto no tiene una receta registrada. Se incrementará el stock del producto directamente sin descontar insumos.
+          </div>
+
+          <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end gap-2 px-0 pb-0 mt-4">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" [disabled]="!fabricForm.form.valid">
+              Confirmar Registro
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

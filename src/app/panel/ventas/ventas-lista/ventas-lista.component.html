@@ -154,10 +154,12 @@
           <table class="table align-middle mb-0">
             <thead class="table-light text-uppercase fs-8 text-secondary">
               <tr>
-                <th class="ps-4" style="width: 50%;">Producto</th>
-                <th style="width: 15%;" class="text-end">Cantidad</th>
-                <th style="width: 15%;" class="text-end">Precio U.</th>
-                <th style="width: 20%;" class="text-end pe-4">Subtotal</th>
+                <th class="ps-4" style="width: 40%;">Producto</th>
+                <th style="width: 10%;" class="text-end">Cantidad</th>
+                <th style="width: 10%; text-align: left;">Medida</th>
+                <th style="width: 13%;" class="text-end">Precio U.</th>
+                <th style="width: 13%;" class="text-end">Subtotal</th>
+                <th style="width: 14%;" class="text-end pe-4">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -167,8 +169,10 @@
                   <code class="text-muted small ms-2 bg-light px-2 py-0.5 border rounded" *ngIf="prod.codigo">{{ prod.codigo }}</code>
                 </td>
                 <td class="text-end fw-semibold">{{ prod.pivot.cantidad }}</td>
+                <td class="text-start fw-semibold text-secondary">{{ prod.unidad_medida }}</td>
                 <td class="text-end text-secondary">{{ prod.pivot.precio | currency }}</td>
-                <td class="text-end fw-bold text-dark pe-4">{{ prod.pivot.subtotal | currency }}</td>
+                <td class="text-end text-secondary">{{ (prod.pivot.cantidad * prod.pivot.precio) | currency }}</td>
+                <td class="text-end fw-bold text-dark pe-4">{{ prod.pivot.total | currency }}</td>
               </tr>
             </tbody>
           </table>

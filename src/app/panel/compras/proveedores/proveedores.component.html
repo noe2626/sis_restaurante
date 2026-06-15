@@ -47,7 +47,7 @@
 
           <!-- Email Column -->
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Email </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Email </th>
             <td mat-cell *matCellDef="let element">
               <span class="text-secondary fw-semibold">{{ element.email }}</span>
             </td>
@@ -55,7 +55,7 @@
 
           <!-- Teléfono Column -->
           <ng-container matColumnDef="telefono">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Teléfono </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Teléfono </th>
             <td mat-cell *matCellDef="let element">
               <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold fs-8">
                 <i class="bi bi-telephone-fill me-1"></i> {{ element.telefono }}
@@ -65,9 +65,21 @@
 
           <!-- RFC Column -->
           <ng-container matColumnDef="rfc">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> RFC </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> RFC </th>
             <td mat-cell *matCellDef="let element">
               <code class="text-secondary fw-bold px-2 py-1 bg-light border rounded">{{ element.rfc }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Estatus Column -->
+          <ng-container matColumnDef="estatus">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 15%;"> Estado </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-3 py-2 fw-semibold fs-8"
+                    [ngClass]="element.estatus == 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                <i class="bi me-1" [ngClass]="element.estatus == 1 ? 'bi-check-circle-fill' : 'bi-dash-circle-fill'"></i>
+                {{ element.estatus == 1 ? 'Activo' : 'Inactivo' }}
+              </span>
             </td>
           </ng-container>
 
@@ -83,12 +95,17 @@
 
           <!-- Eliminar Column -->
           <ng-container matColumnDef="eliminar">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 5%;"> Eliminar </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 5%;"> Baja </th>
             <td mat-cell *matCellDef="let element" class="text-center pe-4">
-              <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" *ngIf="element.id !== 1" (click)="eliminar(element.id)" title="Eliminar proveedor" style="width: 32px; height: 32px;">
-                <i class="bi bi-trash-fill fs-8"></i>
+              <button class="btn btn-sm rounded-circle p-2 d-inline-flex align-items-center justify-content-center" 
+                      *ngIf="element.id !== 1" 
+                      [ngClass]="element.estatus == 1 ? 'btn-outline-danger' : 'btn-outline-success'"
+                      (click)="toggleEstatus(element)" 
+                      [title]="element.estatus == 1 ? 'Dar de baja proveedor' : 'Reactivar proveedor'" 
+                      style="width: 32px; height: 32px;">
+                <i class="bi fs-8" [ngClass]="element.estatus == 1 ? 'bi-trash-fill' : 'bi-check-circle-fill'"></i>
               </button>
-              <span *ngIf="element.id === 1" class="text-muted small fs-9 d-inline-block py-1 px-2 rounded-pill bg-light" title="No se puede eliminar el proveedor principal">
+              <span *ngIf="element.id === 1" class="text-muted small fs-9 d-inline-block py-1 px-2 rounded-pill bg-light" title="No se puede desactivar el proveedor principal">
                 <i class="bi bi-lock-fill text-muted me-1"></i> Protegido
               </span>
             </td>

@@ -177,10 +177,15 @@
             <label class="form-label fw-semibold text-secondary">Rol del Usuario</label>
             <div class="input-group shadow-sm rounded-3 overflow-hidden">
               <span class="input-group-text bg-white border-0"><i class="bi bi-shield-check text-muted"></i></span>
-              <select formControlName="idTipo" class="form-select border-0 py-2" [disabled]="isEditMode && userForm.get('user')?.value === 'admin'">
-                <option [ngValue]="null" disabled selected>Seleccione un Rol</option>
-                <option *ngFor="let rol of roles" [ngValue]="rol.id">{{ rol.nombre }}</option>
-              </select>
+              <ng-select formControlName="idTipo"
+                         [items]="roles"
+                         bindLabel="nombre"
+                         bindValue="id"
+                         placeholder="Seleccione un Rol"
+                         [clearable]="false"
+                         [readonly]="isEditMode && userForm.get('user')?.value === 'admin'"
+                         class="custom-ng-select border-0">
+              </ng-select>
             </div>
             <div *ngIf="userForm.get('idTipo')?.touched && userForm.get('idTipo')?.invalid" class="text-danger small mt-1">
               Debe seleccionar un rol para el usuario.
@@ -207,10 +212,12 @@
             <label class="form-label fw-semibold text-secondary">Estado</label>
             <div class="input-group shadow-sm rounded-3 overflow-hidden">
               <span class="input-group-text bg-white border-0"><i class="bi bi-toggle-on text-muted"></i></span>
-              <select formControlName="estatus" class="form-select border-0 py-2">
-                <option [value]="1">Activo</option>
-                <option [value]="0">Inactivo (Dado de baja)</option>
-              </select>
+              <ng-select formControlName="estatus"
+                         [clearable]="false"
+                         class="custom-ng-select border-0">
+                <ng-option [value]="1">Activo</ng-option>
+                <ng-option [value]="0">Inactivo (Dado de baja)</ng-option>
+              </ng-select>
             </div>
           </div>
 

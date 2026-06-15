@@ -137,12 +137,16 @@
           <!-- Sucursal de pertenencia -->
           <div class="mb-3">
             <label class="form-label fw-semibold text-secondary">Sucursal</label>
-            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+            <div class="input-group shadow-sm rounded-3">
               <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
-              <select formControlName="idSucursal" class="form-select border-0 py-2">
-                <option value="" disabled selected>Selecciona una sucursal</option>
-                <option *ngFor="let suc of sucursales" [value]="suc.id">{{ suc.nombre }}</option>
-              </select>
+              <ng-select formControlName="idSucursal"
+                         [items]="sucursales"
+                         bindLabel="nombre"
+                         bindValue="id"
+                         placeholder="Selecciona una sucursal"
+                         [clearable]="false"
+                         class="custom-ng-select border-0">
+              </ng-select>
             </div>
             <div *ngIf="cajaForm.get('idSucursal')?.touched && cajaForm.get('idSucursal')?.invalid" class="text-danger small mt-1">
               Debes seleccionar la sucursal a la que pertenece la caja.

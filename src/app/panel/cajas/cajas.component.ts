@@ -28,7 +28,7 @@ export class CajasAdminComponent implements OnInit {
   ) {
     this.cajaForm = this.fb.group({
       caja: ['', [Validators.required, Validators.maxLength(255)]],
-      idSucursal: ['', Validators.required],
+      idSucursal: [null, Validators.required],
       efectivo: [0.00, [Validators.required, Validators.min(0)]],
       idStatus: [1, Validators.required]
     });
@@ -85,7 +85,7 @@ export class CajasAdminComponent implements OnInit {
     this.selectedCajaId = null;
     this.cajaForm.reset({
       caja: '',
-      idSucursal: '',
+      idSucursal: null,
       efectivo: 0.00,
       idStatus: 1
     });

@@ -82,6 +82,13 @@ export class PromocionesComponent implements OnInit {
     this.totalItems = this.filteredData.length;
   }
 
+  customSearch(term: string, item: any) {
+    term = term.toLowerCase();
+    const codigoMatch = item.codigo && item.codigo.toLowerCase().includes(term);
+    const nombreMatch = item.nombre.toLowerCase().includes(term);
+    return nombreMatch || codigoMatch;
+  }
+
   onTipoChange(): void {
     const tipo = this.formPromo.get('tipo')?.value;
     if (tipo === 'oferta_dinamica') {

@@ -117,5 +117,32 @@ export class ProductosService {
     return this.http.delete(`${this.apiUrl}inventario/productos/componentes/${idComponente}`, header);
   }
   
+  guardarRecetaProducto(data: any){
+    let token = localStorage.getItem('userToken');
+      var header = {
+        headers: new HttpHeaders()
+          .set('Authorization',  `Bearer ${token}`)
+      }
+    return this.http.post(`${this.apiUrl}inventario/productos/receta`, data, header);
+  }
+  
+  getRecetaProducto(idProducto: number){
+    let token = localStorage.getItem('userToken');
+      var header = {
+        headers: new HttpHeaders()
+          .set('Authorization',  `Bearer ${token}`)
+      }
+    return this.http.get(`${this.apiUrl}inventario/productos/receta/${idProducto}`, header);
+  }
+
+  deleteRecetaProducto(idReceta: number){
+    let token = localStorage.getItem('userToken');
+      var header = {
+        headers: new HttpHeaders()
+          .set('Authorization',  `Bearer ${token}`)
+      }
+    return this.http.delete(`${this.apiUrl}inventario/productos/receta/${idReceta}`, header);
+  }
+  
 
 }

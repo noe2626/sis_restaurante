@@ -1,6 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
+import { CajasService } from '../../services/cajas.service';
+import { VentasService } from '../../services/ventas.service';
 import { Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import CryptoJS from 'crypto-js';
+import { environment } from '../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,22 +39,43 @@ export class DashboardComponent implements OnInit {
   metricasY: number[] = [];
   maxVentas = 0;
 
+  // Propiedades para Cajeros
+  roleId: number = 0;
+  activeSession: any = null;
+  cajaNombre: string = '';
+  cajaSessionData: any = null;
+  turnoVentas: any[] = [];
+  ventaSeleccionada: any = null;
+  loadingVentas: boolean = false;
+
   constructor(
     private dashboardService: DashboardService,
-    private router: Router
+    private cajasService: CajasService,
+    private ventasService: VentasService,
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    const idSuc = localStorage.getItem('idSucursal');
-    if (!idSuc) {
-      this.router.navigate(['/sucursales']);
-      return;
+    if (isPlatformBrowser(this.platformId)) {
+      const idSuc = localStorage.getItem('idSucursal');
+      if (!idSuc) {
+        this.router.navigate(['/sucursales']);
+        return;
+      }
+      
+      this.idSucursal = parseInt(idSuc);
+      this.sucursalNombre = localStorage.getItem('sucursal') || 'Sucursal';
+
+      // Descifrar Rol
+      this.roleId = this.getDecryptedRole();
+
+      if (this.roleId === 3) {
+        this.cargarDatosCajero();
+      } else {
+        this.cargarDatos();
+      }
     }
-    
-    this.idSucursal = parseInt(idSuc);
-    this.sucursalNombre = localStorage.getItem('sucursal') || 'Sucursal';
-    this.cargarDatos();
-    this.prepararGrafica();
   }
 
   prepararGrafica(): void {
@@ -143,5 +170,125 @@ export class DashboardComponent implements OnInit {
       ? this.dashboardData.total_ventas_hoy / this.dashboardData.cantidad_ventas_hoy 
       : 0;
     this.balanceNeto = this.dashboardData.total_ventas_hoy - this.dashboardData.total_compras_hoy;
+  }
+
+  getDecryptedRole(): number {
+    const encryptedIdTipo = localStorage.getItem('idTipo') || '';
+    if (encryptedIdTipo) {
+      try {
+        return parseInt(CryptoJS.AES.decrypt(encryptedIdTipo, environment.secretKey).toString(CryptoJS.enc.Utf8)) || 3;
+      } catch (e) {
+        console.error('Error decrypting role in dashboard:', e);
+      }
+    }
+    return 3;
+  }
+
+  cargarDatosCajero(): void {
+    this.loading = true;
+    this.error = null;
+    this.cajaSessionData = null;
+    this.turnoVentas = [];
+
+    // 1. Obtener sesión activa de caja
+    this.cajasService.getActiveSession(this.idSucursal).subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.data) {
+          this.activeSession = res.data;
+          this.cajaNombre = res.data.caja || 'Caja';
+          const idCaja = res.data.idCaja;
+          
+          // Guardar idCaja cifrado en localStorage
+          const encryptedIdCaja = CryptoJS.AES.encrypt(idCaja.toString(), environment.secretKey).toString();
+          localStorage.setItem('idCaja', encryptedIdCaja);
+          localStorage.setItem('caja', this.cajaNombre);
+
+          // 2. Obtener balance/resumen del arqueo activo
+          this.cajasService.getResumenCierre(idCaja).subscribe({
+            next: (resResumen: any) => {
+              if (resResumen && resResumen.success) {
+                this.cajaSessionData = resResumen.data;
+                
+                // 3. Obtener y filtrar ventas del turno
+                this.cargarVentasTurno();
+              } else {
+                this.error = 'No se pudo obtener el resumen financiero de la caja.';
+                this.loading = false;
+              }
+            },
+            error: (err) => {
+              console.error('Error al obtener resumen de cierre:', err);
+              this.error = 'Ocurrió un error al obtener la información financiera del turno.';
+              this.loading = false;
+            }
+          });
+        } else {
+          // Sin sesión activa
+          this.activeSession = null;
+          localStorage.removeItem('idCaja');
+          localStorage.removeItem('caja');
+          this.loading = false;
+        }
+      },
+      error: (err) => {
+        console.error('Error al verificar sesión activa:', err);
+        this.error = 'Error al comunicarse con el servidor para validar el estado de tu caja.';
+        this.loading = false;
+      }
+    });
+  }
+
+  cargarVentasTurno(): void {
+    if (!this.cajaSessionData) return;
+    this.loadingVentas = true;
+
+    this.ventasService.listarVentas().subscribe({
+      next: (res: any) => {
+        let allVentas = [];
+        if (res && res.success) {
+          allVentas = res.data || [];
+        } else if (Array.isArray(res)) {
+          allVentas = res;
+        }
+
+        // Filtrar por cajero y fecha de apertura
+        const aperturaDate = new Date(this.cajaSessionData.fecha_apertura);
+        this.turnoVentas = allVentas.filter((venta: any) => {
+          const esCajero = venta.usuario_nombre === this.cajaSessionData.cajero;
+          const esDespuesApertura = new Date(venta.fecha) >= aperturaDate;
+          return esCajero && esDespuesApertura;
+        });
+
+        this.loadingVentas = false;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error al listar ventas para cajero:', err);
+        this.loadingVentas = false;
+        this.loading = false;
+      }
+    });
+  }
+
+  verDetalle(id: number): void {
+    this.ventasService.obtenerDetalleVenta(id).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.ventaSeleccionada = res.data;
+          const modalElement = document.getElementById('detalleVentaModal');
+          if (modalElement) {
+            const bootstrap = (window as any).bootstrap;
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+          }
+        } else {
+          Swal.fire('Error', 'No se pudo obtener el detalle de la venta.', 'error');
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener el detalle de la venta:', err);
+        Swal.fire('Error', 'Hubo un error al comunicarse con el servidor.', 'error');
+      }
+    });
   }
 }

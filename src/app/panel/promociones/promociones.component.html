@@ -37,6 +37,7 @@
             <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 15%;"> Producto </th>
             <td mat-cell *matCellDef="let element" class="ps-4">
               <span class="fw-bold text-dark">{{ element.producto?.nombre || 'Desconocido' }}</span>
+              <span class="text-muted small ms-1" *ngIf="element.producto?.unidad_medida">({{ element.producto.unidad_medida }})</span>
             </td>
           </ng-container>
 
@@ -173,10 +174,18 @@
               <label class="form-label fw-semibold text-secondary">Producto *</label>
               <div class="input-group shadow-sm rounded-3 overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-                <select class="form-select border-0 py-2" formControlName="idProducto">
-                  <option [value]="null" disabled selected>Seleccione un producto</option>
-                  <option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }} ({{ p.codigo }})</option>
-                </select>
+                <ng-select class="custom-ng-select border-0"
+                           formControlName="idProducto"
+                           [items]="productos"
+                           bindLabel="nombre"
+                           bindValue="id"
+                           placeholder="Seleccione un producto"
+                           [clearable]="false"
+                           [searchFn]="customSearch">
+                  <ng-template ng-option-tmp let-item="item">
+                    {{ item.nombre }} <span *ngIf="item.codigo">({{ item.codigo }})</span> [{{ item.unidad_medida }}]
+                  </ng-template>
+                </ng-select>
               </div>
               <div *ngIf="formPromo.get('idProducto')?.touched && formPromo.get('idProducto')?.invalid" class="text-danger small mt-1">
                 El producto es obligatorio.
@@ -188,10 +197,13 @@
               <label class="form-label fw-semibold text-secondary">Sucursal (Vacío para Global)</label>
               <div class="input-group shadow-sm rounded-3 overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-shop text-muted"></i></span>
-                <select class="form-select border-0 py-2" formControlName="idSucursal">
-                  <option [value]="null" *ngIf="roleId !== 2">Global (Todas las Sucursales)</option>
-                  <option *ngFor="let s of sucursales" [value]="s.idSucursal">{{ s.sucursal }}</option>
-                </select>
+                <ng-select class="custom-ng-select border-0"
+                           formControlName="idSucursal"
+                           [clearable]="false"
+                           placeholder="Seleccione una sucursal">
+                  <ng-option [value]="null" *ngIf="roleId !== 2">Global (Todas las Sucursales)</ng-option>
+                  <ng-option *ngFor="let s of sucursales" [value]="s.idSucursal">{{ s.sucursal }}</ng-option>
+                </ng-select>
               </div>
             </div>
           </div>
@@ -214,12 +226,16 @@
               <label class="form-label fw-semibold text-secondary">Tipo de Promoción *</label>
               <div class="input-group shadow-sm rounded-3 overflow-hidden">
                 <span class="input-group-text bg-white border-0"><i class="bi bi-sliders text-muted"></i></span>
-                <select class="form-select border-0 py-2" formControlName="tipo" (change)="onTipoChange()">
-                  <option value="fijo">Precio Fijo</option>
-                  <option value="porcentaje">Porcentaje de Descuento</option>
-                  <option value="oferta_dinamica">Oferta Dinámica (Compra X, Gratis Y)</option>
-                  <option value="mayoreo">Mayoreo (Precio especial por cantidad)</option>
-                </select>
+                <ng-select class="custom-ng-select border-0"
+                           formControlName="tipo"
+                           [clearable]="false"
+                           placeholder="Seleccione tipo de promoción"
+                           (change)="onTipoChange()">
+                  <ng-option value="fijo">Precio Fijo</ng-option>
+                  <ng-option value="porcentaje">Porcentaje de Descuento</ng-option>
+                  <ng-option value="oferta_dinamica">Oferta Dinámica (Compra X, Gratis Y)</ng-option>
+                  <ng-option value="mayoreo">Mayoreo (Precio especial por cantidad)</ng-option>
+                </ng-select>
               </div>
             </div>
 

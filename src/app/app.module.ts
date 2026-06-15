@@ -33,6 +33,8 @@ import { CajasAdminComponent } from './panel/cajas/cajas.component';
 import { PreciosClienteComponent } from './panel/precios-cliente/precios-cliente.component';
 import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.component';
 import { ReportesComponent } from './panel/reportes/reportes.component';
+import { MermasComponent } from './panel/inventarios/mermas/mermas.component';
+import { FabricacionesComponent } from './panel/inventarios/fabricaciones/fabricaciones.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +62,8 @@ import { ReportesComponent } from './panel/reportes/reportes.component';
     PreciosClienteComponent,
     CanalesVentaComponent,
     ReportesComponent,
+    MermasComponent,
+    FabricacionesComponent,
   ],
   imports: [
     BrowserModule,

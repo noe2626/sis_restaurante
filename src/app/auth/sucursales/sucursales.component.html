@@ -8,9 +8,15 @@
                 <h5 class="modal-title" id="sucursalModal">Selecciona una sucursal</h5>
             </div>
             <div class="modal-body">
-                <select [(ngModel)]="idSucursal" name="idSucursal" class="form-select">
-                    <option *ngFor="let sucursal of sucursales" value="{{sucursal.idSucursal}}">{{sucursal.sucursal}}</option>
-                </select>
+                <ng-select [(ngModel)]="idSucursal" 
+                           name="idSucursal" 
+                           [items]="sucursales"
+                           bindLabel="sucursal"
+                           bindValue="idSucursal"
+                           [clearable]="false"
+                           placeholder="Selecciona una sucursal"
+                           class="ng-select-bootstrap w-100">
+                </ng-select>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" (click)="entrar()">Entrar</button>

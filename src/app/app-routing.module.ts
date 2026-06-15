@@ -20,6 +20,8 @@ import { CajasAdminComponent } from './panel/cajas/cajas.component';
 import { PreciosClienteComponent } from './panel/precios-cliente/precios-cliente.component';
 import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.component';
 import { ReportesComponent } from './panel/reportes/reportes.component';
+import { MermasComponent } from './panel/inventarios/mermas/mermas.component';
+import { FabricacionesComponent } from './panel/inventarios/fabricaciones/fabricaciones.component';
 
 // Guards
 import { authGuard } from './guards/auth.guard';
@@ -36,9 +38,11 @@ const routes: Routes = [
     canActivate: [authGuard, branchGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'dashboard', component: DashboardComponent, canActivate: [roleGuard], data: { roles: [1, 2, 3] } },
       { path: 'productos', component: ProductosComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
       { path: 'inventarios', component: InventariosComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'mermas', component: MermasComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
+      { path: 'fabricaciones', component: FabricacionesComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
       { path: 'proveedores', component: ProveedoresComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
       { path: 'compras', component: ComprasComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
       { path: 'compras/editar', component: EditarCompraComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },

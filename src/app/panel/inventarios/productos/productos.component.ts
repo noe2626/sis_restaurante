@@ -20,11 +20,15 @@ export class ProductosComponent implements OnInit {
   sucursales: any[] = [];
   componentes: any[] = [];
   productosComponentes: any[] = [];
+  receta: any[] = [];
+  productosReceta: any[] = [];
 
   idSucursal: number = 0;
   idComponente: any = null;
   productoSeleccionado: any = null;
   cantidadComponente: number = 1;
+  idIngrediente: any = null;
+  cantidadIngrediente: number = 1;
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +40,7 @@ export class ProductosComponent implements OnInit {
       id: [null, Validators.required],
       nombre: [null, Validators.required],
       codigo: [null, Validators.required],
+      unidad_medida: ['Pza', Validators.required],
       inventariar: [false, Validators.required],
       se_vende: [true, Validators.required],
       se_compra: [true, Validators.required]
@@ -107,6 +112,7 @@ export class ProductosComponent implements OnInit {
       id: null,
       nombre: null,
       codigo: null,
+      unidad_medida: 'Pza',
       inventariar: false,
       se_vende: true,
       se_compra: true
@@ -119,6 +125,7 @@ export class ProductosComponent implements OnInit {
       id: prod.id,
       nombre: prod.nombre,
       codigo: prod.codigo,
+      unidad_medida: prod.unidad_medida || 'Pza',
       inventariar: prod.inventariar,
       se_vende: prod.se_vende,
       se_compra: prod.se_compra
@@ -133,9 +140,9 @@ export class ProductosComponent implements OnInit {
   }
 
   cargarInventariosData(idProducto: any, producto: string) {
-    this.formInventario.patchValue({ idProducto: idProducto, nombre: producto });
     this.getSucursales();
     this.getInventarioProducto();
+    this.formInventario.patchValue({ idProducto: idProducto, nombre: producto });
   }
 
   changeSucursalPrecio() {
@@ -410,4 +417,122 @@ export class ProductosComponent implements OnInit {
     });
   }
 
+  abrirModalConfig(producto: any) {
+    this.cargarComponentes(producto);
+    this.cargarReceta(producto);
+  }
+
+  cargarReceta(producto: any) {
+    this.productoSeleccionado = producto;
+    this.productoService.getRecetaProducto(producto.id).subscribe({
+      next: (data: any) => {
+        if (data.success) {
+          this.receta = data.data;
+          let idIngredientesActuales = this.receta.map(r => r.idProducto);
+          this.productosReceta = this.productos.filter(ingrediente =>
+            ingrediente.inventariar == 1 
+            && ingrediente.id != producto.id 
+            && !idIngredientesActuales.includes(ingrediente.id)
+          );
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error al listar receta",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "Error al listar receta",
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+    });
+  }
+
+  agregarIngrediente() {
+    let ingrediente = {
+      producto_id: this.productoSeleccionado.id,
+      ingrediente_id: this.idIngrediente,
+      cantidad: this.cantidadIngrediente
+    };
+    this.productoService.guardarRecetaProducto(ingrediente).subscribe({
+      next: (data: any) => {
+        if (data.success) {
+          this.idIngrediente = null;
+          this.cantidadIngrediente = 1;
+          this.cargarReceta(this.productoSeleccionado);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: data.message || "Error al guardar ingrediente",
+            showConfirmButton: false,
+            timer: 1500
+          });
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "Error al guardar ingrediente",
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+    });
+  }
+
+  eliminarIngrediente(ingrediente: any) {
+    Swal.fire({
+      title: "Eliminar ingrediente " + ingrediente.producto,
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#90a1b1ff",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Confirmar",
+      cancelButtonText: "Cancelar"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.productoService.deleteRecetaProducto(ingrediente.id).subscribe({
+          next: (data: any) => {
+            if (data.success) {
+              this.cargarReceta(this.productoSeleccionado);
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error al eliminar ingrediente",
+                showConfirmButton: false,
+                timer: 1500
+              });
+            }
+          },
+          error: (err) => {
+            console.error(err);
+            Swal.fire({
+              icon: "error",
+              title: "Error al eliminar ingrediente",
+              showConfirmButton: false,
+              timer: 1500
+            });
+          }
+        });
+      }
+    });
+  }
+
+  getUnidadMedidaComponente(): string {
+    const prod = this.productos.find(p => p.id == this.idComponente);
+    return prod ? prod.unidad_medida : '';
+  }
+
+  getUnidadMedidaIngrediente(): string {
+    const prod = this.productos.find(p => p.id == this.idIngrediente);
+    return prod ? prod.unidad_medida : '';
+  }
 }
