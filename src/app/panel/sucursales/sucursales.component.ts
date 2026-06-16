@@ -39,6 +39,7 @@ export class SucursalesAdminComponent implements OnInit {
       direccion: ['', [Validators.required, Validators.maxLength(255)]],
       maneja_iva: [false],
       imprime_ticket: [true],
+      bloqueo_stock: ['estricto', Validators.required],
       estatus: [1, Validators.required]
     });
   }
@@ -72,6 +73,7 @@ export class SucursalesAdminComponent implements OnInit {
       direccion: '',
       maneja_iva: false,
       imprime_ticket: true,
+      bloqueo_stock: 'estricto',
       estatus: 1
     });
 
@@ -87,6 +89,7 @@ export class SucursalesAdminComponent implements OnInit {
       direccion: sucursal.direccion,
       maneja_iva: sucursal.maneja_iva == 1 || sucursal.maneja_iva == true,
       imprime_ticket: sucursal.imprime_ticket == 1 || sucursal.imprime_ticket == true,
+      bloqueo_stock: sucursal.bloqueo_stock || 'estricto',
       estatus: sucursal.estatus
     });
 
@@ -105,6 +108,7 @@ export class SucursalesAdminComponent implements OnInit {
       direccion: this.sucursalForm.value.direccion,
       maneja_iva: this.sucursalForm.value.maneja_iva ? 1 : 0,
       imprime_ticket: this.sucursalForm.value.imprime_ticket ? 1 : 0,
+      bloqueo_stock: this.sucursalForm.value.bloqueo_stock,
       estatus: this.sucursalForm.value.estatus
     };
 

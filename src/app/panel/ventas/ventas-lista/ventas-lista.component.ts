@@ -94,15 +94,24 @@ export class VentasListaComponent implements OnInit {
     Swal.fire({
       title: '¿Está seguro de cancelar esta venta?',
       text: 'Esta acción revertirá el inventario de todos los productos y componentes de la venta. El saldo de caja no se modificará.',
+      input: 'text',
+      inputPlaceholder: 'Escriba el motivo de la cancelación...',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Sí, cancelar venta',
-      cancelButtonText: 'No, conservar'
+      cancelButtonText: 'No, conservar',
+      inputValidator: (value) => {
+        if (!value || !value.trim()) {
+          return 'Debe ingresar un motivo para poder cancelar la venta.';
+        }
+        return null;
+      }
     }).then((result) => {
       if (result.isConfirmed) {
-        this.ventasService.cancelarVenta(id).subscribe({
+        const motivo = result.value;
+        this.ventasService.cancelarVenta(id, motivo).subscribe({
           next: (res: any) => {
             if (res && res.success) {
               Swal.fire({

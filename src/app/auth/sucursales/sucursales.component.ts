@@ -42,6 +42,7 @@ export class SucursalesComponent implements OnInit{
       localStorage.setItem('sucursal',sucursalObj.sucursal);
       localStorage.setItem('manejaIva', (sucursalObj.manejaIva ?? 0).toString());
       localStorage.setItem('imprimeTicket', (sucursalObj.imprimeTicket ?? 1).toString());
+      localStorage.setItem('bloqueoStock', sucursalObj.bloqueoStock || 'estricto');
 
       const encryptedIdTipo = localStorage.getItem('idTipo') || '';
       if (encryptedIdTipo) {

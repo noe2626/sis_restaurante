@@ -107,30 +107,71 @@ export class NavCajaComponent {
     });
   }
 
-  retirarAlert(){
+  retirarAlert() {
     Swal.fire({
       title: "Retirar de caja",
-      input: "number",
-      inputLabel: "Cantidad de retiro",
+      html: `
+        <div class="text-start">
+          <div class="mb-3">
+            <label for="swal-cantidad" class="form-label fw-semibold fs-7" style="font-size: 0.9rem;">Cantidad a retirar ($) *</label>
+            <input id="swal-cantidad" type="number" step="0.01" class="form-control" placeholder="0.00">
+          </div>
+          <div class="mb-3">
+            <label for="swal-concepto" class="form-label fw-semibold fs-7" style="font-size: 0.9rem;">Concepto / Motivo</label>
+            <input id="swal-concepto" type="text" class="form-control" placeholder="Ej. Pago a proveedor, compra de insumos, etc.">
+          </div>
+          <div class="mb-3">
+            <label for="swal-usuario" class="form-label fw-semibold fs-7" style="font-size: 0.9rem;">Usuario Autorizador *</label>
+            <input id="swal-usuario" type="text" class="form-control" placeholder="Usuario">
+          </div>
+          <div>
+            <label for="swal-password" class="form-label fw-semibold fs-7" style="font-size: 0.9rem;">Contraseña *</label>
+            <input id="swal-password" type="password" class="form-control" placeholder="••••••••">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
       showCancelButton: true,
-      inputValidator: (value:any) => {
-        if(value <= 0){
-          Swal.fire({
-            icon: "error",
-            title: "Ingresar una cantidad permitida",
-            showConfirmButton: false,
-            timer: 1500
-          });
-          return;
+      confirmButtonText: 'Confirmar Retiro',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#dc3545',
+      preConfirm: () => {
+        const cantidadInput = (document.getElementById('swal-cantidad') as HTMLInputElement).value;
+        const conceptoInput = (document.getElementById('swal-concepto') as HTMLInputElement).value;
+        const usuarioInput = (document.getElementById('swal-usuario') as HTMLInputElement).value;
+        const passwordInput = (document.getElementById('swal-password') as HTMLInputElement).value;
+
+        if (!cantidadInput || parseFloat(cantidadInput) <= 0) {
+          Swal.showValidationMessage('Por favor, ingresa una cantidad válida de retiro.');
+          return false;
         }
-        this.cantidadRetiro=value;
-        this.retirar();
+        if (!usuarioInput) {
+          Swal.showValidationMessage('Por favor, ingresa el usuario autorizador.');
+          return false;
+        }
+        if (!passwordInput) {
+          Swal.showValidationMessage('Por favor, ingresa la contraseña.');
+          return false;
+        }
+
+        return {
+          cantidad: parseFloat(cantidadInput),
+          concepto: conceptoInput,
+          usuario: usuarioInput,
+          password: passwordInput
+        };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const val = result.value;
+        this.cantidadRetiro = val.cantidad;
+        this.retirarConAutorizacion(val.cantidad, val.concepto, val.usuario, val.password);
       }
     });
   }
 
-  retirar(){
-    if(this.cantidadRetiro <= 0){
+  retirarConAutorizacion(cantidad: number, concepto: string, usuario: string, pass: string) {
+    if (cantidad <= 0) {
       Swal.fire({
         icon: "error",
         title: "Ingresar una cantidad permitida",
@@ -139,9 +180,9 @@ export class NavCajaComponent {
       });
       return;
     }
-    const idCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja'), environment.secretKey).toString(CryptoJS.enc.Utf8);
-    const idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario'), environment.secretKey).toString(CryptoJS.enc.Utf8);
-    this.service.retirar(idCaja,idUsuario,this.cantidadRetiro).subscribe({
+    const idCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    const idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    this.service.retirar(idCaja, idUsuario, cantidad, usuario, pass, concepto).subscribe({
       next: (data: any) => {
         if (data.success) {
           Swal.fire({
@@ -150,30 +191,28 @@ export class NavCajaComponent {
             showConfirmButton: false,
             timer: 1500
           });
-        }else{
-          if(data.saldoInsuficiente){
+        } else {
+          if (data.saldoInsuficiente) {
             Swal.fire({
               icon: "error",
               title: "Saldo insuficiente, revise la cantidad a retirar",
-              showConfirmButton: false,
-              timer: 1500
+              showConfirmButton: true
             });
-          }else{
+          } else {
             Swal.fire({
               icon: "error",
-              title: "Error al retirar",
-              showConfirmButton: false,
-              timer: 1500
+              title: data.message || "Error al retirar",
+              showConfirmButton: true
             });
           }
         }
       },
-      error: () => {
+      error: (err: any) => {
+        const errorMsg = err.error?.message || "Error al retirar";
         Swal.fire({
           icon: "error",
-          title: "Error al retirar",
-          showConfirmButton: false,
-          timer: 1500
+          title: errorMsg,
+          showConfirmButton: true
         });
       },
     });

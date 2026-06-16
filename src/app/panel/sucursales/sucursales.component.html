@@ -40,11 +40,12 @@
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light text-uppercase fs-7 text-secondary">
             <tr>
-              <th class="ps-4" style="width: 10%;">ID</th>
-              <th style="width: 25%;">Nombre de Sucursal</th>
-              <th style="width: 30%;">Dirección</th>
-              <th style="width: 15%;">Maneja IVA</th>
-              <th style="width: 15%;">Imprime Ticket</th>
+              <th class="ps-4" style="width: 8%;">ID</th>
+              <th style="width: 20%;">Nombre de Sucursal</th>
+              <th style="width: 25%;">Dirección</th>
+              <th style="width: 12%;">Maneja IVA</th>
+              <th style="width: 12%;">Imprime Ticket</th>
+              <th style="width: 13%;">Bloqueo de Stock</th>
               <th style="width: 10%;">Estado</th>
               <th class="pe-4 text-end" style="width: 10%;">Acciones</th>
             </tr>
@@ -81,6 +82,12 @@
                 </span>
               </td>
               <td>
+                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8 text-capitalize"
+                  [ngClass]="sucursal.bloqueo_stock === 'desactivado' ? 'bg-secondary text-white' : (sucursal.bloqueo_stock === 'directo' ? 'bg-info text-white' : 'bg-warning text-dark')">
+                  {{ sucursal.bloqueo_stock || 'estricto' }}
+                </span>
+              </td>
+              <td>
                 <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
                   [ngClass]="sucursal.estatus == 1 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
                   <i class="bi me-1" [ngClass]="sucursal.estatus == 1 ? 'bi-check-circle-fill' : 'bi-dash-circle-fill'"></i>
@@ -104,7 +111,7 @@
               </td>
             </tr>
             <tr *ngIf="sucursalesFiltradas.length === 0">
-              <td colspan="6" class="text-center py-5 text-muted">
+              <td colspan="8" class="text-center py-5 text-muted">
                 <i class="bi bi-shop fs-1 d-block mb-2 text-secondary"></i>
                 No hay sucursales registradas.
               </td>
@@ -181,6 +188,22 @@
               </div>
               <small class="text-muted d-block mt-2">Habilítalo para que las ventas finalizadas en esta sucursal manden a imprimir el ticket físico.</small>
             </div>
+          </div>
+
+          <!-- Bloqueo de Stock -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Bloqueo de Ventas por Stock</label>
+            <div class="input-group shadow-sm rounded-3">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-box-seam text-muted"></i></span>
+              <ng-select formControlName="bloqueo_stock"
+                         [clearable]="false"
+                         class="custom-ng-select border-0 w-100">
+                <ng-option value="desactivado">Desactivado (Nunca bloquear)</ng-option>
+                <ng-option value="directo">Bloqueo Directo (Bypass en componentes)</ng-option>
+                <ng-option value="estricto">Bloqueo Estricto (Restringir todo)</ng-option>
+              </ng-select>
+            </div>
+            <small class="text-muted d-block mt-2">Determina el comportamiento de las ventas en el POS cuando algún artículo o ingrediente no posee existencias.</small>
           </div>
 
           <!-- Estado (Activo/Inactivo) - Solo al editar y si no es la principal -->

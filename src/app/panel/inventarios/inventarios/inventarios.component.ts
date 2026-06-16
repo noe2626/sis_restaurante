@@ -17,7 +17,7 @@ export class InventariosComponent {
   data: Array<any> = [];
   idSucursal:any;
   sucursales: any = null;
-  displayedColumns: string[] = ['producto','codigo','cantidad','precio']; 
+  displayedColumns: string[] = ['producto','codigo','cantidad','stock_minimo','precio']; 
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;

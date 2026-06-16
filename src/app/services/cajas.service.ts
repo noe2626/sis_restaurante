@@ -64,13 +64,20 @@ export class CajasService {
     return this.http.post(`${this.apiUrl}cajas/depositar`, {idCaja, idUser, cantidad}, header);
   }
 
-  retirar(idCaja:number, idUser:number, cantidad:number) {
+  retirar(idCaja:any, idUser:any, cantidad:number, authUser?: string, authPassword?: string, concepto?: string) {
     let token = localStorage.getItem('userToken');
     var header = {
       headers: new HttpHeaders()
         .set('Authorization', `Bearer ${token}`)
     }
-    return this.http.post(`${this.apiUrl}cajas/retirar`, {idCaja, idUser, cantidad}, header);
+    return this.http.post(`${this.apiUrl}cajas/retirar`, {
+      idCaja,
+      idUser,
+      cantidad,
+      auth_user: authUser,
+      auth_password: authPassword,
+      concepto
+    }, header);
   }
 
   getResumenCierre(idCaja: number) {

@@ -76,6 +76,7 @@ export class NavBarComponent implements OnInit {
           localStorage.setItem('sucursal', suc.sucursal);
           localStorage.setItem('manejaIva', (suc.manejaIva ?? 0).toString());
           localStorage.setItem('imprimeTicket', (suc.imprimeTicket ?? 1).toString());
+          localStorage.setItem('bloqueoStock', suc.bloqueoStock || 'estricto');
           localStorage.removeItem('idCaja');
           localStorage.removeItem('caja');
           this.router.navigate(['/panel/dashboard']).then(() => {

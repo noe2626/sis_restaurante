@@ -37,12 +37,12 @@ export class VentasService {
     return this.http.get(`${this.apiUrl}ventas/detalle/${id}`, header);
   }
 
-  cancelarVenta(id: number) {
+  cancelarVenta(id: number, nota?: string) {
     let token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
     };
-    return this.http.post(`${this.apiUrl}ventas/cancelar/${id}`, {}, header);
+    return this.http.post(`${this.apiUrl}ventas/cancelar/${id}`, { nota }, header);
   }
 
 }

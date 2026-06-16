@@ -10,6 +10,7 @@ import { ClientesService } from '../../../services/clientes.service';
 import { VentasService } from '../../../services/ventas.service';
 import { PreciosService } from '../../../services/precios.service';
 import { environment } from '../../../../environments/environment';
+import { SucursalesService } from '../../../services/sucursales.service';
 
 @Component({
   selector: 'app-nueva-venta',
@@ -40,7 +41,8 @@ export class NuevaVentaComponent implements OnInit {
     private clientesService: ClientesService,
     private ventasService: VentasService,
     private preciosService: PreciosService,
-    private router: Router
+    private router: Router,
+    private sucursalesService: SucursalesService
   ) {
     this.formVenta = this.fb.group({
       idCliente: [null, Validators.required]
@@ -50,8 +52,35 @@ export class NuevaVentaComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.listarProductos();
+    this.cargarConfiguracionSucursalLuegoProductos();
     this.listarClientes();
+  }
+
+  cargarConfiguracionSucursalLuegoProductos(): void {
+    this.sucursalesService.getSucursalesByUsuario().subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          const userSucursales = res.data || [];
+          const activeId = localStorage.getItem('idSucursal');
+          if (activeId) {
+            const activeSuc = userSucursales.find((s: any) => s.idSucursal.toString() === activeId);
+            if (activeSuc) {
+              localStorage.setItem('sucursal', activeSuc.sucursal);
+              localStorage.setItem('manejaIva', (activeSuc.manejaIva ?? 0).toString());
+              localStorage.setItem('imprimeTicket', (activeSuc.imprimeTicket ?? 1).toString());
+              localStorage.setItem('bloqueoStock', activeSuc.bloqueoStock || 'estricto');
+              
+              this.manejaIva = activeSuc.manejaIva === 1 || activeSuc.manejaIva === true;
+            }
+          }
+        }
+        this.listarProductos();
+      },
+      error: (err) => {
+        console.error('Error al sincronizar sucursal en nueva-venta:', err);
+        this.listarProductos();
+      }
+    });
   }
 
   listarProductos(): void {
@@ -255,6 +284,21 @@ export class NuevaVentaComponent implements OnInit {
   }
 
   isDisabled(item: any): boolean {
+    if (typeof window === 'undefined') return false;
+    const bloqueo = localStorage.getItem('bloqueoStock') || 'estricto';
+
+    if (bloqueo === 'desactivado') {
+      return false;
+    }
+
+    if (bloqueo === 'directo') {
+      if (item.inventariar && !item.tiene_componentes) {
+        return (item.stock_disponible || 0) < 1;
+      }
+      return false;
+    }
+
+    // estricto
     if (item.inventariar || item.tiene_componentes) {
       return (item.stock_disponible || 0) < 1;
     }

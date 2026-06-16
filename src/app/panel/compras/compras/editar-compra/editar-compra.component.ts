@@ -136,12 +136,35 @@ export class EditarCompraComponent implements OnInit{
       this.subtotal += prod.subtotal || 0;
       this.iva += (prod.subtotal || 0)*((prod.iva || 0)/100);
     });
-    this.total = this.subtotal + this.iva;
+    this.subtotal = parseFloat(this.subtotal.toFixed(2));
+    this.iva = parseFloat(this.iva.toFixed(2));
+    this.total = parseFloat((this.subtotal + this.iva).toFixed(2));
   }
 
   calcularTotales(producto:any){
     producto.subtotal = (producto.cantidad || 0) * (producto.precio || 0);
+    producto.subtotal = parseFloat(producto.subtotal.toFixed(2));
     producto.total = producto.subtotal + (producto.subtotal*((producto.iva || 0)/100));
+    producto.total = parseFloat(producto.total.toFixed(2));
+    this.recalcularTodo();
+  }
+
+  calcularInverso(producto:any){
+    const ivaPorcentaje = producto.iva || 0;
+    const total = producto.total || 0;
+    const cantidad = producto.cantidad || 1;
+
+    // subtotal = total / (1 + iva/100)
+    const subtotal = total / (1 + (ivaPorcentaje / 100));
+    producto.subtotal = parseFloat(subtotal.toFixed(2));
+
+    // precio = subtotal / cantidad
+    const precio = producto.subtotal / (cantidad || 1);
+    producto.precio = parseFloat(precio.toFixed(4));
+
+    // Asegurar que el total quede exactamente como el valor ingresado
+    producto.total = parseFloat(total.toFixed(2));
+
     this.recalcularTodo();
   }
 

@@ -60,6 +60,7 @@ export class ProductosComponent implements OnInit {
       idProducto: [0, Validators.required],
       nombre: [null, Validators.required],
       cantidad: [0, Validators.required],
+      stock_minimo: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -145,8 +146,14 @@ export class ProductosComponent implements OnInit {
   cargarInventariosData(idProducto: any, producto: string) {
     const defaultSucursalId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('idSucursal') || '0') : 0;
     this.getSucursales();
+    this.formInventario.patchValue({ 
+      idSucursal: defaultSucursalId, 
+      idProducto: idProducto, 
+      nombre: producto,
+      cantidad: 0,
+      stock_minimo: 0
+    });
     this.getInventarioProducto();
-    this.formInventario.patchValue({ idSucursal: defaultSucursalId, idProducto: idProducto, nombre: producto });
   }
 
   changeSucursalPrecio() {
@@ -218,10 +225,13 @@ export class ProductosComponent implements OnInit {
 
   getInventarioProducto() {
     const inventarioData = this.formInventario.value;
-    this.productoService.getInventarioProducto(inventarioData.idProducto).subscribe({
+    this.productoService.getInventarioProducto(inventarioData.idProducto, inventarioData.idSucursal).subscribe({
       next: (data: any) => {
         if (data.success) {
-          this.formInventario.patchValue({ cantidad: data.data.cantidad });
+          this.formInventario.patchValue({ 
+            cantidad: data.data.cantidad,
+            stock_minimo: data.data.stock_minimo ?? 0
+          });
         } else {
           Swal.fire({
             icon: "error",

@@ -299,6 +299,15 @@
               <input formControlName="cantidad" type="number" class="form-control border-0 py-2 fw-semibold text-dark" placeholder="Cantidad en existencia">
             </div>
           </div>
+
+          <!-- Stock Mínimo -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-secondary">Stock Mínimo (Alerta de Inventario Bajo)</label>
+            <div class="input-group shadow-sm rounded-3 ">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-exclamation-triangle text-muted"></i></span>
+              <input formControlName="stock_minimo" type="number" class="form-control border-0 py-2 fw-semibold text-dark" placeholder="Cantidad mínima requerida">
+            </div>
+          </div>
         </form>
       </div>
 

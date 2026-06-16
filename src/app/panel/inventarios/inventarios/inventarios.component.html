@@ -18,9 +18,9 @@
       </div>
 
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 230px;">
+      <div class="input-group shadow-sm bg-white search-container" style="max-width: 230px; border-radius: 5px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Nombre/Código..." (input)="onSearch($event)" />
+        <input class="form-control border-0 py-2 fs-7 ps-0 " type="text" placeholder="Buscar por Nombre/Código..." (input)="onSearch($event)" />
       </div>
     </div>
   </div>
@@ -63,6 +63,18 @@
             <td mat-cell *matCellDef="let element" class="text-end pe-3">
               <div class="d-inline-flex align-items-center gap-1">
                 <input *ngIf="element.inventariar" [(ngModel)]="element.cantidad" type="number" class="form-control form-control-sm text-end d-inline-block shadow-sm fw-semibold" style="max-width: 80px; border-color: #dee2e6;" min="0" />
+                <span *ngIf="element.inventariar" class="text-muted small fw-semibold">{{ element.unidad_medida }}</span>
+                <span *ngIf="!element.inventariar" class="text-muted small fs-8">No inventariable</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Stock Mínimo Column -->
+          <ng-container matColumnDef="stock_minimo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 15%;"> Stock Mínimo </th>
+            <td mat-cell *matCellDef="let element" class="text-end pe-3">
+              <div class="d-inline-flex align-items-center gap-1">
+                <input *ngIf="element.inventariar" [(ngModel)]="element.stock_minimo" type="number" class="form-control form-control-sm text-end d-inline-block shadow-sm fw-semibold" style="max-width: 80px; border-color: #dee2e6;" min="0" />
                 <span *ngIf="element.inventariar" class="text-muted small fw-semibold">{{ element.unidad_medida }}</span>
                 <span *ngIf="!element.inventariar" class="text-muted small fs-8">No inventariable</span>
               </div>

@@ -9,6 +9,7 @@ import { PreciosService } from '../../services/precios.service';
 import { AuthService } from '../../services/auth.service';
 import { CanalesVentaService } from '../../services/canales-venta.service';
 import Swal from 'sweetalert2';
+import { SucursalesService } from '../../services/sucursales.service';
 import * as bootstrap from "bootstrap";
 import CryptoJS from 'crypto-js';
 import { environment } from '../../../environments/environment';
@@ -49,7 +50,8 @@ export class VentasComponent implements OnInit{
     private preciosService: PreciosService,
     private authService: AuthService,
     private canalesVentaService: CanalesVentaService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private sucursalesService: SucursalesService
   ) {
     this.formProd = this.fb.group({
       idProducto: [null, Validators.required],
@@ -63,10 +65,39 @@ export class VentasComponent implements OnInit{
 
 
   ngOnInit(): void {
-    this.listarProductos();
-    this.listarProductosMasVendidos();
+    this.cargarConfiguracionSucursalLuegoProductos();
     this.listarClientes();
     this.listarCanalesVenta();
+  }
+
+  cargarConfiguracionSucursalLuegoProductos(): void {
+    this.sucursalesService.getSucursalesByUsuario().subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          const userSucursales = res.data || [];
+          const activeId = localStorage.getItem('idSucursal');
+          if (activeId) {
+            const activeSuc = userSucursales.find((s: any) => s.idSucursal.toString() === activeId);
+            if (activeSuc) {
+              localStorage.setItem('sucursal', activeSuc.sucursal);
+              localStorage.setItem('manejaIva', (activeSuc.manejaIva ?? 0).toString());
+              localStorage.setItem('imprimeTicket', (activeSuc.imprimeTicket ?? 1).toString());
+              localStorage.setItem('bloqueoStock', activeSuc.bloqueoStock || 'estricto');
+              
+              this.manejaIva = activeSuc.manejaIva === 1 || activeSuc.manejaIva === true;
+              this.imprimeTicket = activeSuc.imprimeTicket !== 0 && activeSuc.imprimeTicket !== false;
+            }
+          }
+        }
+        this.listarProductos();
+        this.listarProductosMasVendidos();
+      },
+      error: (err) => {
+        console.error('Error al sincronizar sucursal en POS:', err);
+        this.listarProductos();
+        this.listarProductosMasVendidos();
+      }
+    });
   }
 
   listarProductos(): void {
@@ -504,6 +535,22 @@ export class VentasComponent implements OnInit{
   }
 
   isDisabled(item: any): boolean { 
+    if (typeof window === 'undefined') return false;
+    const bloqueo = localStorage.getItem('bloqueoStock') || 'estricto';
+
+    if (bloqueo === 'desactivado') {
+      return false;
+    }
+
+    if (bloqueo === 'directo') {
+      // Solo deshabilitar si es un producto directo que se inventaría y tiene stock < 1
+      if (item.inventariar && !item.tiene_componentes) {
+        return (item.stock_disponible || 0) < 1;
+      }
+      return false;
+    }
+
+    // estricto
     if (item.inventariar || item.tiene_componentes) {
       return (item.stock_disponible || 0) < 1;
     }

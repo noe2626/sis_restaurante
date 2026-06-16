@@ -60,14 +60,14 @@ export class ProductosService {
     
   }
 
-  getInventarioProducto(idProducto: number){
+  getInventarioProducto(idProducto: number, idSucursal?: number){
     let token = localStorage.getItem('userToken');
-    let idSucursal = localStorage.getItem('idSucursal');
+    let sucursalId = idSucursal || localStorage.getItem('idSucursal');
     var header = {
       headers: new HttpHeaders()
         .set('Authorization',  `Bearer ${token}`)
     }
-    return this.http.get(`${this.apiUrl}inventario/${idSucursal}/${idProducto}`, header);
+    return this.http.get(`${this.apiUrl}inventario/${sucursalId}/${idProducto}`, header);
   }
 
   modificarInventario(data:any){
