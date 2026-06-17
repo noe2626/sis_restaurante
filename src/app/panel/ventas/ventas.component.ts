@@ -41,6 +41,17 @@ export class VentasComponent implements OnInit{
   productosRapidos: any[] = [];
   manejaIva: boolean = false;
   imprimeTicket: boolean = true;
+  activeTabMovil: 'cliente' | 'productos' | 'carrito' = 'cliente';
+  colores = [
+    'rgba(76, 175, 80, 0.25)',   // Verde
+    'rgba(33, 150, 243, 0.25)',  // Azul
+    'rgba(255, 152, 0, 0.25)',   // Naranja
+    'rgba(156, 39, 176, 0.25)',  // Morado
+    'rgba(0, 150, 136, 0.25)',   // Turquesa
+    'rgba(233, 30, 99, 0.25)',   // Rosa
+    'rgba(121, 85, 72, 0.25)',   // Café
+    'rgba(96, 125, 139, 0.25)'   // Gris azulado
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -127,6 +138,7 @@ export class VentasComponent implements OnInit{
             ...producto, 
             disabled: this.isDisabled(producto) 
           }));
+          this.productosRapidos = this.productosRapidos.slice(0, 8); // Limitar a los 8 más vendidos
       },
       error: (err) => {
         console.log(err);
@@ -555,5 +567,12 @@ export class VentasComponent implements OnInit{
       return (item.stock_disponible || 0) < 1;
     }
     return false;
+  }
+
+  cambiarTabMovil(tab: 'cliente' | 'productos' | 'carrito'): void {
+    this.activeTabMovil = tab;
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

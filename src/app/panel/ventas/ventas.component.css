@@ -94,12 +94,12 @@ button[type="button"] i {
     line-height: 1.2;
 }
 
-.card-body .row .col-3 {
+.card-body .row [class*="col-"] {
     margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
 
-.card-body .row .col-3 button {
+.card-body .row [class*="col-"] button {
     margin-top: 5px;
     margin-bottom: 5px;
 }
@@ -142,6 +142,64 @@ button[type="button"] i {
     margin-top: 10px;
 }
 
-.btn-quick{
-    height: 100px;
+.btn-quick {
+    height: auto;
+    min-height: 85px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.85rem !important;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 8px !important;
+    transition: all 0.2s ease;
 }
+
+.btn-quick i {
+    font-size: 1.1rem;
+}
+
+/* Wizard para móviles */
+.nav-wizard {
+    border-bottom: 2px solid #f1f3f5;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px);
+}
+
+.nav-wizard-btn {
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 3px solid transparent;
+    border-radius: 0 !important;
+    font-size: 0.85rem;
+    padding: 10px 5px !important;
+    width: 33.33% !important;
+}
+
+.nav-wizard-btn i {
+    font-size: 1.25rem !important;
+    margin-bottom: 4px;
+    transition: transform 0.2s ease;
+}
+
+.nav-wizard-btn:hover {
+    color: #d9383a;
+}
+
+.nav-wizard-btn.active {
+    color: #d9383a !important;
+    border-bottom: 3px solid #d9383a !important;
+    font-weight: 700 !important;
+}
+
+.nav-wizard-btn.active i {
+    transform: scale(1.1);
+    color: #d9383a;
+}
+

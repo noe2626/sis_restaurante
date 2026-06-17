@@ -50,6 +50,12 @@ html, body {
     width: 70%;
   }
 
+  @media (max-width: 768px) {
+    .div-login {
+      width: 100%;
+    }
+  }
+
   .btn-submit{
     background-color: #f28c22;
     font-weight: bolder;
@@ -65,4 +71,14 @@ html, body {
     background-size: cover;
     background-position: center;
     border-radius: 50%;
+  }
+
+  .div-logo-mobile {
+    background-image: url('src/assets/images/Al_rojo_vivo.png');
+    width: 150px;
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }

@@ -1,90 +1,138 @@
 <app-nav-caja></app-nav-caja>
 <app-apertura></app-apertura>
-<div class="bg-light p-4">
-    <div class="row">
+<div class="bg-light p-3 p-md-4">
+    
+    <!-- Pestañas de Pasos para Móviles -->
+    <div class="d-flex d-md-none justify-content-between p-2 bg-white rounded-3 shadow-sm mb-3 nav-wizard">
+        <button class="btn nav-wizard-btn flex-fill py-2" [ngClass]="{'active': activeTabMovil === 'cliente'}" (click)="cambiarTabMovil('cliente')">
+            <i class="bi bi-person-circle fs-5 d-block"></i>
+            <span class="small fw-bold">1. Cliente</span>
+        </button>
+        <button class="btn nav-wizard-btn flex-fill py-2" [ngClass]="{'active': activeTabMovil === 'productos'}" (click)="cambiarTabMovil('productos')">
+            <i class="bi bi-box-seam fs-5 d-block"></i>
+            <span class="small fw-bold">2. Productos</span>
+        </button>
+        <button class="btn nav-wizard-btn flex-fill py-2 position-relative" [ngClass]="{'active': activeTabMovil === 'carrito'}" (click)="cambiarTabMovil('carrito')">
+            <i class="bi bi-cart3 fs-5 d-block">
+                <span class="position-absolute top-0 start-50 translate-middle-x badge rounded-pill bg-danger" style="font-size: 0.65rem; margin-top: -3px; margin-left: 15px;" *ngIf="carrito.length > 0">
+                    {{carrito.length}}
+                </span>
+            </i>
+            <span class="small fw-bold">3. Carrito</span>
+        </button>
+    </div>
+
+    <div class="row g-4">
         <!-- Sección Izquierda: Selección de Cliente y Producto -->
-        <div class="col-md-6">
+        <div class="col-12 col-md-6 d-md-block" [ngClass]="{'d-none': activeTabMovil !== 'cliente' && activeTabMovil !== 'productos'}">
 
-            <!-- Selección de Cliente -->
-            <div class="mb-3">
-                <label class="fs-7 text-secondary fw-semibold mb-1 d-block"><i class="bi bi-person-circle me-1"></i> Cliente</label>
-                <ng-select [(ngModel)]="idCliente" 
-                           (change)="calcularTotal()" 
-                           [items]="clientes" 
-                           bindLabel="nombre" 
-                           bindValue="id" 
-                           [clearable]="false" 
-                           placeholder="Seleccionar Cliente"
-                           class="ventas-select">
-                </ng-select>
-            </div>
-
-            <!-- Canal de Venta -->
-            <div class="mb-3">
-                <label class="fs-7 text-secondary fw-semibold mb-1 d-block"><i class="bi bi-sliders me-1"></i> Canal de Venta</label>
-                <ng-select [(ngModel)]="idCanalVenta" 
-                           (change)="calcularTotal()" 
-                           [items]="canalesVenta" 
-                           bindLabel="nombre" 
-                           bindValue="id" 
-                           [clearable]="false" 
-                           placeholder="Seleccionar Canal"
-                           class="">
-                </ng-select>
-            </div>
-
-            <!-- Selección de Producto -->
-            <div class="card mb-3">
-                <div class="card-header">
-                    <i class="bi bi-box-seam me-2"></i>Producto
+            <!-- PASO 1: CLIENTE Y CANAL (CONDICIONAL EN MÓVIL) -->
+            <div class="d-md-block" [ngClass]="{'d-none': activeTabMovil !== 'cliente'}">
+                <!-- Selección de Cliente -->
+                <div class="mb-3">
+                    <label class="fs-7 text-secondary fw-semibold mb-1 d-block"><i class="bi bi-person-circle me-1"></i> Cliente</label>
+                    <ng-select [(ngModel)]="idCliente" 
+                               (change)="calcularTotal()" 
+                               [items]="clientes" 
+                               bindLabel="nombre" 
+                               bindValue="id" 
+                               [clearable]="false" 
+                               placeholder="Seleccionar Cliente"
+                               class="ventas-select">
+                    </ng-select>
                 </div>
-                <div class="card-body">
-                    <form [formGroup]="formProd" class="row g-3">
-                        <div class="col-md-8">
-                            <ng-select [items]="productos"
-                                    bindLabel="nombre"
-                                    bindValue="id"
-                                    placeholder="Buscar Producto"
-                                    formControlName="idProducto"
-                                    (change)="onProductoChange()"
-                                    class="" 
-                                    [appendTo]="'body'"
-                                    [virtualScroll]="true"
-                                    [searchable]="true"
-                                    [searchFn]="customSearch">
-                            <ng-template ng-option-tmp let-item="item">
-                                <div class="d-flex justify-content-between">
-                                <span>{{ item?.nombre }}</span>
-                                <small class="text-muted">{{ item?.codigo || 'N/A' }}</small>
-                                </div>
-                            </ng-template>
-                            </ng-select>
 
+                <!-- Canal de Venta -->
+                <div class="mb-3">
+                    <label class="fs-7 text-secondary fw-semibold mb-1 d-block"><i class="bi bi-sliders me-1"></i> Canal de Venta</label>
+                    <ng-select [(ngModel)]="idCanalVenta" 
+                               (change)="calcularTotal()" 
+                               [items]="canalesVenta" 
+                               bindLabel="nombre" 
+                               bindValue="id" 
+                               [clearable]="false" 
+                               placeholder="Seleccionar Canal"
+                               class="">
+                    </ng-select>
+                </div>
 
+                <!-- Botón de Siguiente (Solo Móvil) -->
+                <div class="d-block d-md-none mt-4">
+                    <button class="btn btn-primary bg-gradient w-100 py-2 fw-bold" (click)="cambiarTabMovil('productos')">
+                        Siguiente: Productos <i class="bi bi-arrow-right-short ms-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PASO 2: PRODUCTOS Y SELECCIÓN RÁPIDA (CONDICIONAL EN MÓVIL) -->
+            <div class="d-md-block" [ngClass]="{'d-none': activeTabMovil !== 'productos'}">
+                <!-- Selección de Producto -->
+                <div class="card mb-3 shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white py-3 mb-3">
+                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-box-seam me-2 text-primary"></i>Buscar Producto</h6>
+                    </div>
+                    <div class="card-body">
+                        <form [formGroup]="formProd" class="row g-3">
+                            <div class="col-md-8">
+                                <ng-select [items]="productos"
+                                        bindLabel="nombre"
+                                        bindValue="id"
+                                        placeholder="Buscar Producto"
+                                        formControlName="idProducto"
+                                        (change)="onProductoChange()"
+                                        class="" 
+                                        [appendTo]="'body'"
+                                        [virtualScroll]="true"
+                                        [searchable]="true"
+                                        [searchFn]="customSearch">
+                                <ng-template ng-option-tmp let-item="item">
+                                    <div class="d-flex justify-content-between">
+                                    <span>{{ item?.nombre }}</span>
+                                    <small class="text-muted">{{ item?.codigo || 'N/A' }}</small>
+                                    </div>
+                                </ng-template>
+                                </ng-select>
+                            </div>
+                            <div class="col-md-3 col-8">
+                                <input formControlName="cantidad" type="number" placeholder="Cantidad" min="1" style="display: none;">
+                                <input type="text" class="form-control" [value]="precioProd | currency" readonly>
+                            </div>
+                            <div class="col-md-1 col-4 text-end">
+                                <button class="btn btn-outline-primary btn-sm btn-rounded w-100 h-100 m-0" style="border-radius: 6px;" (click)="agregarProducto()">
+                                    <i class="bi bi-plus fs-5"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Selección Rápida de Productos -->
+                <div class="card shadow-sm border-0 rounded-3">
+                    <div class="card-header bg-white py-3">
+                        <h6 class="mb-0 fw-bold text-dark"><i class="bi bi-lightning me-2 text-warning"></i>Selección Rápida de Productos</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6 col-sm-4 col-md-3" style="margin-top: 10px !important;" *ngFor="let producto of productosRapidos; let i = index">
+                                <button class="btn btn-outline-secondary btn-quick w-100 h-100 border-0" [style.background-color]="colores[i % colores.length]" [disabled]="producto.disabled" (click)="agregarProductoRapido(producto)">
+                                    <i class="bi bi-box-seam me-1"></i>{{producto.nombre}} <br> ${{producto.precio }}
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <input formControlName="cantidad" type="number" placeholder="Cantidad" min="1" style="display: none;">
-                            <input type="text" class="form-control" [value]="precioProd | currency" readonly>
-                        </div>
-                        <div class="col-md-1">
-                            <button class="btn btn-outline-secondary btn-sm btn-rounded" (click)="agregarProducto()">
-                                <i class="bi bi-plus"></i>
+                    </div>
+                </div>
+
+                <!-- Botones de Navegación (Solo Móvil) -->
+                <div class="d-block d-md-none mt-4 mb-3">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button class="btn btn-outline-secondary w-100 py-2 fw-bold" (click)="cambiarTabMovil('cliente')">
+                                <i class="bi bi-arrow-left-short me-1"></i> Atrás
                             </button>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Selección Rápida de Productos -->
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <i class="bi bi-lightning me-2"></i>Selección Rápida de Productos
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-3" *ngFor="let producto of productosRapidos">
-                            <button class="btn btn-outline-secondary btn-quick w-100 mb-2 pt-3 pb-3" [disabled]="producto.disabled" (click)="agregarProductoRapido(producto)">
-                                <i class="bi bi-box-seam me-1"></i>{{producto.nombre}} <br> <i class="bi bi-currency-dollar me-1"></i>{{producto.precio }}
+                        <div class="col-6">
+                            <button class="btn btn-primary bg-gradient w-100 py-2 fw-bold" (click)="cambiarTabMovil('carrito')">
+                                Ver Carrito ({{carrito.length}}) <i class="bi bi-arrow-right-short ms-1"></i>
                             </button>
                         </div>
                     </div>
@@ -92,14 +140,14 @@
             </div>
         </div>
 
-        <!-- Sección Derecha: Carrito de Compras y Totales -->
-        <div class="col-md-6">
+        <!-- PASO 3: CARRITO DE COMPRAS Y TOTALES (CONDICIONAL EN MÓVIL) -->
+        <div class="col-12 col-md-6 d-md-block" [ngClass]="{'d-none': activeTabMovil !== 'carrito'}">
             
             <!-- Carrito de Compras -->
-            <div class="card mb-2" style="height: 500px;">
-                <div class="card-header bg-secondary text-white d-flex justify-content-between">
-                    <span><i class="bi bi-cart me-2"></i>Carrito de Compras</span>
-                    <span class="badge bg-light text-dark">{{carrito.length}} Productos</span>
+            <div class="card mb-3 shadow-sm border-0 rounded-3" style="height: 500px;">
+                <div class="card-header bg-secondary bg-gradient text-white d-flex justify-content-between py-3">
+                    <span class="fw-bold"><i class="bi bi-cart me-2"></i>Carrito de Compras</span>
+                    <span class="badge bg-light text-dark fw-bold">{{carrito.length}} Productos</span>
                 </div>
                 <div class="card-body p-0" style="overflow-y: auto;">
                     <table class="table mb-0">
@@ -112,9 +160,9 @@
                           <th></th>
                         </tr>
                       </thead>
-                      <tbody >
+                      <tbody>
                         <tr *ngFor="let item of carrito; let i = index" class="align-middle">
-                          <td class="td-carrito">{{item.nombre}}</td>
+                          <td class="td-carrito fw-bold text-dark">{{item.nombre}}</td>
                           <td>
                             <div class="d-flex justify-content-center align-items-center">
                               <button class="btn btn-outline-secondary btn-rounded" (click)="decrementarCantidad(item)">
@@ -138,52 +186,37 @@
                               <i class="bi bi-pencil-square ms-2" style="cursor: pointer; color: #0d6efd;" (click)="solicitarAutorizacionPrecio(item)"></i>
                             </div>
                           </td>
-                          <td>{{item.subtotal | currency}}</td>
+                          <td class="fw-bold text-dark">{{item.subtotal | currency}}</td>
                           <td style="text-align: left;">
                             <i class="bi bi-trash" (click)="eliminarProducto(i)" style="color: red; font-size: 20px; cursor: pointer;"></i>
                           </td>
                         </tr>
                       </tbody>
                     </table>
-                  </div>
-                  
+                </div>
             </div>
 
             <!-- Totales y Descuentos -->
             <div class="row g-3 mb-2">
-                <!---<div class="col-md-4 mt-3">
+                <div class="col-5">
                     <div class="form-floating">
-                        <input type="text" class="form-control" [value]="subTotal | currency" readonly>
-                        <label><i class="bi bi-cash me-2"></i>Subtotal</label>
-                    </div>
-                </div>--->
-                <!---<div class="col-md-4 mt-3">
-                    <div class="form-floating">
-                        <input type="text" class="form-control" [value]="iva | currency" readonly>
-                        <label><i class="bi bi-piggy-bank me-2"></i>IVA</label>
-                    </div>
-                </div>--->
-                <div class="col-md-5 mt-3">
-                    <div class="form-floating">
-                        <input type="text" class="form-control fw-bold" [value]="total | currency" readonly>
-                        <label><i class="bi bi-cash me-2"></i>Total</label>
+                        <input type="text" class="form-control fw-bold text-danger fs-5" [value]="total | currency" readonly>
+                        <label class="fw-bold"><i class="bi bi-cash me-2"></i>Total</label>
                     </div>
                 </div>
-                <div class="col-7 mt-3">
-                    <button class="btn btn-success btn-lg w-100 h-100" data-bs-toggle="modal" data-bs-target="#pagoModal"  [disabled]="carrito.length === 0" (click)="pagar()">
+                <div class="col-7">
+                    <button class="btn btn-success bg-gradient btn-lg w-100 h-100 fw-bold" data-bs-toggle="modal" data-bs-target="#pagoModal"  [disabled]="carrito.length === 0" (click)="pagar()">
                         Finalizar Venta
                     </button>
                 </div>
             </div>
 
-            <!-- Finalización de la Venta -->
-            <!---<div class="row mb-4">
-                <div class="col-12">
-                    <button class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#pagoModal"  [disabled]="carrito.length === 0">
-                        Finalizar Venta
-                    </button>
-                </div>
-            </div>--->
+            <!-- Botón de Navegación (Solo Móvil) -->
+            <div class="d-block d-md-none mt-4 mb-3">
+                <button class="btn btn-outline-secondary w-100 py-2 fw-bold" (click)="cambiarTabMovil('productos')">
+                    <i class="bi bi-arrow-left-short me-1"></i> Volver a Productos
+                </button>
+            </div>
         </div>
     </div>
 </div>

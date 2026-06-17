@@ -1,28 +1,27 @@
-<div class="row vh-100">
-    <div class="col-7" style="padding: 0;">
-        <div class="fondo-login d-flex justify-content-center align-items-center">
-            <div class="blur-layer w-100">
-                <div class="div-logo">
-                </div>
-            </div>
+<div class="row vh-100 g-0 fondo-login">
+    <div class="col-md-7 d-none d-md-block" style="padding: 0; background: transparent;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="div-logo"></div>
         </div>
     </div>
-    <div class="col-5" style="background-color: white;">
-        <div class=" w-100 d-flex justify-content-center align-items-center vh-100">
-            <div class="p-5 div-login">
-                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                    <h2 style="text-align: center; color: #f28c22; font-weight: bolder;">PUNTO DE VENTA</h2>
-                    <br><br>
-                    <input id="user" formControlName="user" placeholder="Usuario" class="form-control mb-2" />
-                    <input type="password" id="password" formControlName="password" placeholder="Contraseña"
-                        class="form-control mb-3" />
-                    <button class="btn btn-secondary text-white btn-submit font-weight-bold" type="submit"
-                        [disabled]="loginForm.invalid">
-                        Iniciar sesión
-                    </button>
-                    <br><br>
-                </form>
-            </div>
+    <div class="col-12 col-md-5 d-flex justify-content-center align-items-center vh-100" style="background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);">
+        <div class="p-4 p-md-5 div-login w-100" style="max-width: 450px; background: transparent; border-radius: 0; box-shadow: none;">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <!-- Logo circular visible solo en móviles -->
+                <div class="d-flex justify-content-center mb-4 d-block d-md-none">
+                    <div class="div-logo-mobile"></div>
+                </div>
+                <h2 style="text-align: center; color: #f28c22; font-weight: bolder;">PUNTO DE VENTA</h2>
+                <br><br>
+                <input id="user" formControlName="user" placeholder="Usuario" class="form-control mb-2" />
+                <input type="password" id="password" formControlName="password" placeholder="Contraseña"
+                    class="form-control mb-3" />
+                <button class="btn btn-secondary text-white btn-submit font-weight-bold" type="submit"
+                    [disabled]="loginForm.invalid">
+                    Iniciar sesión
+                </button>
+                <br><br>
+            </form>
         </div>
     </div>
 </div>
