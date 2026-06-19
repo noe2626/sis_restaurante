@@ -80,6 +80,11 @@ export class FabricacionesComponent implements OnInit {
       next: (res: any) => {
         if (res && res.success) {
           this.mermas = res.data || [];
+          if (this.nuevaFabricacion.insumos && this.nuevaFabricacion.insumos.length > 0) {
+            this.nuevaFabricacion.insumos.forEach((ins: any) => {
+              ins.mermasDisponibles = this.getMermasFiltradas(ins.idProducto);
+            });
+          }
         }
       },
       error: (err) => {
@@ -122,7 +127,8 @@ export class FabricacionesComponent implements OnInit {
             cantidadRequerida: comp.cantidad * batchQty,
             cantidadEstandar: comp.cantidad * batchQty,
             cantidadMerma: 0,
-            idMerma: 0
+            idMerma: 0,
+            mermasDisponibles: this.getMermasFiltradas(comp.idProducto)
           }));
         }
       },

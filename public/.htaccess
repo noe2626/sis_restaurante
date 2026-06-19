@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /rojovivo/
+  RewriteRule ^index\.html$ - [L]
+  
+  # Si la petición es hacia la carpeta del backend de Laravel, la ignoramos para que responda Apache
+  RewriteCond %{REQUEST_URI} !^/rojovivo/back/
+  
+  # Si el archivo o directorio solicitado no existe físicamente, redirigir a index.html (Router de Angular)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /rojovivo/index.html [L]
+</IfModule>

@@ -16,9 +16,10 @@
                 <input id="user" formControlName="user" placeholder="Usuario" class="form-control mb-2" />
                 <input type="password" id="password" formControlName="password" placeholder="Contraseña"
                     class="form-control mb-3" />
-                <button class="btn btn-secondary text-white btn-submit font-weight-bold" type="submit"
-                    [disabled]="loginForm.invalid">
-                    Iniciar sesión
+                <button class="btn btn-secondary text-white btn-submit font-weight-bold d-flex align-items-center justify-content-center" type="submit"
+                    [disabled]="loginForm.invalid || loading">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>{{ loading ? 'Cargando...' : 'Iniciar sesión' }}</span>
                 </button>
                 <br><br>
             </form>

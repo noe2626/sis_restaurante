@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { error } from 'console';
 import CryptoJS from 'crypto-js'
 import { environment } from '../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -14,6 +14,7 @@ import { environment } from '../../../environments/environment';
 export class LoginComponent {
   loginForm: FormGroup ;
   errorMessage: string = '';
+  loading: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -28,8 +29,11 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
+    if (this.loginForm.invalid) return;
+    this.loading = true;
     this.authService.login(this.loginForm.value).subscribe({
       next: (data:any) => {
+        this.loading = false;
         if (data.success) {
           const encryptedIdUsuario = CryptoJS.AES.encrypt(data.data.id.toString(), environment.secretKey).toString();
           const encryptedIdTipo = CryptoJS.AES.encrypt(data.data.idTipo.toString(), environment.secretKey).toString();
@@ -37,9 +41,26 @@ export class LoginComponent {
           localStorage.setItem('idUsuario',encryptedIdUsuario);
           localStorage.setItem('idTipo', encryptedIdTipo);
           this.router.navigate(['sucursales'])
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error de Inicio de Sesión',
+            text: data.message || 'Usuario o contraseña incorrectos.',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#3085d6'
+          });
         }
       },
-      error: () => { alert("Error al inicar sesión inetente mas tarde") },
+      error: (err: any) => { 
+        this.loading = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error de Conexión',
+          text: err.error?.message || 'Error al iniciar sesión, intente más tarde.',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#3085d6'
+        });
+      },
     });
   }
 
