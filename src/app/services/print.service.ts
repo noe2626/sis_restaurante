@@ -235,7 +235,14 @@ export class PrintService {
       </html>
     `;
 
-    // 3. Write HTML to iframe and trigger print
+    // 3. Check if running in Electron for silent printing
+    const win = window as any;
+    if (win.electronAPI && win.electronAPI.printSilent) {
+      win.electronAPI.printSilent(htmlContent);
+      return;
+    }
+
+    // Write HTML to iframe and trigger browser print (fallback)
     doc.open();
     doc.write(htmlContent);
     doc.close();
@@ -453,7 +460,14 @@ export class PrintService {
       </html>
     `;
 
-    // 3. Write HTML to iframe and trigger print
+    // 3. Check if running in Electron for silent printing
+    const win = window as any;
+    if (win.electronAPI && win.electronAPI.printSilent) {
+      win.electronAPI.printSilent(htmlContent);
+      return;
+    }
+
+    // Write HTML to iframe and trigger browser print (fallback)
     doc.open();
     doc.write(htmlContent);
     doc.close();

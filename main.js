@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -10,7 +10,8 @@ function createWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
@@ -45,4 +46,31 @@ app.on('activate', function () {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+// Listener de IPC para impresión silenciosa
+ipcMain.on('print-silent', (event, htmlContent) => {
+  let workerWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+
+  // Cargar contenido HTML en data URL
+  workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+
+  workerWindow.webContents.on('did-finish-load', () => {
+    workerWindow.webContents.print({
+      silent: true,
+      printBackground: true
+    }, (success, failureReason) => {
+      if (!success) {
+        console.error('Fallo en impresión silenciosa:', failureReason);
+      }
+      workerWindow.close();
+      workerWindow = null;
+    });
+  });
 });
