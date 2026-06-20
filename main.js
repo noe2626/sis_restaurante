@@ -50,6 +50,8 @@ app.on('activate', function () {
 
 // Listener de IPC para impresión silenciosa
 ipcMain.on('print-silent', (event, htmlContent) => {
+  console.log('[Electron main] print-silent event received. HTML Content length:', htmlContent.length);
+
   let workerWindow = new BrowserWindow({
     show: false,
     webPreferences: {
@@ -58,19 +60,41 @@ ipcMain.on('print-silent', (event, htmlContent) => {
     }
   });
 
-  // Cargar contenido HTML en data URL
-  workerWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+  console.log('[Electron main] Offscreen workerWindow created. Loading about:blank...');
+  workerWindow.loadURL('about:blank');
 
   workerWindow.webContents.on('did-finish-load', () => {
-    workerWindow.webContents.print({
-      silent: true,
-      printBackground: true
-    }, (success, failureReason) => {
-      if (!success) {
-        console.error('Fallo en impresión silenciosa:', failureReason);
-      }
+    console.log('[Electron main] workerWindow loaded about:blank. Injecting HTML content...');
+    
+    // Inyectar el HTML de forma segura y ejecutar la impresión
+    workerWindow.webContents.executeJavaScript(`
+      document.open();
+      document.write(${JSON.stringify(htmlContent)});
+      document.close();
+    `).then(() => {
+      console.log('[Electron main] HTML content successfully written. Triggering print...');
+      
+      workerWindow.webContents.print({
+        silent: true,
+        printBackground: true
+      }, (success, failureReason) => {
+        console.log('[Electron main] Print job completed. Success:', success, 'Reason:', failureReason);
+        if (!success) {
+          console.error('[Electron main] Silent print failure reason:', failureReason);
+        }
+        workerWindow.close();
+        workerWindow = null;
+      });
+    }).catch(err => {
+      console.error('[Electron main] Error writing HTML content to workerWindow:', err);
       workerWindow.close();
       workerWindow = null;
     });
+  });
+
+  workerWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('[Electron main] workerWindow failed to load blank page:', errorCode, errorDescription);
+    workerWindow.close();
+    workerWindow = null;
   });
 });
