@@ -1,4 +1,4 @@
-<div class="container-fluid py-4 bg-light min-vh-100">
+<div class="container-fluid py-2" style="width: 95%;">
   <!-- Header del Componente -->
   <div class="row mb-4 align-items-center">
     <div class="col-md-6">
@@ -10,11 +10,11 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm  bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Nombre/Email..." (input)="onSearch($event)" />
       </div>
-      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="nuevoCliente()">
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="nuevoCliente()">
         <i class="bi bi-person-plus-fill fs-5"></i>
         Nuevo Cliente
       </button>

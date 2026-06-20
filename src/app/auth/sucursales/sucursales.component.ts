@@ -40,6 +40,7 @@ export class SucursalesComponent implements OnInit{
       localStorage.setItem('idSucursal',this.idSucursal.toString());
       let sucursalObj = this.sucursales.find((item:any) => item.idSucursal == this.idSucursal);
       localStorage.setItem('sucursal',sucursalObj.sucursal);
+      localStorage.setItem('direccionSucursal', sucursalObj.direccion || '');
       localStorage.setItem('manejaIva', (sucursalObj.manejaIva ?? 0).toString());
       localStorage.setItem('imprimeTicket', (sucursalObj.imprimeTicket ?? 1).toString());
       localStorage.setItem('bloqueoStock', sucursalObj.bloqueoStock || 'estricto');

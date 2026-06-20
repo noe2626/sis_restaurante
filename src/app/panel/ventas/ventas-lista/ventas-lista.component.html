@@ -1,4 +1,4 @@
-<div class="container-fluid py-4 bg-light min-vh-100">
+<div class="container-fluid py-3" style="width: 95%;">
   <!-- Header del Componente -->
   <div class="row mb-4 align-items-center">
     <div class="col-md-6">
@@ -10,11 +10,11 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-        <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Cliente o Fecha..." (input)="onSearch($event)" />
+        <input class="form-control py-2 fs-7 ps-0" style="border: 0 !important; outline: none !important;" type="text" placeholder="Buscar por Cliente o Fecha..." (input)="onSearch($event)" />
       </div>
-      <button class="btn btn-success d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold text-white border-0 bg-gradient" routerLink="nueva">
+      <button class="btn btn-success d-inline-flex align-items-center gap-2 px-4 py-2 shadow-sm fw-semibold text-white border-0 bg-gradient" routerLink="nueva">
         <i class="bi bi-plus-circle-fill fs-5"></i>
         Registrar Venta
       </button>
@@ -211,6 +211,16 @@
 
       </div>
       <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
+        <button type="button" class="btn btn-primary rounded-pill px-4 me-2" 
+                *ngIf="ventaSeleccionada"
+                (click)="imprimirTicket(ventaSeleccionada)">
+          <i class="bi bi-printer me-1"></i> Imprimir Ticket
+        </button>
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 me-auto" 
+                *ngIf="ventaSeleccionada?.idCanalVenta && ventaSeleccionada?.idCanalVenta != 1" 
+                (click)="imprimirTicketCanal(ventaSeleccionada)">
+          <i class="bi bi-receipt me-1"></i> Imprimir Ticket Canal
+        </button>
         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar Detalle</button>
       </div>
     </div>

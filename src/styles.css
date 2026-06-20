@@ -55,3 +55,32 @@ body{
   color: #6c757d;
   font-size: 0.9rem;
 }
+
+
+:root {
+  /* Marca (Inspirada en el Logo) */
+  --color-primary: #D92525;       /* Rojo Fuego */
+  --color-secondary: #E65F00;     /* Naranja Brasa */
+  --color-accent: #C47D1A;        /* Oro Ahumado */
+  
+  /* Fondos y Superficies */
+  --color-bg: #FAF9F6;            /* Humo Claro */
+  --color-surface: #FFFFFF;       /* Blanco */
+  --color-border: #E4E4E7;        /* Ceniza Suave */
+  
+  /* Textos */
+  --color-text-main: #1C1917;     /* Carbón */
+  --color-text-muted: #71717A;    /* Ceniza Oscuro */
+  
+  /* Acciones del Sistema */
+  --color-success: #10B981;       /* Verde Éxito */
+  --color-danger: #EF4444;        /* Rojo Alerta */
+  --color-warning: #F59E0B;       /* Amarillo Advertencia */
+}
+/* Aplicación base */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+}
+

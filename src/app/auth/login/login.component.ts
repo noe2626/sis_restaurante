@@ -40,6 +40,7 @@ export class LoginComponent {
           localStorage.setItem('userToken',data.data.token);
           localStorage.setItem('idUsuario',encryptedIdUsuario);
           localStorage.setItem('idTipo', encryptedIdTipo);
+          localStorage.setItem('userName', data.data.name || '');
           this.router.navigate(['sucursales'])
         } else {
           Swal.fire({

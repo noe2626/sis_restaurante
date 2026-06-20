@@ -13,6 +13,7 @@ import { SucursalesService } from '../../services/sucursales.service';
 import * as bootstrap from "bootstrap";
 import CryptoJS from 'crypto-js';
 import { environment } from '../../../environments/environment';
+import { PrintService, TicketData } from '../../services/print.service';
 
 @Component({
   selector: 'app-ventas',
@@ -62,7 +63,8 @@ export class VentasComponent implements OnInit{
     private authService: AuthService,
     private canalesVentaService: CanalesVentaService,
     private renderer: Renderer2,
-    private sucursalesService: SucursalesService
+    private sucursalesService: SucursalesService,
+    private printService: PrintService
   ) {
     this.formProd = this.fb.group({
       idProducto: [null, Validators.required],
@@ -91,6 +93,7 @@ export class VentasComponent implements OnInit{
             const activeSuc = userSucursales.find((s: any) => s.idSucursal.toString() === activeId);
             if (activeSuc) {
               localStorage.setItem('sucursal', activeSuc.sucursal);
+              localStorage.setItem('direccionSucursal', activeSuc.direccion || '');
               localStorage.setItem('manejaIva', (activeSuc.manejaIva ?? 0).toString());
               localStorage.setItem('imprimeTicket', (activeSuc.imprimeTicket ?? 1).toString());
               localStorage.setItem('bloqueoStock', activeSuc.bloqueoStock || 'estricto');
@@ -375,7 +378,52 @@ export class VentasComponent implements OnInit{
           showConfirmButton: false,
           timer: 1500
         });
-        this.cambio = this.pago - this.total;
+        this.cambio = (this.pago || this.total) - this.total;
+        
+        if (this.imprimeTicket) {
+          try {
+            const printData: TicketData = {
+              folio: data.venta.folio,
+              fecha: data.venta.fecha,
+              cliente: this.clientes.find(c => c.id == this.idCliente)?.nombre || 'Cliente General',
+              cajero: localStorage.getItem('userName') || 'N/A',
+              canal: this.canalesVenta.find(c => c.id == this.idCanalVenta)?.nombre || 'Comedor',
+              metodo_pago: this.metodoPago,
+              subtotal: this.subTotal,
+              descuentos: this.descuentos,
+              extras: this.extras,
+              iva: this.iva,
+              total: this.total,
+              pago: this.pago || this.total,
+              cambio: this.cambio,
+              productos: this.carrito.map(item => ({
+                nombre: item.nombre,
+                cantidad: item.cantidad,
+                precio: item.precio,
+                total: item.subtotal,
+                promocion: item.promocion
+              }))
+            };
+            this.printService.imprimirTicket(printData);
+
+            // Si es una venta por canal externo (idCanalVenta != 1), imprimir el segundo ticket de canal
+            if (this.idCanalVenta && this.idCanalVenta != 1) {
+              const canalObj = this.canalesVenta.find(c => c.id == this.idCanalVenta);
+              const canalPrintData: TicketData = {
+                ...printData,
+                canal_costo_tercero: data.venta.canal_costo_tercero || 0,
+                canal_cargo_cliente: data.venta.canal_cargo_cliente || 0,
+                descuenta_caja: canalObj ? (canalObj.descuenta_caja == 1 || canalObj.descuenta_caja === true) : false
+              };
+              setTimeout(() => {
+                this.printService.imprimirTicketCanal(canalPrintData);
+              }, 1000);
+            }
+          } catch (printErr) {
+            console.error('Error al imprimir ticket:', printErr);
+          }
+        }
+        
         document.getElementById('btnFinalizar')?.click();
       },
       error: (err) => {

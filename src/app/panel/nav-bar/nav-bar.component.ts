@@ -74,6 +74,7 @@ export class NavBarComponent implements OnInit {
         if (result.isConfirmed) {
           localStorage.setItem('idSucursal', suc.idSucursal.toString());
           localStorage.setItem('sucursal', suc.sucursal);
+          localStorage.setItem('direccionSucursal', suc.direccion || '');
           localStorage.setItem('manejaIva', (suc.manejaIva ?? 0).toString());
           localStorage.setItem('imprimeTicket', (suc.imprimeTicket ?? 1).toString());
           localStorage.setItem('bloqueoStock', suc.bloqueoStock || 'estricto');

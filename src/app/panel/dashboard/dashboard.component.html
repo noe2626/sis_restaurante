@@ -1,4 +1,4 @@
-<div class="container-fluid px-4 py-2 dashboard-container">
+<div class="container-fluid px-4 py-2">
   <!-- Header del Dashboard (muy compacto) -->
   <div *ngIf="roleId !== 3" class="d-flex justify-content-end align-items-center mb-2">
     <button class="btn btn-primary d-flex align-items-center gap-2 px-3 py-2"
@@ -302,7 +302,7 @@
             <ul class="list-group list-group-flush" style="font-size: 1.05rem;">
               <li
                 class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center border-0 border-bottom"
-                *ngFor="let prod of dashboardData.productos_bajo_stock.slice(0, 3)">
+                *ngFor="let prod of dashboardData.productos_bajo_stock">
                 <div class="d-flex align-items-center gap-2">
                   <span class="fw-semibold text-dark" style="font-size: 1.05rem;">{{ prod.nombre }}</span>
                 </div>
