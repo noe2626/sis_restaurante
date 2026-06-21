@@ -149,29 +149,41 @@
         
         <!-- Info Cards Grid -->
         <div class="row g-3 mb-4">
-          <div class="col-md-3 col-sm-6">
+          <div class="col-md col-sm-6">
             <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
               <span class="text-muted small fw-bold text-uppercase fs-9">Folio Interno</span>
               <span class="fs-6 fw-bold text-primary mt-1">{{ compraSeleccionada.folio || 'N/A' }}</span>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
+          <div class="col-md col-sm-6">
             <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
               <span class="text-muted small fw-bold text-uppercase fs-9">Proveedor</span>
               <span class="fs-6 fw-bold text-dark mt-1 text-truncate">{{ compraSeleccionada.proveedor ? compraSeleccionada.proveedor.nombre : 'Proveedor General' }}</span>
               <span class="text-muted small mt-0.5" style="font-size: 0.75rem;" *ngIf="compraSeleccionada.proveedor?.rfc">RFC: {{ compraSeleccionada.proveedor.rfc }}</span>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
+          <div class="col-md col-sm-6">
             <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
               <span class="text-muted small fw-bold text-uppercase fs-9">Folio Proveedor</span>
               <span class="fs-6 fw-bold text-secondary mt-1">{{ compraSeleccionada.folio_proveedor || 'N/A' }}</span>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
+          <div class="col-md col-sm-6">
             <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
               <span class="text-muted small fw-bold text-uppercase fs-9">Fecha / Hora</span>
               <span class="fs-6 fw-semibold text-secondary mt-1">{{ compraSeleccionada.fecha }}</span>
+            </div>
+          </div>
+          <div class="col-md col-sm-6">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Estatus</span>
+              <div class="mt-1">
+                <span class="badge rounded-pill px-2.5 py-1.5 fs-8 fw-semibold border"
+                      [ngClass]="getEstatusClass(compraSeleccionada.estatus)">
+                  <i class="bi me-1" [ngClass]="getEstatusIcon(compraSeleccionada.estatus)"></i>
+                  {{ getEstatusText(compraSeleccionada.estatus) }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -231,11 +243,56 @@
                 <span class="fw-bold text-dark">{{ compraSeleccionada.extras | currency }}</span>
               </div>
               <hr class="my-2">
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-dark fw-bold fs-6">Total Compra:</span>
                 <span class="fw-bold text-success fs-5">{{ compraSeleccionada.total | currency }}</span>
               </div>
+              <div *ngIf="compraSeleccionada.estatus === 3 || compraSeleccionada.estatus === 4 || (compraSeleccionada.abonos && compraSeleccionada.abonos.length > 0)">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-secondary fw-semibold">Total Pagado:</span>
+                  <span class="fw-bold text-primary">{{ compraSeleccionada.totalAbonado | currency }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="text-dark fw-bold fs-6 text-danger">Saldo Restante:</span>
+                  <span class="fw-bold text-danger fs-5">{{ compraSeleccionada.saldoRestante | currency }}</span>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Historial de Abonos / Pagos (Solo si la compra es a crédito o tiene abonos) -->
+        <div class="card border-0 shadow-sm rounded-3 bg-white mt-4" *ngIf="compraSeleccionada.estatus === 3 || (compraSeleccionada.abonos && compraSeleccionada.abonos.length > 0)">
+          <div class="card-header bg-white border-bottom-0 py-3">
+            <h6 class="fw-bold mb-0 text-secondary fs-7"><i class="bi bi-list-stars text-primary me-2"></i>Historial de Pagos / Abonos</h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive" *ngIf="compraSeleccionada.abonos && compraSeleccionada.abonos.length > 0; else noAbonosTemplate">
+              <table class="table align-middle mb-0 small">
+                <thead class="table-light text-uppercase fs-9 text-secondary">
+                  <tr>
+                    <th class="ps-4">Fecha</th>
+                    <th>Registró</th>
+                    <th>Método</th>
+                    <th class="text-end pe-4">Monto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let abono of compraSeleccionada.abonos">
+                    <td class="ps-4 text-secondary">{{ abono.fecha | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td class="fw-semibold text-dark">{{ abono.user?.name || 'Sistema' }}</td>
+                    <td><span class="badge bg-secondary-subtle text-secondary border rounded text-uppercase">{{ abono.metodo_pago }}</span></td>
+                    <td class="text-end fw-bold text-dark pe-4">{{ abono.monto | currency }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <ng-template #noAbonosTemplate>
+              <div class="p-4 text-center text-muted">
+                <i class="bi bi-info-circle fs-4 d-block mb-2 text-secondary"></i>
+                <span class="fs-7 fw-semibold">No se han registrado abonos para esta compra a crédito.</span>
+              </div>
+            </ng-template>
           </div>
         </div>
 

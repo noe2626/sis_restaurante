@@ -113,6 +113,18 @@ export class ComprasComponent implements OnInit{
       }
     }
 
+    getEstatusText(estatusId: number): string {
+      switch (estatusId) {
+        case 0: return 'Cancelada';
+        case 1: return 'Completada';
+        case 2: return 'Orden de compra';
+        case 3: return 'Crédito Pendiente';
+        case 4: return 'Completada';
+        default: return 'Desconocido';
+      }
+    }
+
+
     abrirModalRecibir(compra: any): void {
       this.compraParaRecibir = compra;
       this.recibirEstatus = 1;
@@ -264,7 +276,15 @@ export class ComprasComponent implements OnInit{
     this.comprasService.obtenerDetalleCompra(id).subscribe({
       next: (res: any) => {
         if (res && res.success) {
-          this.compraSeleccionada = res.data;
+          const compra = res.data;
+          if (compra.abonos) {
+            compra.totalAbonado = compra.abonos.reduce((sum: number, item: any) => sum + parseFloat(item.monto), 0);
+            compra.saldoRestante = Math.max(0, compra.total - compra.totalAbonado);
+          } else {
+            compra.totalAbonado = 0;
+            compra.saldoRestante = compra.total;
+          }
+          this.compraSeleccionada = compra;
           // Iniciar el modal usando bootstrap
           const modalElement = document.getElementById('detalleCompraModal');
           if (modalElement) {
