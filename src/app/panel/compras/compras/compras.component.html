@@ -71,8 +71,8 @@
             <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 15%;"> Estatus </th>
             <td mat-cell *matCellDef="let element" class="text-center">
               <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
-                [ngClass]="element.estatus == 'Cancelada' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
-                <i class="bi me-1" [ngClass]="element.estatus == 'Cancelada' ? 'bi-x-circle-fill' : 'bi-check-circle-fill'"></i>
+                [ngClass]="getEstatusClass(element.estatus_id)">
+                <i class="bi me-1" [ngClass]="getEstatusIcon(element.estatus_id)"></i>
                 {{ element.estatus || 'Completada' }}
               </span>
             </td>
@@ -88,16 +88,31 @@
 
           <!-- Acciones Column -->
           <ng-container matColumnDef="detalle">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 10%;"> Acciones </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 15%;"> Acciones </th>
             <td mat-cell *matCellDef="let element" class="text-center pe-4">
               <div class="d-inline-flex gap-2">
+                <!-- Ver Detalle -->
                 <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="verDetalle(element.id)" title="Ver Detalle de Compra" style="width: 32px; height: 32px;">
                   <i class="bi bi-eye-fill fs-8"></i>
                 </button>
-                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus == 'Completada'" (click)="cancelarCompra(element.id)" title="Cancelar Compra" style="width: 32px; height: 32px;">
+                
+                <!-- Recibir Orden de Compra -->
+                <button class="btn btn-outline-success btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_id === 2" (click)="abrirModalRecibir(element)" title="Recibir Pedido" style="width: 32px; height: 32px;">
+                  <i class="bi bi-box-seam-fill fs-8"></i>
+                </button>
+
+                <!-- Abonar Crédito Pendiente -->
+                <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center text-warning-emphasis" *ngIf="element.estatus_id === 3" (click)="abrirModalAbonos(element)" title="Registrar Abono" style="width: 32px; height: 32px;">
+                  <i class="bi bi-cash-coin fs-8"></i>
+                </button>
+
+                <!-- Cancelar Compra -->
+                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_id !== 0" (click)="cancelarCompra(element.id)" title="Cancelar Compra" style="width: 32px; height: 32px;">
                   <i class="bi bi-x-circle-fill fs-8"></i>
                 </button>
-                <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center bg-light text-muted border-0" *ngIf="element.estatus != 'Completada'" disabled style="width: 32px; height: 32px;">
+                
+                <!-- Botón Cancelar Bloqueado (Ya cancelada) -->
+                <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center bg-light text-muted border-0" *ngIf="element.estatus_id === 0" disabled style="width: 32px; height: 32px;">
                   <i class="bi bi-x-circle-fill fs-8"></i>
                 </button>
               </div>
@@ -227,6 +242,156 @@
       </div>
       <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar Detalle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Recibir Orden -->
+<div class="modal fade" id="recibirOrdenModal" tabindex="-1" aria-labelledby="recibirOrdenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-success text-white py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="recibirOrdenModalLabel">
+          <i class="bi bi-box-seam-fill me-2"></i>Recibir Orden: {{ compraParaRecibir?.folio }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="closeRecibirOrdenModalBtn"></button>
+      </div>
+      <div class="modal-body p-4 bg-light" *ngIf="compraParaRecibir">
+        <div class="card border-0 shadow-sm p-3 rounded-3 bg-white mb-3">
+          <div class="d-flex justify-content-between">
+            <span class="text-secondary fw-semibold">Proveedor:</span>
+            <span class="fw-bold text-dark">{{ compraParaRecibir.proveedor }}</span>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <span class="text-secondary fw-semibold">Total a Pagar:</span>
+            <span class="fw-bold text-success fs-5">{{ compraParaRecibir.total | currency }}</span>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary fs-7 mb-1">Estatus del Recibo</label>
+          <select class="form-select" [(ngModel)]="recibirEstatus">
+            <option [value]="1">Recibir y Completar (Liquidado)</option>
+            <option [value]="3">Recibir a Crédito (Deuda Pendiente)</option>
+          </select>
+        </div>
+
+        <div class="mb-3" *ngIf="recibirEstatus == 1">
+          <label class="form-label fw-semibold text-secondary fs-7 mb-1">Método de Pago</label>
+          <select class="form-select" [(ngModel)]="recibirMetodoPago">
+            <option value="efectivo">Efectivo</option>
+            <option value="transferencia">Transferencia</option>
+            <option value="tarjeta">Tarjeta</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success rounded-pill px-4 fw-semibold" (click)="recibirOrden()">Confirmar Entrada</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Abonos Compra -->
+<div class="modal fade" id="abonosCompraModal" tabindex="-1" aria-labelledby="abonosCompraModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header bg-gradient bg-warning text-dark py-3 rounded-top-4">
+        <h5 class="modal-title fw-bold d-flex align-items-center" id="abonosCompraModalLabel">
+          <i class="bi bi-cash-coin me-2 text-dark"></i>Abonos / Pagos de Compra: {{ compraParaAbono?.folio }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeAbonosCompraModalBtn"></button>
+      </div>
+      <div class="modal-body p-4 bg-light" *ngIf="compraParaAbono">
+        <!-- Card Resumen Saldos -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Total Compra</span>
+              <span class="fs-5 fw-bold text-dark mt-1">{{ compraParaAbono.total | currency }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Total Abonado</span>
+              <span class="fs-5 fw-bold text-primary mt-1">{{ totalAbonado | currency }}</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100 bg-warning-subtle">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Saldo Restante</span>
+              <span class="fs-5 fw-bold text-danger mt-1">{{ saldoRestante | currency }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario para agregar Abono -->
+        <div class="card border-0 shadow-sm p-3 rounded-3 bg-white mb-4" *ngIf="saldoRestante > 0">
+          <h6 class="fw-bold text-dark mb-3 fs-7"><i class="bi bi-plus-circle me-1 text-primary"></i>Registrar Nuevo Abono</h6>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label fw-semibold text-secondary fs-8 mb-1">Monto a Pagar</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input type="number" class="form-control" placeholder="0.00" [(ngModel)]="nuevoAbonoMonto" min="0.01" [max]="saldoRestante">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold text-secondary fs-8 mb-1">Método de Pago</label>
+              <select class="form-select" [(ngModel)]="nuevoAbonoMetodo">
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="tarjeta">Tarjeta</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-primary w-100 text-white" (click)="registrarAbono()" [disabled]="nuevoAbonoMonto <= 0">Abonar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Abonos Históricos -->
+        <div class="card border-0 shadow-sm rounded-3 bg-white">
+          <div class="card-header bg-white border-bottom-0 py-3">
+            <h6 class="fw-bold mb-0 text-secondary fs-7"><i class="bi bi-list-stars text-primary me-2"></i>Historial de Abonos</h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive" style="max-height: 250px;">
+              <table class="table align-middle mb-0 small">
+                <thead class="table-light text-uppercase fs-9 text-secondary">
+                  <tr>
+                    <th class="ps-4">Fecha</th>
+                    <th>Registró</th>
+                    <th>Método</th>
+                    <th class="text-end pe-4">Monto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let abono of abonosLista">
+                    <td class="ps-4 text-secondary">{{ abono.fecha | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td class="fw-semibold text-dark">{{ abono.user?.name || 'Sistema' }}</td>
+                    <td><span class="badge bg-secondary-subtle text-secondary border rounded text-uppercase">{{ abono.metodo_pago }}</span></td>
+                    <td class="text-end fw-bold text-dark pe-4">{{ abono.monto | currency }}</td>
+                  </tr>
+                  <tr *ngIf="abonosLista.length === 0 && !abonosCargando">
+                    <td colspan="4" class="text-center py-4 text-muted">No se han registrado abonos a esta compra.</td>
+                  </tr>
+                  <tr *ngIf="abonosCargando">
+                    <td colspan="4" class="text-center py-4">
+                      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                      <span class="ms-2 text-muted">Cargando abonos...</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
+        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>

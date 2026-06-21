@@ -44,4 +44,28 @@ export class ComprasService {
       };
       return this.http.post(`${this.apiUrl}compras/cancelar/${id}`, { nota }, header);
     }
+
+    recibirOrden(id: number, data: any) {
+      let token = localStorage.getItem('userToken');
+      const header = {
+        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      };
+      return this.http.post(`${this.apiUrl}compras/recibir/${id}`, data, header);
+    }
+
+    registrarAbono(idCompra: number, abono: any) {
+      let token = localStorage.getItem('userToken');
+      const header = {
+        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      };
+      return this.http.post(`${this.apiUrl}compras/${idCompra}/abonos`, abono, header);
+    }
+
+    listarAbonos(idCompra: number) {
+      let token = localStorage.getItem('userToken');
+      const header = {
+        headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+      };
+      return this.http.get(`${this.apiUrl}compras/${idCompra}/abonos`, header);
+    }
 }

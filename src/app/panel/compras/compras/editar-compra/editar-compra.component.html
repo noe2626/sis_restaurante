@@ -8,8 +8,8 @@
             <h5 class="mb-0">Registrar Compra</h5>
         </div>
     </div>
-    <div class="row">
-        <div class="col-5">
+    <div class="row mb-3">
+        <div class="col-4">
             <ng-select [items]="proveedores"
                             bindLabel="nombre"
                             bindValue="id"
@@ -27,8 +27,22 @@
                     </ng-template>
                     </ng-select>
         </div>
-        <div class="col-5">
+        <div class="col-3">
             <input type="text" class="form-control" placeholder="Folio Proveedor (Opcional)" [(ngModel)]="folio_proveedor" style="height: 38px;">
+        </div>
+        <div class="col-3">
+            <select class="form-select" [(ngModel)]="estatus" style="height: 38px;">
+                <option [value]="1">Compra Directa</option>
+                <option [value]="2">Orden de Compra</option>
+                <option [value]="3">Compra a Crédito</option>
+            </select>
+        </div>
+        <div class="col-2" *ngIf="estatus != 3">
+            <select class="form-select" [(ngModel)]="metodo_pago" style="height: 38px;">
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="tarjeta">Tarjeta</option>
+            </select>
         </div>
     </div>
     <br>

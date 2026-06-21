@@ -31,6 +31,8 @@ export class EditarCompraComponent implements OnInit{
   idSucursal:any = 0;
   idProveedor:any = 0;
   folio_proveedor: string = '';
+  estatus: number = 1; // 1=Completada, 2=Orden, 3=Crédito
+  metodo_pago: string = 'efectivo';
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
   constructor(private fb: FormBuilder,
@@ -206,7 +208,9 @@ export class EditarCompraComponent implements OnInit{
       productos: this.dataSource.data,
       descuentos: 0,
       extras: 0,
-      folio_proveedor: this.folio_proveedor
+      folio_proveedor: this.folio_proveedor,
+      estatus: this.estatus,
+      metodo_pago: this.estatus == 3 ? 'credito' : this.metodo_pago
     };
     
     this.comprasService.registrarCompra(dataCompra).subscribe({
