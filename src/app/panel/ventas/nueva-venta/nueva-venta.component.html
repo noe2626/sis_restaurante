@@ -10,7 +10,7 @@
     </div>
     <br>
     <div class="row g-3">
-        <div class="col-12 col-md-5">
+        <div class="col-12 col-md-4">
             <label class="form-label font-weight-bold">Cliente</label>
             <ng-select [items]="clientes"
                         bindLabel="nombre"
@@ -30,14 +30,29 @@
             </ng-select>
         </div>
         <div class="col-12 col-md-4">
+            <label class="form-label font-weight-bold">Tipo de Registro</label>
+            <ng-select [(ngModel)]="estatusVenta"
+                       [clearable]="false"
+                       (change)="alCambiarEstatusVenta()"
+                       placeholder="Seleccionar Estatus"
+                       class="ng-select-bootstrap w-100">
+                <ng-option [value]="1">Venta Directa (Completada)</ng-option>
+                <ng-option [value]="2">Orden de Venta (Borrador)</ng-option>
+                <ng-option [value]="3">Venta a Crédito</ng-option>
+            </ng-select>
+        </div>
+        <div class="col-12 col-md-4">
             <label class="form-label font-weight-bold">Método de Pago</label>
             <ng-select [(ngModel)]="metodoPago"
                        [clearable]="false"
+                       [disabled]="estatusVenta === 3"
+                       (change)="alCambiarMetodoPago()"
                        placeholder="Seleccionar Método"
                        class="ng-select-bootstrap w-100">
                 <ng-option value="efectivo">Efectivo</ng-option>
                 <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
                 <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+                <ng-option value="credito" *ngIf="estatusVenta === 3">Crédito</ng-option>
             </ng-select>
         </div>
     </div>

@@ -11,6 +11,7 @@ import { VentasService } from '../../../services/ventas.service';
 import { PreciosService } from '../../../services/precios.service';
 import { environment } from '../../../../environments/environment';
 import { SucursalesService } from '../../../services/sucursales.service';
+import { PrintService, TicketData } from '../../../services/print.service';
 
 @Component({
   selector: 'app-nueva-venta',
@@ -33,6 +34,7 @@ export class NuevaVentaComponent implements OnInit {
   precioProd: number = 0;
   manejaIva: boolean = false;
   metodoPago: string = 'efectivo';
+  estatusVenta: number = 1; // 1=Completada, 2=Orden, 3=Crédito
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
   constructor(
@@ -42,7 +44,8 @@ export class NuevaVentaComponent implements OnInit {
     private ventasService: VentasService,
     private preciosService: PreciosService,
     private router: Router,
-    private sucursalesService: SucursalesService
+    private sucursalesService: SucursalesService,
+    private printService: PrintService
   ) {
     this.formVenta = this.fb.group({
       idCliente: [null, Validators.required]
@@ -191,6 +194,26 @@ export class NuevaVentaComponent implements OnInit {
     this.recalcularTodo();
   }
 
+  alCambiarMetodoPago(): void {
+    if (this.metodoPago === 'credito') {
+      this.estatusVenta = 3;
+    } else {
+      if (this.estatusVenta === 3) {
+        this.estatusVenta = 1;
+      }
+    }
+  }
+
+  alCambiarEstatusVenta(): void {
+    if (this.estatusVenta === 3) {
+      this.metodoPago = 'credito';
+    } else {
+      if (this.metodoPago === 'credito') {
+        this.metodoPago = 'efectivo';
+      }
+    }
+  }
+
   recalcularTodo() {
     this.subtotal = 0;
     this.iva = 0;
@@ -219,6 +242,19 @@ export class NuevaVentaComponent implements OnInit {
         text: 'Debe agregar al menos un producto a la venta.'
       });
       return;
+    }
+
+    // Validaciones para Crédito
+    if (this.estatusVenta === 3 || this.metodoPago === 'credito') {
+      const client = this.clientes.find(c => c.id == this.idCliente);
+      if (!client || client.id === 1) { // 1 = Cliente General/Público General
+        Swal.fire('Atención', 'Se requiere un cliente registrado para realizar una venta a crédito.', 'warning');
+        return;
+      }
+      if (this.total > client.credito_disponible) {
+        Swal.fire('Límite Excedido', `La venta de ${this.total} excede el crédito disponible del cliente (${client.credito_disponible}).`, 'error');
+        return;
+      }
     }
 
     let idUsuario = '1';
@@ -250,6 +286,7 @@ export class NuevaVentaComponent implements OnInit {
       idSucursal: parseInt(this.idSucursal) || 1,
       idCaja: idCaja ? parseInt(idCaja) : null,
       metodo_pago: this.metodoPago,
+      estatus: this.estatusVenta,
       descuentos: 0,
       extras: 0,
       productos: this.dataSource.data.map(item => ({
@@ -270,6 +307,9 @@ export class NuevaVentaComponent implements OnInit {
           showConfirmButton: false,
           timer: 1500
         });
+
+
+
         this.router.navigate(['/panel/ventas']);
       },
       error: (err) => {

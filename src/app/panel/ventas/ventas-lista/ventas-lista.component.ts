@@ -4,6 +4,10 @@ import { MatTableDataSource } from '@angular/material/table';
 import { VentasService } from '../../../services/ventas.service';
 import Swal from 'sweetalert2';
 import { PrintService, TicketData } from '../../../services/print.service';
+import CryptoJS from 'crypto-js';
+import { environment } from '../../../../environments/environment';
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-ventas-lista',
@@ -19,6 +23,17 @@ export class VentasListaComponent implements OnInit {
 
   filteredData: Array<any> = [];
   ventaSeleccionada: any = null;
+
+  // Entrega de Órdenes
+  ventaAEntregar: any = null;
+  estatusEntrega: number = 1;
+  metodoPagoEntrega: string = 'efectivo';
+
+  // Registrar abonos desde listado
+  ventaAbonar: any = null;
+  abonosHistorial: any[] = [];
+  montoAbonoLista: number = 0;
+  metodoPagoAbonoLista: string = 'efectivo';
 
   constructor(private ventasService: VentasService, private printService: PrintService) {}
 
@@ -43,7 +58,6 @@ export class VentasListaComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al listar ventas:', err);
-        // Fallback mockup data in case API is not running or doesn't support the route yet
         this.data = [
           { cliente: 'Cliente General', fecha: '2026-06-03', total: 150.00, estatus: 'Completada' },
           { cliente: 'Juan Perez', fecha: '2026-06-02', total: 320.50, estatus: 'Completada' }
@@ -73,10 +87,8 @@ export class VentasListaComponent implements OnInit {
       next: (res: any) => {
         if (res && res.success) {
           this.ventaSeleccionada = res.data;
-          // Iniciar el modal usando bootstrap
           const modalElement = document.getElementById('detalleVentaModal');
           if (modalElement) {
-            const bootstrap = (window as any).bootstrap;
             const modal = new bootstrap.Modal(modalElement);
             modal.show();
           }
@@ -122,10 +134,8 @@ export class VentasListaComponent implements OnInit {
                 showConfirmButton: false,
                 timer: 1500
               });
-              // Cerrar modal de detalle si estaba abierto
               const closeBtn = document.getElementById('closeDetalleVentaModalBtn');
               closeBtn?.click();
-              // Recargar listado
               this.listarVentas();
             } else {
               Swal.fire('Error', res.message || 'No se pudo cancelar la venta.', 'error');
@@ -206,5 +216,126 @@ export class VentasListaComponent implements OnInit {
       console.error('Error al reimprimir ticket de canal:', e);
       Swal.fire('Error', 'No se pudo generar el ticket de canal para impresión.', 'error');
     }
+  }
+
+  abrirEntregarModal(venta: any): void {
+    this.ventaAEntregar = venta;
+    this.estatusEntrega = 1;
+    this.metodoPagoEntrega = 'efectivo';
+    
+    const modalElement = document.getElementById('entregarOrdenModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  alCambiarEstatusEntrega(): void {
+    if (this.estatusEntrega === 3) {
+      this.metodoPagoEntrega = 'credito';
+    } else {
+      if (this.metodoPagoEntrega === 'credito') {
+        this.metodoPagoEntrega = 'efectivo';
+      }
+    }
+  }
+
+  procesarEntrega(): void {
+    if (!this.ventaAEntregar) return;
+
+    const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+
+    const payload = {
+      estatus: this.estatusEntrega,
+      metodo_pago: this.metodoPagoEntrega,
+      idCaja: decryptedIdCaja ? parseInt(decryptedIdCaja) : null
+    };
+
+    this.ventasService.entregarOrden(this.ventaAEntregar.id, payload).subscribe({
+      next: (res: any) => {
+        Swal.fire('Éxito', 'La orden ha sido entregada y procesada correctamente.', 'success');
+        const modalElement = document.getElementById('entregarOrdenModal');
+        if (modalElement) {
+          const modal = bootstrap.Modal.getInstance(modalElement);
+          modal?.hide();
+        }
+        this.listarVentas();
+        this.ventaAEntregar = null;
+      },
+      error: (err) => {
+        console.error('Error al entregar orden:', err);
+        Swal.fire('Error', err.error?.message || 'Error al procesar la entrega de la orden.', 'error');
+      }
+    });
+  }
+
+  abrirAbonoModal(venta: any): void {
+    this.ventasService.obtenerDetalleVenta(venta.id).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.ventaAbonar = res.data;
+          this.abonosHistorial = res.data.abonos || [];
+          const totalAbonado = this.abonosHistorial.reduce((sum, a) => sum + parseFloat(a.monto), 0);
+          this.ventaAbonar.saldo_restante = Math.max(0, this.ventaAbonar.total - totalAbonado);
+          this.montoAbonoLista = this.ventaAbonar.saldo_restante;
+          this.metodoPagoAbonoLista = 'efectivo';
+
+          const modalElement = document.getElementById('abonoVentaListaModal');
+          if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar detalle para abono:', err);
+        Swal.fire('Error', 'No se pudieron cargar los datos de la venta.', 'error');
+      }
+    });
+  }
+
+  procesarAbonoLista(): void {
+    if (!this.ventaAbonar) return;
+    if (this.montoAbonoLista <= 0) {
+      Swal.fire('Atención', 'El monto a abonar debe ser mayor a 0.', 'warning');
+      return;
+    }
+    if (this.montoAbonoLista > this.ventaAbonar.saldo_restante) {
+      Swal.fire('Atención', 'El monto supera el saldo pendiente.', 'warning');
+      return;
+    }
+
+    const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    const idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    
+    const payload = {
+      monto: this.montoAbonoLista,
+      metodo_pago: this.metodoPagoAbonoLista,
+      idUser: parseInt(idUsuario),
+      idCaja: decryptedIdCaja ? parseInt(decryptedIdCaja) : null
+    };
+
+    this.ventasService.registrarAbono(this.ventaAbonar.id, payload).subscribe({
+      next: (res: any) => {
+        Swal.fire('Éxito', 'Abono registrado correctamente.', 'success');
+        const modalElement = document.getElementById('abonoVentaListaModal');
+        if (modalElement) {
+          const modal = bootstrap.Modal.getInstance(modalElement);
+          modal?.hide();
+        }
+        this.listarVentas();
+        this.ventaAbonar = null;
+        this.montoAbonoLista = 0;
+      },
+      error: (err) => {
+        console.error('Error al registrar abono:', err);
+        Swal.fire('Error', err.error?.message || 'Error al registrar el abono.', 'error');
+      }
+    });
+  }
+
+  getMontoAbonado(abonos: any[]): number {
+    if (!abonos) return 0;
+    return abonos.reduce((sum, a) => sum + parseFloat(a.monto), 0);
   }
 }

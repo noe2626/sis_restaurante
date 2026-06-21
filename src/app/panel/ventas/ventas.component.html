@@ -1,7 +1,13 @@
 <app-nav-caja></app-nav-caja>
 <app-apertura></app-apertura>
 <div class="bg-light p-3 p-md-4">
-    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0 d-none d-md-block"><i class="bi bi-shop me-1 text-primary"></i> Punto de Venta</h4>
+        <button class="btn btn-info text-white fw-bold bg-gradient shadow-sm rounded-pill px-4" (click)="abrirModalPedidosPendientes()">
+            <i class="bi bi-clock-history me-1"></i> Pedidos Pendientes
+            <span class="badge bg-danger ms-1" *ngIf="ordenesPendientes.length > 0">{{ ordenesPendientes.length }}</span>
+        </button>
+    </div>
     <!-- Pestañas de Pasos para Móviles -->
     <div class="d-flex d-md-none justify-content-between p-2 bg-white rounded-3 shadow-sm mb-3 nav-wizard">
         <button class="btn nav-wizard-btn flex-fill py-2" [ngClass]="{'active': activeTabMovil === 'cliente'}" (click)="cambiarTabMovil('cliente')">
@@ -32,7 +38,7 @@
                 <div class="mb-3">
                     <label class="fs-7 text-secondary fw-semibold mb-1 d-block"><i class="bi bi-person-circle me-1"></i> Cliente</label>
                     <ng-select [(ngModel)]="idCliente" 
-                               (change)="calcularTotal()" 
+                               (change)="getClienteSeleccionado()" 
                                [items]="clientes" 
                                bindLabel="nombre" 
                                bindValue="id" 
@@ -40,6 +46,32 @@
                                placeholder="Seleccionar Cliente"
                                class="ventas-select">
                     </ng-select>
+
+                    <!-- Tarjeta Informativa de Crédito del Cliente -->
+                    <div class="card mt-2 shadow-sm border border-info bg-info-subtle bg-opacity-10" *ngIf="idCliente && idCliente !== 1 && clienteSeleccionado">
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-info mb-2 small"><i class="bi bi-credit-card me-1"></i> Línea de Crédito</h6>
+                            <div class="row g-2 text-center">
+                                <div class="col-4">
+                                    <div class="text-secondary" style="font-size: 0.75rem;">Límite</div>
+                                    <div class="fw-bold text-dark fs-7">{{ clienteSeleccionado?.limite_credito | currency }}</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-secondary" style="font-size: 0.75rem;">Deuda</div>
+                                    <div class="fw-bold text-danger fs-7">{{ clienteSeleccionado?.saldo_pendiente | currency }}</div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-secondary" style="font-size: 0.75rem;">Disponible</div>
+                                    <div class="fw-bold text-success fs-7">{{ clienteSeleccionado?.credito_disponible | currency }}</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-end">
+                                <button class="btn btn-xs btn-outline-info py-1 px-2 text-info border-info bg-transparent fw-semibold" style="font-size: 0.75rem;" (click)="abrirModalAbonosPos()">
+                                    <i class="bi bi-wallet2 me-1"></i> Registrar Abono
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Canal de Venta -->
@@ -229,32 +261,53 @@
                 <h5 class="modal-title" style="width: 100%; text-align: center;" id="pagoModal">Pago de venta</h5>
             </div>
             <div class="modal-body">
-                <div class="row g-3 mb-2">
+                <!-- 1. Tipo de Registro (Primero) -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold"><i class="bi bi-tag me-2 text-primary"></i>Tipo de Registro</label>
+                        <ng-select [(ngModel)]="estatusVenta"
+                                   (change)="alCambiarEstatusVenta()"
+                                   [clearable]="false"
+                                   placeholder="Seleccionar Estatus"
+                                   class="ng-select-bootstrap w-100">
+                            <ng-option [value]="1">Venta Directa (Completada)</ng-option>
+                            <ng-option [value]="2">Orden de Venta (Borrador)</ng-option>
+                            <ng-option [value]="3">Venta a Crédito</ng-option>
+                        </ng-select>
+                    </div>
+                </div>
+
+                <!-- 2. Total y Pago -->
+                <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                        <label><i class="bi bi-cash" style="padding: 5px;"></i>Total</label>
+                        <label class="form-label fw-semibold"><i class="bi bi-wallet2 me-2 text-success"></i>Total</label>
                         <input type="text" class="form-control" [value]="total | currency" readonly>   
                     </div>
                     <div class="col-md-6">
-                        <label><i class="bi bi-cash" style="padding: 5px;"></i>Pago</label>
-                        <input id="pagoInput" type="number" class="form-control" [(ngModel)]="pago" [disabled]="metodoPago !== 'efectivo'" placeholder="Pago $">
+                        <label class="form-label fw-semibold"><i class="bi bi-cash-coin me-2 text-success"></i>Pago</label>
+                        <input id="pagoInput" type="number" class="form-control" [(ngModel)]="pago" [disabled]="metodoPago !== 'efectivo' || estatusVenta === 2" placeholder="Pago $">
                     </div>
                 </div>
-                <div class="row g-3 mb-2 mt-1">
+
+                <!-- 3. Método de Pago -->
+                <div class="row g-3 mb-2">
                     <div class="col-12">
-                        <label class="form-label"><i class="bi bi-credit-card-2-front me-2"></i>Método de Pago</label>
+                        <label class="form-label fw-semibold"><i class="bi bi-credit-card-2-front me-2 text-primary"></i>Método de Pago</label>
                         <ng-select [(ngModel)]="metodoPago"
                                    (change)="alCambiarMetodoPago()"
                                    [clearable]="false"
+                                   [disabled]="estatusVenta === 3 || estatusVenta === 2"
                                    placeholder="Seleccionar Método"
                                    class="ng-select-bootstrap w-100">
                             <ng-option value="efectivo">Efectivo</ng-option>
                             <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
                             <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+                            <ng-option value="credito" *ngIf="estatusVenta === 3">Crédito</ng-option>
                         </ng-select>
                     </div>
                 </div>
             </div>
-            <button class="btn btn-pago" [disabled]="total > pago" (click)="registrarVenta()">
+            <button class="btn btn-pago" [disabled]="estatusVenta !== 2 && metodoPago !== 'credito' && total > pago" (click)="registrarVenta()">
                 <i class="bi bi-check-circle" ></i>
             </button>
         </div>
@@ -364,10 +417,214 @@
 
             </div>
             <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-center">
-                <button class="btn btn-success rounded-pill px-5 py-2 fw-bold text-white border-0 shadow-sm bg-gradient" style="background: #198754;" (click)="finalizarVenta()" data-bs-dismiss="modal">
-                    Listo, Terminar
+                <button class="btn btn-success rounded-pill px-5 py-2 fw-bold text-white border-0 shadow-sm bg-gradient" style="background: #198754;" (click)="finalizarVenta(); cargarPedidosPendientes();" data-bs-dismiss="modal">
+                    Continuar
                 </button>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal de Abonos desde POS -->
+<div class="modal fade" id="abonosPosModal" tabindex="-1" aria-labelledby="abonosPosModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header bg-primary text-white py-3 border-0">
+                <h5 class="modal-title fw-bold text-center w-100" id="abonosPosModalLabel">
+                    <i class="bi bi-wallet2 me-2"></i>Cuentas por Cobrar - {{ clienteSeleccionado?.nombre }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="row g-4">
+                    <!-- Lista de Ventas Pendientes -->
+                    <div class="col-12 col-md-7 border-end-md">
+                        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-list-task me-1"></i> Ventas a Crédito Pendientes</h6>
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-hover align-middle small bg-white rounded-3 overflow-hidden shadow-sm">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Folio</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Abonado</th>
+                                        <th>Saldo</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let v of abonosModalVentas" [class.table-primary]="ventaSeleccionadaAbono?.id === v.id" style="cursor: pointer;" (click)="onSelectVentaAbono(v)">
+                                        <td class="fw-bold text-primary">{{ v.folio }}</td>
+                                        <td>{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                                        <td>{{ v.total | currency }}</td>
+                                        <td>{{ v.total_abonado | currency }}</td>
+                                        <td class="text-danger fw-bold">{{ v.saldo_restante | currency }}</td>
+                                        <td>
+                                            <button class="btn btn-xs btn-primary py-0 px-2 fw-semibold" style="font-size: 0.7rem;">
+                                                Elegir
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="abonosModalVentas.length === 0">
+                                        <td colspan="6" class="text-center text-muted py-4">No hay cuentas pendientes para este cliente.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Registrar Abono -->
+                    <div class="col-12 col-md-5">
+                        <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-plus-circle me-1"></i> Registrar Abono</h6>
+                        <div *ngIf="!ventaSeleccionadaAbono" class="alert alert-info py-2 small shadow-sm rounded-3">
+                            <i class="bi bi-info-circle me-1"></i> Seleccione una venta de la lista para registrar un abono.
+                        </div>
+
+                        <div *ngIf="ventaSeleccionadaAbono" class="bg-white p-3 rounded-3 shadow-sm border border-light">
+                            <div class="mb-3">
+                                <label class="small text-muted mb-1 d-block fw-semibold">Venta Seleccionada</label>
+                                <div class="p-2.5 bg-light border rounded small">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span>Folio:</span>
+                                        <strong class="text-primary">{{ ventaSeleccionadaAbono.folio }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Saldo Pendiente:</span>
+                                        <strong class="text-danger">{{ ventaSeleccionadaAbono.saldo_restante | currency }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Monto a Abonar</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light">$</span>
+                                    <input type="number" class="form-control" [(ngModel)]="montoAbonoInput" min="0.01" [max]="ventaSeleccionadaAbono.saldo_restante" step="0.01">
+                                </div>
+                                <div class="form-text small" style="font-size: 0.72rem;">
+                                    Presiona para liquidar: 
+                                    <a href="javascript:void(0)" (click)="montoAbonoInput = ventaSeleccionadaAbono.saldo_restante" class="text-decoration-none fw-bold">
+                                        {{ ventaSeleccionadaAbono.saldo_restante | currency }}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Método de Pago</label>
+                                <ng-select [(ngModel)]="metodoPagoAbono" [clearable]="false" placeholder="Seleccionar método" class="w-100 select-sm">
+                                    <ng-option value="efectivo">Efectivo</ng-option>
+                                    <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
+                                    <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+                                </ng-select>
+                            </div>
+
+                            <button class="btn btn-primary w-100 py-2 fw-bold text-white shadow-sm border-0 bg-gradient" [disabled]="montoAbonoInput <= 0 || montoAbonoInput > ventaSeleccionadaAbono.saldo_restante" (click)="registrarAbonoPos()">
+                                <i class="bi bi-wallet2 me-1"></i> Guardar Abono
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Pedidos Pendientes -->
+<div class="modal fade" id="pedidosPendientesModal" tabindex="-1" aria-labelledby="pedidosPendientesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; shadow: 0 10px 30px rgba(0,0,0,0.15);">
+      <div class="modal-header bg-info text-white py-3 border-0 bg-gradient">
+        <h5 class="modal-title fw-bold text-center w-100" id="pedidosPendientesModalLabel">
+          <i class="bi bi-clock-history me-2"></i>Pedidos Pendientes (Órdenes)
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto; border-radius: 8px;">
+          <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden shadow-sm small mb-0">
+            <thead class="table-dark">
+              <tr>
+                <th>Folio</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ord of ordenesPendientes">
+                <td class="fw-bold text-primary">{{ ord.folio }}</td>
+                <td>{{ ord.cliente }}</td>
+                <td>{{ ord.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td class="fw-bold text-success">{{ ord.total | currency }}</td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-info text-white fw-bold bg-gradient px-3 py-1.5 rounded-pill shadow-sm" (click)="iniciarCobroOrden(ord)">
+                    <i class="bi bi-cash-coin me-1"></i> Cobrar / Entregar
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="ordenesPendientes.length === 0">
+                <td colspan="5" class="text-center text-muted py-4">No hay pedidos pendientes en esta sucursal.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Entregar Orden POS -->
+<div class="modal fade" id="entregarOrdenPosModal" tabindex="-1" aria-labelledby="entregarOrdenPosModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; shadow: 0 10px 30px rgba(0,0,0,0.15);">
+      <div class="modal-header bg-success text-white py-3 border-0 bg-gradient">
+        <h5 class="modal-title fw-bold text-center w-100" id="entregarOrdenPosModalLabel">
+          <i class="bi bi-cash-coin me-2"></i>Cobrar Orden: {{ ordenACobrar?.folio }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        <div class="p-3 bg-white border border-light rounded-3 shadow-sm mb-3">
+          <div class="d-flex justify-content-between mb-1 small">
+            <span class="text-secondary">Cliente:</span>
+            <strong class="text-dark">{{ ordenACobrar?.cliente?.nombre || 'Cliente General' }}</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-1 small">
+            <span class="text-secondary">Total a Cobrar:</span>
+            <strong class="text-success fs-6">{{ ordenACobrar?.total | currency }}</strong>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Tipo de Entrega / Estatus Final</label>
+          <ng-select [(ngModel)]="estatusEntregaPos" [clearable]="false" (change)="alCambiarEstatusEntregaPos()" class="w-100">
+            <ng-option [value]="1">Completar (Venta Pagada)</ng-option>
+            <ng-option [value]="3">Transicionar a Crédito</ng-option>
+          </ng-select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Método de Pago</label>
+          <ng-select [(ngModel)]="metodoPagoEntregaPos" [clearable]="false" [disabled]="estatusEntregaPos === 3" class="w-100">
+            <ng-option value="efectivo">Efectivo</ng-option>
+            <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
+            <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+            <ng-option value="credito" *ngIf="estatusEntregaPos === 3">Crédito</ng-option>
+          </ng-select>
+        </div>
+
+        <div class="mb-3" *ngIf="metodoPagoEntregaPos === 'efectivo'">
+          <label class="form-label small fw-semibold">Pago</label>
+          <input id="pagoInput" type="number" class="form-control" [(ngModel)]="pago" placeholder="Pago $">
+        </div>
+
+        <div class="mt-4">
+          <button class="btn btn-success w-100 py-2.5 fw-bold text-white shadow-sm border-0 bg-gradient rounded-pill" [disabled]="metodoPagoEntregaPos === 'efectivo' && pago < ordenACobrar?.total" (click)="procesarEntregaPos()">
+            <i class="bi bi-check-circle me-1"></i> Confirmar Pago y Entregar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

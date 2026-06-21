@@ -10,10 +10,11 @@ import { AuthService } from '../../services/auth.service';
 import { CanalesVentaService } from '../../services/canales-venta.service';
 import Swal from 'sweetalert2';
 import { SucursalesService } from '../../services/sucursales.service';
-import * as bootstrap from "bootstrap";
+declare var bootstrap: any;
 import CryptoJS from 'crypto-js';
 import { environment } from '../../../environments/environment';
 import { PrintService, TicketData } from '../../services/print.service';
+import { CajasService } from '../../services/cajas.service';
 
 @Component({
   selector: 'app-ventas',
@@ -54,6 +55,20 @@ export class VentasComponent implements OnInit{
     'rgba(96, 125, 139, 0.25)'   // Gris azulado
   ];
 
+  estatusVenta: number = 1; // 1=Completada, 2=Orden, 3=Crédito
+  estatusVentaPredeterminado: number = 1; // Para cargar el estatus predeterminado desde la caja
+  abonosModalVentas: any[] = [];
+  ventaSeleccionadaAbono: any = null;
+  montoAbonoInput: number = 0;
+  metodoPagoAbono: string = 'efectivo';
+
+  // Pedidos Pendientes en POS
+  ordenesPendientes: any[] = [];
+  ordenACobrar: any = null;
+  estatusEntregaPos: number = 1;
+  metodoPagoEntregaPos: string = 'efectivo';
+  clienteSeleccionado: any = null;
+
   constructor(
     private fb: FormBuilder,
     private productoService: ProductosService,
@@ -64,7 +79,8 @@ export class VentasComponent implements OnInit{
     private canalesVentaService: CanalesVentaService,
     private renderer: Renderer2,
     private sucursalesService: SucursalesService,
-    private printService: PrintService
+    private printService: PrintService,
+    private cajasService: CajasService
   ) {
     this.formProd = this.fb.group({
       idProducto: [null, Validators.required],
@@ -81,6 +97,8 @@ export class VentasComponent implements OnInit{
     this.cargarConfiguracionSucursalLuegoProductos();
     this.listarClientes();
     this.listarCanalesVenta();
+    this.cargarEstatusPredeterminadoCaja();
+    this.cargarPedidosPendientes();
   }
 
   cargarConfiguracionSucursalLuegoProductos(): void {
@@ -325,28 +343,185 @@ export class VentasComponent implements OnInit{
   }
 
   pagar(){
-    this.metodoPago = 'efectivo';
-    this.pago=null;
-    setTimeout(() => {
-      var pagoInput = document.getElementById("pagoInput");
-      pagoInput?.focus();
-      
-    }, 500);
-  }
-
-  alCambiarMetodoPago(): void {
-    if (this.metodoPago !== 'efectivo') {
+    if (this.estatusVenta === 2) {
+      this.metodoPago = 'efectivo';
+      this.pago = 0;
+    } else if (this.estatusVenta === 3) {
+      this.metodoPago = 'credito';
       this.pago = this.total;
     } else {
+      this.metodoPago = 'efectivo';
       this.pago = null;
       setTimeout(() => {
-        document.getElementById("pagoInput")?.focus();
-      }, 100);
+        var pagoInput = document.getElementById("pagoInput");
+        pagoInput?.focus();
+      }, 500);
     }
   }
 
+  alCambiarMetodoPago(): void {
+    if (this.metodoPago === 'credito') {
+      this.estatusVenta = 3;
+      this.pago = this.total;
+    } else {
+      if (this.estatusVenta === 3) {
+        this.estatusVenta = 1;
+      }
+      if (this.metodoPago !== 'efectivo') {
+        this.pago = this.total;
+      } else {
+        this.pago = null;
+        setTimeout(() => {
+          document.getElementById("pagoInput")?.focus();
+        }, 100);
+      }
+    }
+  }
+
+  alCambiarEstatusVenta(): void {
+    if (this.estatusVenta === 3) {
+      this.metodoPago = 'credito';
+      this.pago = this.total;
+    } else if (this.estatusVenta === 2) {
+      this.metodoPago = 'efectivo';
+      this.pago = 0;
+    } else {
+      if (this.metodoPago === 'credito') {
+        this.metodoPago = 'efectivo';
+        this.pago = null;
+      }
+    }
+  }
+
+  cargarEstatusPredeterminadoCaja(): void {
+    try {
+      const encryptedCaja = localStorage.getItem('idCaja');
+      if (encryptedCaja) {
+        const decryptedIdCaja = CryptoJS.AES.decrypt(encryptedCaja, environment.secretKey).toString(CryptoJS.enc.Utf8);
+        if (decryptedIdCaja) {
+          this.cajasService.verificarCajas(parseInt(decryptedIdCaja)).subscribe({
+            next: (res: any) => {
+              if (res && res.success && res.data) {
+                this.estatusVenta = res.data.estatus_predeterminado || 1;
+                this.estatusVentaPredeterminado = this.estatusVenta;
+                if (this.estatusVenta === 3) {
+                  this.metodoPago = 'credito';
+                  this.pago = this.total;
+                }
+              }
+            },
+            error: (err) => {
+              console.error('Error al verificar caja:', err);
+            }
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Error al desencriptar idCaja:', e);
+    }
+  }
+
+  getClienteSeleccionado() {
+    this.clientesService.informacionCliente(this.idCliente).subscribe({
+      next: (res: any) => {
+        
+        if (res && res.success) {
+          this.clienteSeleccionado = res.cliente || null;
+          this.calcularTotal();
+        }
+      },
+      error: (err) => {
+        console.error('Error al consultar cliente:', err);
+      }
+    });
+  }
+
+  abrirModalAbonosPos(): void {
+    if (!this.idCliente || this.idCliente === 1) return;
+    this.clientesService.listarCuentasPendientes(this.idCliente).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.abonosModalVentas = res.data || [];
+          this.ventaSeleccionadaAbono = null;
+          this.montoAbonoInput = 0;
+          this.metodoPagoAbono = 'efectivo';
+          
+          const modalElement = document.getElementById('abonosPosModal');
+          if (modalElement) {
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar cuentas pendientes:', err);
+        Swal.fire('Error', 'No se pudieron cargar las cuentas pendientes del cliente.', 'error');
+      }
+    });
+  }
+
+  onSelectVentaAbono(venta: any): void {
+    this.ventaSeleccionadaAbono = venta;
+    this.montoAbonoInput = venta.saldo_restante;
+  }
+
+  registrarAbonoPos(): void {
+    if (!this.ventaSeleccionadaAbono) {
+      Swal.fire('Atención', 'Por favor, seleccione una venta a abonar.', 'warning');
+      return;
+    }
+    if (this.montoAbonoInput <= 0) {
+      Swal.fire('Atención', 'El monto a abonar debe ser mayor a 0.', 'warning');
+      return;
+    }
+    if (this.montoAbonoInput > this.ventaSeleccionadaAbono.saldo_restante) {
+      Swal.fire('Atención', 'El monto no puede superar el saldo restante.', 'warning');
+      return;
+    }
+
+    let idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+
+    const payload = {
+      monto: this.montoAbonoInput,
+      metodo_pago: this.metodoPagoAbono,
+      idUser: parseInt(idUsuario),
+      idCaja: decryptedIdCaja ? parseInt(decryptedIdCaja) : null
+    };
+
+    this.ventasService.registrarAbono(this.ventaSeleccionadaAbono.id, payload).subscribe({
+      next: (res: any) => {
+        Swal.fire('Éxito', 'Abono registrado correctamente.', 'success');
+        const modalElement = document.getElementById('abonosPosModal');
+        if (modalElement) {
+          const modal = bootstrap.Modal.getInstance(modalElement);
+          modal?.hide();
+        }
+        this.listarClientes();
+        this.ventaSeleccionadaAbono = null;
+        this.montoAbonoInput = 0;
+      },
+      error: (err) => {
+        console.error('Error al registrar abono:', err);
+        Swal.fire('Error', err.error?.message || 'Error al registrar el abono.', 'error');
+      }
+    });
+  }
 
   registrarVenta(): void {
+    // Validaciones para Crédito
+    if (this.estatusVenta === 3 || this.metodoPago === 'credito') {
+      if (!this.idCliente || this.idCliente === 1) {
+        Swal.fire('Atención', 'Se requiere un cliente registrado para realizar una venta a crédito.', 'warning');
+        return;
+      }
+      const clienteObj = this.clienteSeleccionado;
+      if (clienteObj && this.total > clienteObj.credito_disponible) {
+        Swal.fire('Límite Excedido', `La venta de ${this.total} excede el crédito disponible del cliente (${clienteObj.credito_disponible}).`, 'error');
+        return;
+      }
+    }
+
     const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja'), environment.secretKey).toString(CryptoJS.enc.Utf8);
     let idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario'), environment.secretKey).toString(CryptoJS.enc.Utf8);
     const venta = {
@@ -361,6 +536,7 @@ export class VentasComponent implements OnInit{
       idCaja: decryptedIdCaja,
       metodo_pago: this.metodoPago,
       idCanalVenta: this.idCanalVenta,
+      estatus: this.estatusVenta,
       productos: this.carrito.map(item => ({
         idProducto: item.id,
         cantidad: item.cantidad,
@@ -371,40 +547,46 @@ export class VentasComponent implements OnInit{
     };
     this.ventasService.registrarVenta(venta).subscribe({
       next: (data: any) => {
-        
         Swal.fire({
           icon: "success",
-          title: "Venta registrada conrrectamente",
+          title: "Venta registrada correctamente",
           showConfirmButton: false,
           timer: 1500
         });
         this.cambio = (this.pago || this.total) - this.total;
         
-        if (this.imprimeTicket) {
-          try {
-            const printData: TicketData = {
-              folio: data.venta.folio,
-              fecha: data.venta.fecha,
-              cliente: this.clientes.find(c => c.id == this.idCliente)?.nombre || 'Cliente General',
-              cajero: localStorage.getItem('userName') || 'N/A',
-              canal: this.canalesVenta.find(c => c.id == this.idCanalVenta)?.nombre || 'Comedor',
-              metodo_pago: this.metodoPago,
-              subtotal: this.subTotal,
-              descuentos: this.descuentos,
-              extras: this.extras,
-              iva: this.iva,
-              total: this.total,
-              pago: this.pago || this.total,
-              cambio: this.cambio,
-              productos: this.carrito.map(item => ({
-                nombre: item.nombre,
-                cantidad: item.cantidad,
-                precio: item.precio,
-                total: item.subtotal,
-                promocion: item.promocion
-              }))
-            };
-            this.printService.imprimirTicket(printData);
+        try {
+          const printData: TicketData = {
+            folio: data.venta.folio,
+            fecha: data.venta.fecha,
+            cliente: this.clientes.find(c => c.id == this.idCliente)?.nombre || 'Cliente General',
+            cajero: localStorage.getItem('userName') || 'N/A',
+            canal: this.canalesVenta.find(c => c.id == this.idCanalVenta)?.nombre || 'Comedor',
+            metodo_pago: this.metodoPago,
+            subtotal: this.subTotal,
+            descuentos: this.descuentos,
+            extras: this.extras,
+            iva: this.iva,
+            total: this.total,
+            pago: this.pago || this.total,
+            cambio: this.cambio,
+            productos: this.carrito.map(item => ({
+              nombre: item.nombre,
+              cantidad: item.cantidad,
+              precio: item.precio,
+              total: item.subtotal,
+              promocion: item.promocion
+            }))
+          };
+
+          // 1. Siempre imprimir comanda
+          this.printService.imprimirComanda(printData);
+
+          // 2. Imprimir ticket de venta solo si es Completada (1) o Crédito (3)
+          if (this.imprimeTicket && (this.estatusVenta === 1 || this.estatusVenta === 3)) {
+            setTimeout(() => {
+              this.printService.imprimirTicket(printData);
+            }, 1000);
 
             // Si es una venta por canal externo (idCanalVenta != 1), imprimir el segundo ticket de canal
             if (this.idCanalVenta && this.idCanalVenta != 1) {
@@ -417,13 +599,13 @@ export class VentasComponent implements OnInit{
               };
               setTimeout(() => {
                 this.printService.imprimirTicketCanal(canalPrintData);
-              }, 1000);
+              }, 2000);
             }
-          } catch (printErr) {
-            console.error('Error al imprimir ticket:', printErr);
           }
+        } catch (printErr) {
+          console.error('Error al imprimir comanda/ticket:', printErr);
         }
-        
+        this.estatusVenta = this.estatusVentaPredeterminado;
         document.getElementById('btnFinalizar')?.click();
       },
       error: (err) => {
@@ -622,5 +804,133 @@ export class VentasComponent implements OnInit{
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  }
+
+  cargarPedidosPendientes(): void {
+    this.ventasService.listarVentas().subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          const ventasList = res.data || [];
+          this.ordenesPendientes = ventasList.filter((v: any) => v.estatus_raw === 2);
+        } else if (Array.isArray(res)) {
+          this.ordenesPendientes = res.filter((v: any) => v.estatus === 'Orden de Venta' || v.estatus_raw === 2);
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar pedidos pendientes en POS:', err);
+      }
+    });
+  }
+
+  abrirModalPedidosPendientes(): void {
+    this.cargarPedidosPendientes();
+    const modalElement = document.getElementById('pedidosPendientesModal');
+    if (modalElement) {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  iniciarCobroOrden(orden: any): void {
+    this.ventasService.obtenerDetalleVenta(orden.id).subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.ordenACobrar = res.data;
+          this.estatusEntregaPos = 1;
+          this.metodoPagoEntregaPos = 'efectivo';
+          
+          // Cerrar modal de pedidos pendientes
+          const modalElement1 = document.getElementById('pedidosPendientesModal');
+          if (modalElement1) {
+            const modal1 = bootstrap.Modal.getInstance(modalElement1);
+            modal1?.hide();
+          }
+          
+          // Abrir modal de cobro
+          setTimeout(() => {
+            const modalElement2 = document.getElementById('entregarOrdenPosModal');
+            if (modalElement2) {
+              const modal2 = new bootstrap.Modal(modalElement2);
+              modal2.show();
+            }
+          }, 300);
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar detalle de orden en POS:', err);
+        Swal.fire('Error', 'No se pudo cargar el detalle de la orden.', 'error');
+      }
+    });
+  }
+
+  alCambiarEstatusEntregaPos(): void {
+    if (this.estatusEntregaPos === 3) {
+      this.metodoPagoEntregaPos = 'credito';
+    } else {
+      if (this.metodoPagoEntregaPos === 'credito') {
+        this.metodoPagoEntregaPos = 'efectivo';
+      }
+    }
+  }
+
+  procesarEntregaPos(): void {
+    if (!this.ordenACobrar) return;
+
+    const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+
+    const payload = {
+      estatus: this.estatusEntregaPos,
+      metodo_pago: this.metodoPagoEntregaPos,
+      idCaja: decryptedIdCaja ? parseInt(decryptedIdCaja) : null
+    };
+
+    this.ventasService.entregarOrden(this.ordenACobrar.id, payload).subscribe({
+      next: (res: any) => {
+        Swal.fire('Éxito', 'La orden ha sido pagada y entregada correctamente.', 'success');
+        
+        // Cerrar modal de cobro
+        const modalElement = document.getElementById('entregarOrdenPosModal');
+        if (modalElement) {
+          const modal = bootstrap.Modal.getInstance(modalElement);
+          modal?.hide();
+        }
+
+        // Imprimir ticket de venta
+        try {
+          const printData: TicketData = {
+            folio: this.ordenACobrar.folio,
+            fecha: this.ordenACobrar.fecha,
+            cliente: this.ordenACobrar.cliente ? this.ordenACobrar.cliente.nombre : 'Cliente General',
+            cajero: this.ordenACobrar.user ? this.ordenACobrar.user.name : 'N/A',
+            canal: this.ordenACobrar.canal_venta ? this.ordenACobrar.canal_venta.nombre : (this.ordenACobrar.canalVenta ? this.ordenACobrar.canalVenta.nombre : 'Comedor'),
+            metodo_pago: this.metodoPagoEntregaPos,
+            subtotal: this.ordenACobrar.subtotal,
+            descuentos: this.ordenACobrar.descuentos,
+            extras: this.ordenACobrar.extras,
+            iva: this.ordenACobrar.iva,
+            total: this.ordenACobrar.total,
+            pago: this.metodoPagoEntregaPos === 'efectivo' ? this.pago : this.ordenACobrar.total,
+            cambio: this.metodoPagoEntregaPos === 'efectivo' ? this.pago-this.ordenACobrar.total : 0,
+            productos: (this.ordenACobrar.productos || []).map((prod: any) => ({
+              nombre: prod.nombre,
+              cantidad: prod.pivot.cantidad,
+              precio: prod.pivot.precio,
+              total: prod.pivot.total,
+              promocion: prod.pivot.promocion
+            }))
+          };
+          this.printService.imprimirTicket(printData);
+        } catch (printErr) {
+          console.error('Error al imprimir ticket de entrega en POS:', printErr);
+        }
+
+        this.cargarPedidosPendientes();
+        this.ordenACobrar = null;
+      },
+      error: (err) => {
+        console.error('Error al completar la entrega en POS:', err);
+        Swal.fire('Error', err.error?.message || 'Error al procesar la entrega de la orden.', 'error');
+      }
+    });
   }
 }

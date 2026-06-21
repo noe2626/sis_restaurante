@@ -61,9 +61,13 @@
             <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 15%;"> Estatus </th>
             <td mat-cell *matCellDef="let element" class="text-center">
               <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
-                [ngClass]="element.estatus == 'Cancelada' ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'">
-                <i class="bi me-1" [ngClass]="element.estatus == 'Cancelada' ? 'bi-x-circle-fill' : 'bi-check-circle-fill'"></i>
-                {{ element.estatus || 'Completada' }}
+                [ngClass]="element.estatus_raw == 0 ? 'bg-danger-subtle text-danger' : 
+                           (element.estatus_raw == 2 ? 'bg-info-subtle text-info' : 
+                           (element.estatus_raw == 3 ? 'bg-warning-subtle text-warning-emphasis' : 'bg-success-subtle text-success'))">
+                <i class="bi me-1" [ngClass]="element.estatus_raw == 0 ? 'bi-x-circle-fill' : 
+                                             (element.estatus_raw == 2 ? 'bi-hourglass-split' : 
+                                             (element.estatus_raw == 3 ? 'bi-credit-card-2-front-fill' : 'bi-check-circle-fill'))"></i>
+                {{ element.estatus }}
               </span>
             </td>
           </ng-container>
@@ -78,16 +82,19 @@
 
           <!-- Acciones Column -->
           <ng-container matColumnDef="detalle">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 10%;"> Acciones </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 15%;"> Acciones </th>
             <td mat-cell *matCellDef="let element" class="text-center pe-4">
               <div class="d-inline-flex gap-2">
-                <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="verDetalle(element.id)" title="Ver Detalle de Venta" style="width: 32px; height: 32px;">
+                <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="verDetalle(element.id)" title="Ver Detalle" style="width: 32px; height: 32px;">
                   <i class="bi bi-eye-fill fs-8"></i>
                 </button>
-                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus == 'Completada'" (click)="cancelarVenta(element.id)" title="Cancelar Venta" style="width: 32px; height: 32px;">
-                  <i class="bi bi-x-circle-fill fs-8"></i>
+                <button class="btn btn-outline-info btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 2" (click)="abrirEntregarModal(element)" title="Entregar Orden" style="width: 32px; height: 32px;">
+                  <i class="bi bi-truck fs-8"></i>
                 </button>
-                <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center bg-light text-muted border-0" *ngIf="element.estatus != 'Completada'" disabled style="width: 32px; height: 32px;">
+                <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 3" (click)="abrirAbonoModal(element)" title="Registrar Abono" style="width: 32px; height: 32px;">
+                  <i class="bi bi-wallet2 fs-8"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 1 || element.estatus_raw == 2 || element.estatus_raw == 3" (click)="cancelarVenta(element.id)" title="Cancelar Venta" style="width: 32px; height: 32px;">
                   <i class="bi bi-x-circle-fill fs-8"></i>
                 </button>
               </div>
@@ -114,20 +121,36 @@
 <div class="modal fade" id="detalleVentaModal" tabindex="-1" aria-labelledby="detalleVentaModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg rounded-4">
-      <div class="modal-header bg-gradient bg-success text-white py-3 rounded-top-4">
+      <div class="modal-header bg-gradient py-3 rounded-top-4 text-white"
+        [ngClass]="ventaSeleccionada?.estatus == 0 ? 'bg-danger' : 
+                   (ventaSeleccionada?.estatus == 2 ? 'bg-info text-dark' : 
+                   (ventaSeleccionada?.estatus == 3 ? 'bg-warning text-dark' : 'bg-success'))">
         <h5 class="modal-title fw-bold d-flex align-items-center" id="detalleVentaModalLabel">
           <i class="bi bi-receipt-cutoff me-2"></i>Detalle de Venta: {{ ventaSeleccionada?.folio || ('#' + ventaSeleccionada?.id) }}
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="closeDetalleVentaModalBtn"></button>
+        <button type="button" class="btn-close" [ngClass]="(ventaSeleccionada?.estatus == 2 || ventaSeleccionada?.estatus == 3) ? 'btn-close' : 'btn-close-white'" data-bs-dismiss="modal" aria-label="Close" id="closeDetalleVentaModalBtn"></button>
       </div>
       <div class="modal-body p-4 bg-light" *ngIf="ventaSeleccionada">
         
         <!-- Info Cards Grid -->
         <div class="row g-3 mb-4">
-          <div class="col-md-3 col-sm-6">
+          <div class="col-md-2 col-sm-4">
             <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
               <span class="text-muted small fw-bold text-uppercase fs-9">Folio</span>
               <span class="fs-6 fw-bold text-success mt-1">{{ ventaSeleccionada.folio || 'N/A' }}</span>
+            </div>
+          </div>
+          <div class="col-md-2 col-sm-4">
+            <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+              <span class="text-muted small fw-bold text-uppercase fs-9">Estatus</span>
+              <span class="fs-6 fw-bold mt-1"
+                [ngClass]="ventaSeleccionada.estatus == 0 ? 'text-danger' : 
+                           (ventaSeleccionada.estatus == 2 ? 'text-info' : 
+                           (ventaSeleccionada.estatus == 3 ? 'text-warning-emphasis' : 'text-success'))">
+                {{ ventaSeleccionada.estatus == 0 ? 'Cancelada' : 
+                   (ventaSeleccionada.estatus == 2 ? 'Orden' : 
+                   (ventaSeleccionada.estatus == 3 ? 'Crédito' : 'Completada')) }}
+              </span>
             </div>
           </div>
           <div class="col-md-3 col-sm-6">
@@ -136,9 +159,9 @@
               <span class="fs-6 fw-bold text-dark mt-1 text-truncate">{{ ventaSeleccionada.cliente ? ventaSeleccionada.cliente.nombre : 'Cliente General' }}</span>
             </div>
           </div>
-          <div class="col-md-3 col-sm-6">
+          <div class="col-md-2 col-sm-6">
             <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
-              <span class="text-muted small fw-bold text-uppercase fs-9">Cajero / Vendedor</span>
+              <span class="text-muted small fw-bold text-uppercase fs-9">Cajero</span>
               <span class="fs-6 fw-bold text-dark mt-1 text-truncate">{{ ventaSeleccionada.user ? ventaSeleccionada.user.name : 'N/A' }}</span>
             </div>
           </div>
@@ -185,7 +208,33 @@
         </div>
 
         <!-- Totales Layout -->
-        <div class="row mt-4 justify-content-end">
+        <div class="row mt-4 justify-content-between align-items-start">
+          <div class="col-md-6 col-sm-12">
+            <!-- Desglose de Abonos (Historial de Pagos) -->
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white h-100 animate__animated animate__fadeIn" *ngIf="ventaSeleccionada.abonos && ventaSeleccionada.abonos.length > 0">
+              <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-wallet2 me-2"></i> Historial de Abonos</h6>
+              <div class="table-responsive" style="max-height: 150px; overflow-y: auto;">
+                <table class="table align-middle table-hover mb-0 small">
+                  <thead class="table-light text-uppercase fs-9 text-secondary">
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Cajero</th>
+                      <th>Método</th>
+                      <th class="text-end">Monto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let abono of ventaSeleccionada.abonos">
+                      <td>{{ abono.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td>{{ abono.user ? abono.user.name : 'N/A' }}</td>
+                      <td class="text-capitalize">{{ abono.metodo_pago }}</td>
+                      <td class="text-end fw-bold text-success">{{ abono.monto | currency }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
           <div class="col-md-4 col-sm-12">
             <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
               <div class="d-flex justify-content-between mb-2">
@@ -201,9 +250,20 @@
                 <span class="fw-bold text-dark">{{ ventaSeleccionada.iva | currency }}</span>
               </div>
               <hr class="my-2">
-              <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="text-dark fw-bold fs-6">Total Venta:</span>
                 <span class="fw-bold text-success fs-5">{{ ventaSeleccionada.total | currency }}</span>
+              </div>
+              <!-- Si tiene abonos, mostrar total abonado y saldo restante -->
+              <div *ngIf="ventaSeleccionada.abonos && ventaSeleccionada.abonos.length > 0">
+                <div class="d-flex justify-content-between align-items-center mb-2 text-primary small">
+                  <span>Total Abonado:</span>
+                  <span class="fw-bold">{{ getMontoAbonado(ventaSeleccionada.abonos) | currency }}</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center text-danger small">
+                  <span>Saldo Restante:</span>
+                  <span class="fw-bold">{{ (ventaSeleccionada.total - getMontoAbonado(ventaSeleccionada.abonos)) | currency }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -222,6 +282,139 @@
           <i class="bi bi-receipt me-1"></i> Imprimir Ticket Canal
         </button>
         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar Detalle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Entregar Orden -->
+<div class="modal fade" id="entregarOrdenModal" tabindex="-1" aria-labelledby="entregarOrdenModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none;">
+      <div class="modal-header bg-info text-white py-3 border-0 bg-gradient">
+        <h5 class="modal-title fw-bold text-center w-100" id="entregarOrdenModalLabel">
+          <i class="bi bi-truck me-2"></i>Entregar Pedido: {{ ventaAEntregar?.folio }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        <div class="alert alert-warning py-2 small shadow-sm rounded-3">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i> 
+          Al completar la entrega, se descontarán los productos de inventario y se afectará la caja (si es pago en efectivo).
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Tipo de Entrega / Estatus Final</label>
+          <ng-select [(ngModel)]="estatusEntrega" [clearable]="false" (change)="alCambiarEstatusEntrega()" class="w-100">
+            <ng-option [value]="1">Completar (Venta Pagada)</ng-option>
+            <ng-option [value]="3">Transicionar a Crédito</ng-option>
+          </ng-select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Método de Pago</label>
+          <ng-select [(ngModel)]="metodoPagoEntrega" [clearable]="false" [disabled]="estatusEntrega === 3" class="w-100">
+            <ng-option value="efectivo">Efectivo</ng-option>
+            <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
+            <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+            <ng-option value="credito" *ngIf="estatusEntrega === 3">Crédito</ng-option>
+          </ng-select>
+        </div>
+
+        <div class="mt-4">
+          <button class="btn btn-info w-100 py-2.5 fw-bold text-white shadow-sm border-0 bg-gradient" (click)="procesarEntrega()">
+            <i class="bi bi-check-circle me-1"></i> Confirmar Entrega
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registrar Abonos desde Listado -->
+<div class="modal fade" id="abonoVentaListaModal" tabindex="-1" aria-labelledby="abonoVentaListaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none;">
+      <div class="modal-header bg-warning text-dark py-3 border-0 bg-gradient">
+        <h5 class="modal-title fw-bold text-center w-100" id="abonoVentaListaModalLabel">
+          <i class="bi bi-wallet2 me-2"></i>Registrar Abono - Venta: {{ ventaAbonar?.folio }}
+        </h5>
+        <button type="button" class="btn-close btn-close-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4 bg-light">
+        <div class="row g-4">
+          <!-- Historial de Abonos -->
+          <div class="col-12 col-md-7 border-end-md">
+            <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-clock-history me-1"></i> Historial de Abonos</h6>
+            <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+              <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden shadow-sm small mb-0">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Cajero</th>
+                    <th>Método</th>
+                    <th class="text-end">Monto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let ab of abonosHistorial">
+                    <td>{{ ab.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ ab.user ? ab.user.name : 'N/A' }}</td>
+                    <td class="text-capitalize">{{ ab.metodo_pago }}</td>
+                    <td class="text-end fw-bold text-success">{{ ab.monto | currency }}</td>
+                  </tr>
+                  <tr *ngIf="abonosHistorial.length === 0">
+                    <td colspan="4" class="text-center text-muted py-4">No hay abonos registrados para esta venta.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Registrar Nuevo Abono -->
+          <div class="col-12 col-md-5">
+            <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-plus-circle me-1"></i> Registrar Abono</h6>
+            <div class="bg-white p-3 rounded-3 shadow-sm border border-light" *ngIf="ventaAbonar">
+              <div class="mb-3 small">
+                <div class="d-flex justify-content-between mb-1">
+                  <span>Total Venta:</span>
+                  <strong>{{ ventaAbonar.total | currency }}</strong>
+                </div>
+                <div class="d-flex justify-content-between text-danger mb-1 fw-semibold">
+                  <span>Saldo Pendiente:</span>
+                  <span>{{ ventaAbonar.saldo_restante | currency }}</span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Monto a Abonar</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text bg-light">$</span>
+                  <input type="number" class="form-control" [(ngModel)]="montoAbonoLista" min="0.01" [max]="ventaAbonar.saldo_restante" step="0.01">
+                </div>
+                <div class="form-text small" style="font-size: 0.72rem;">
+                  Presiona para liquidar: 
+                  <a href="javascript:void(0)" (click)="montoAbonoLista = ventaAbonar.saldo_restante" class="text-decoration-none fw-bold">
+                    {{ ventaAbonar.saldo_restante | currency }}
+                  </a>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Método de Pago</label>
+                <ng-select [(ngModel)]="metodoPagoAbonoLista" [clearable]="false" placeholder="Seleccionar método" class="w-100 select-sm">
+                  <ng-option value="efectivo">Efectivo</ng-option>
+                  <ng-option value="tarjeta">Tarjeta (Débito/Crédito)</ng-option>
+                  <ng-option value="transferencia">Transferencia Bancaria</ng-option>
+                </ng-select>
+              </div>
+
+              <button class="btn btn-warning w-100 py-2 fw-bold text-dark shadow-sm border-0 bg-gradient" [disabled]="montoAbonoLista <= 0 || montoAbonoLista > ventaAbonar.saldo_restante" (click)="procesarAbonoLista()">
+                <i class="bi bi-wallet2 me-1"></i> Guardar Abono
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

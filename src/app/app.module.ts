@@ -35,6 +35,7 @@ import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.compo
 import { ReportesComponent } from './panel/reportes/reportes.component';
 import { MermasComponent } from './panel/inventarios/mermas/mermas.component';
 import { FabricacionesComponent } from './panel/inventarios/fabricaciones/fabricaciones.component';
+import { A11yModule } from "@angular/cdk/a11y";
 
 @NgModule({
   declarations: [
@@ -73,8 +74,9 @@ import { FabricacionesComponent } from './panel/inventarios/fabricaciones/fabric
     FormsModule,
     MatPaginatorModule,
     MatFormFieldModule,
-    MatTableModule
-  ],
+    MatTableModule,
+    A11yModule
+],
   providers: [
     provideClientHydration(),
     provideHttpClient(withFetch()),

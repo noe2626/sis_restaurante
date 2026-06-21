@@ -34,7 +34,7 @@
           
           <!-- Nombre Column -->
           <ng-container matColumnDef="nombre">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 30%;"> Nombre </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 25%;"> Nombre </th>
             <td mat-cell *matCellDef="let element" class="ps-4">
               <div class="d-flex align-items-center">
                 <div class="avatar-circle-cli bg-primary text-white fw-bold me-3">
@@ -47,7 +47,7 @@
 
           <!-- Email Column -->
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 30%;"> Email </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Email </th>
             <td mat-cell *matCellDef="let element">
               <span class="text-secondary fw-semibold">{{ element.email }}</span>
             </td>
@@ -55,10 +55,20 @@
 
           <!-- Teléfono Column -->
           <ng-container matColumnDef="telefono">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Teléfono </th>
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Teléfono </th>
             <td mat-cell *matCellDef="let element">
               <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold fs-8">
                 <i class="bi bi-telephone-fill me-1"></i> {{ element.telefono }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Límite de Crédito Column -->
+          <ng-container matColumnDef="limite_credito">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Límite de Crédito </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="fw-bold text-secondary">
+                {{ element.limite_credito | currency }}
               </span>
             </td>
           </ng-container>
@@ -151,6 +161,18 @@
             </div>
             <div *ngIf="formCli.get('telefono')?.touched && formCli.get('telefono')?.invalid" class="text-danger small mt-1">
               El teléfono es obligatorio.
+            </div>
+          </div>
+
+          <!-- Límite de Crédito (Ocultar para Público General) -->
+          <div class="mb-3" *ngIf="formCli.get('id')?.value !== 1">
+            <label class="form-label fw-semibold text-secondary">Límite de Crédito</label>
+            <div class="input-group shadow-sm rounded-3">
+              <span class="input-group-text bg-white border-0"><i class="bi bi-wallet2 text-muted"></i></span>
+              <input type="number" formControlName="limite_credito" class="form-control border-0 py-2" placeholder="0.00" min="0">
+            </div>
+            <div *ngIf="formCli.get('limite_credito')?.touched && formCli.get('limite_credito')?.invalid" class="text-danger small mt-1">
+              El límite de crédito debe ser mayor o igual a cero.
             </div>
           </div>
 

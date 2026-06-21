@@ -45,4 +45,28 @@ export class VentasService {
     return this.http.post(`${this.apiUrl}ventas/cancelar/${id}`, { nota }, header);
   }
 
+  entregarOrden(id: number, payload: any) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.post(`${this.apiUrl}ventas/entregar/${id}`, payload, header);
+  }
+
+  registrarAbono(idVenta: number, abono: any) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.post(`${this.apiUrl}ventas/abonos/${idVenta}`, abono, header);
+  }
+
+  listarAbonos(idVenta: number) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.get(`${this.apiUrl}ventas/abonos/${idVenta}`, header);
+  }
 }
+

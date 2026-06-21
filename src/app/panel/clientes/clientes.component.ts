@@ -12,7 +12,7 @@ import Swal from 'sweetalert2';
 })
 export class ClientesComponent implements OnInit {
   data: Array<any> = [];
-  displayedColumns: string[] = ['nombre', 'email', 'telefono', 'modificar', 'eliminar'];
+  displayedColumns: string[] = ['nombre', 'email', 'telefono', 'limite_credito', 'modificar', 'eliminar'];
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
@@ -29,7 +29,8 @@ export class ClientesComponent implements OnInit {
       id: [null],
       nombre: [null, Validators.required],
       email: [null, [Validators.required, Validators.email]],
-      telefono: [null, Validators.required]
+      telefono: [null, Validators.required],
+      limite_credito: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -121,7 +122,8 @@ export class ClientesComponent implements OnInit {
       id: null,
       nombre: null,
       email: null,
-      telefono: null
+      telefono: null,
+      limite_credito: 0
     };
     this.formCli.setValue(cliente);
   }
@@ -132,7 +134,8 @@ export class ClientesComponent implements OnInit {
       id: cli.id,
       nombre: cli.nombre,
       email: cli.email,
-      telefono: cli.telefono
+      telefono: cli.telefono,
+      limite_credito: cli.limite_credito || 0
     };
     this.formCli.setValue(cliente);
     if (cli.id === 1) {

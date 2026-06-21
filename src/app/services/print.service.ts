@@ -481,7 +481,136 @@ export class PrintService {
     }, 250);
   }
 
+  imprimirComanda(ticketData: TicketData): void {
+    // 1. Create or get the hidden iframe
+    let iframe = document.getElementById('print-ticket-iframe') as HTMLIFrameElement;
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.id = 'print-ticket-iframe';
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0px';
+      iframe.style.height = '0px';
+      iframe.style.border = 'none';
+      iframe.style.top = '-9999px';
+      iframe.style.left = '-9999px';
+      document.body.appendChild(iframe);
+    }
+
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) {
+      console.error('No se pudo obtener el documento del iframe de impresión.');
+      return;
+    }
+
+    // Format items rows
+    let itemsHtml = '';
+    ticketData.productos.forEach(p => {
+      itemsHtml += `
+        <div style="margin-bottom: 6px; font-size: 14px; font-weight: bold; font-family: Arial, Helvetica, sans-serif; border-bottom: 1px dotted #ccc; padding-bottom: 4px;">
+          <span style="font-size: 18px; padding-right: 8px;">${p.cantidad}</span> x <span style="text-transform: uppercase;">${p.nombre}</span>
+          ${p.promocion ? `<div style="font-size: 10px; font-weight: normal; margin-left: 28px; color: #555;">Promo: ${p.promocion}</div>` : ''}
+        </div>
+      `;
+    });
+
+    const fechaFormateada = this.formatDate(ticketData.fecha);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Comanda ${ticketData.folio}</title>
+        <style>
+          @page {
+            margin: 0;
+          }
+          body {
+            width: 170px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 2px 2px 2px 0px;
+            color: #000;
+            background-color: #fff;
+            -webkit-font-smoothing: none;
+            -moz-osx-font-smoothing: none;
+          }
+          .text-center { text-align: center; }
+          .divider {
+            border-top: 2px solid #000;
+            margin: 6px 0;
+          }
+          .header {
+            margin-bottom: 6px;
+          }
+          .header .title {
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 2px solid #000;
+            padding: 4px;
+            margin-bottom: 4px;
+          }
+          .info-section {
+            font-size: 10px;
+            line-height: 1.3;
+          }
+          .items-section {
+            margin-top: 10px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header text-center">
+          <div class="title">COMANDA</div>
+        </div>
+        
+        <div class="info-section">
+          <div><strong>Folio:</strong> ${ticketData.folio}</div>
+          <div><strong>Fecha:</strong> ${fechaFormateada}</div>
+          <div><strong>Cliente:</strong> ${ticketData.cliente}</div>
+          <div><strong>Cajero:</strong> ${ticketData.cajero}</div>
+          <div><strong>Canal:</strong> ${ticketData.canal}</div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="items-section">
+          ${itemsHtml}
+        </div>
+        
+        <div class="divider"></div>
+        <div style="font-size: 10px; text-align: center; font-weight: bold; margin-top: 6px;">
+          *** FINAL DE COMANDA ***
+        </div>
+      </body>
+      </html>
+    `;
+
+    // 3. Check if running in Electron for silent printing
+    const win = window as any;
+    if (win.electronAPI && win.electronAPI.printSilent) {
+      win.electronAPI.printSilent(htmlContent);
+      return;
+    }
+
+    // Write HTML to iframe and trigger browser print (fallback)
+    doc.open();
+    doc.write(htmlContent);
+    doc.close();
+
+    // Give a short delay for resources to render, then trigger browser print
+    setTimeout(() => {
+      if (iframe.contentWindow) {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      }
+    }, 250);
+  }
+
   private formatDate(dateStr: string): string {
+
     try {
       const d = new Date(dateStr);
       if (isNaN(d.getTime())) return dateStr;

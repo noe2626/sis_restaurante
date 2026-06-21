@@ -30,7 +30,8 @@ export class CajasAdminComponent implements OnInit {
       caja: ['', [Validators.required, Validators.maxLength(255)]],
       idSucursal: [null, Validators.required],
       efectivo: [0.00, [Validators.required, Validators.min(0)]],
-      idStatus: [1, Validators.required]
+      idStatus: [1, Validators.required],
+      estatus_predeterminado: [1, Validators.required]
     });
   }
 
@@ -87,7 +88,8 @@ export class CajasAdminComponent implements OnInit {
       caja: '',
       idSucursal: null,
       efectivo: 0.00,
-      idStatus: 1
+      idStatus: 1,
+      estatus_predeterminado: 1
     });
     this.cajaForm.get('efectivo')?.enable();
 
@@ -102,7 +104,8 @@ export class CajasAdminComponent implements OnInit {
       caja: caja.caja,
       idSucursal: caja.idSucursal,
       efectivo: caja.efectivo,
-      idStatus: caja.idStatus
+      idStatus: caja.idStatus,
+      estatus_predeterminado: caja.estatus_predeterminado || 1
     });
     // Deshabilitar efectivo para edición ya que el backend no lo actualiza por seguridad
     this.cajaForm.get('efectivo')?.disable();
@@ -121,7 +124,8 @@ export class CajasAdminComponent implements OnInit {
 
     const payload: any = {
       caja: formValue.caja,
-      idSucursal: parseInt(formValue.idSucursal, 10)
+      idSucursal: parseInt(formValue.idSucursal, 10),
+      estatus_predeterminado: parseInt(formValue.estatus_predeterminado, 10)
     };
 
     if (!this.isEditMode) {

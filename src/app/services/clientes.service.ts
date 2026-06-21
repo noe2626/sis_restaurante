@@ -38,4 +38,21 @@ export class ClientesService {
     };
     return this.http.delete(`${this.apiUrl}clientes/${id}`, header);
   }
+
+  listarCuentasPendientes(idCliente: number) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.get(`${this.apiUrl}clientes/${idCliente}/ventas-credito`, header);
+  }
+
+  informacionCliente(idCliente: number) {
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.get(`${this.apiUrl}clientes/${idCliente}`, header);
+  }
 }
+
