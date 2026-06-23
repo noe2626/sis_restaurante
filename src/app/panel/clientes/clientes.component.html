@@ -1,6 +1,6 @@
 <div class="container-fluid py-2" style="width: 95%;">
   <!-- Header del Componente -->
-  <div class="row mb-4 align-items-center">
+  <div class="row mb-2 align-items-center">
     <div class="col-md-6">
       <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
         <i class="bi bi-people-fill text-primary me-3" style="font-size: 2rem;"></i>
@@ -14,7 +14,7 @@
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Nombre/Email..." (input)="onSearch($event)" />
       </div>
-      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="nuevoCliente()">
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#clientesModal" (click)="nuevoCliente()">
         <i class="bi bi-person-plus-fill fs-5"></i>
         Nuevo Cliente
       </button>
@@ -23,18 +23,13 @@
 
   <!-- Contenedor Principal (Tabla) -->
   <div class="card border-0 shadow-sm rounded-4 ">
-    <div class="card-header bg-white py-3 border-bottom-0">
-      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
-        <i class="bi bi-list-nested me-2 text-primary"></i> Clientes Registrados
-      </h6>
-    </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">
+        <table mat-table [dataSource]="dataSource" matSort class="table table-hover align-middle mb-0">
           
           <!-- Nombre Column -->
           <ng-container matColumnDef="nombre">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 25%;"> Nombre </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 25%;"> Nombre </th>
             <td mat-cell *matCellDef="let element" class="ps-4">
               <div class="d-flex align-items-center">
                 <div class="avatar-circle-cli bg-primary text-white fw-bold me-3">
@@ -47,7 +42,7 @@
 
           <!-- Email Column -->
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Email </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Email </th>
             <td mat-cell *matCellDef="let element">
               <span class="text-secondary fw-semibold">{{ element.email }}</span>
             </td>
@@ -55,7 +50,7 @@
 
           <!-- Teléfono Column -->
           <ng-container matColumnDef="telefono">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Teléfono </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Teléfono </th>
             <td mat-cell *matCellDef="let element">
               <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-2 fw-semibold fs-8">
                 <i class="bi bi-telephone-fill me-1"></i> {{ element.telefono }}
@@ -65,7 +60,7 @@
 
           <!-- Límite de Crédito Column -->
           <ng-container matColumnDef="limite_credito">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Límite de Crédito </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 15%;"> Límite de Crédito </th>
             <td mat-cell *matCellDef="let element">
               <span class="fw-bold text-secondary">
                 {{ element.limite_credito | currency }}
@@ -96,7 +91,36 @@
             </td>
           </ng-container>
 
+          <!-- Filter Columns -->
+          <ng-container matColumnDef="filter-nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('nombre', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-email">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('email', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-telefono">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('telefono', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-limite_credito">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('limite_credito', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-space-mod">
+            <th mat-header-cell *matHeaderCellDef class="table-light"></th>
+          </ng-container>
+          <ng-container matColumnDef="filter-space-el">
+            <th mat-header-cell *matHeaderCellDef class="table-light pe-4"></th>
+          </ng-container>
+
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsFilters" class="filter-header-row"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
         

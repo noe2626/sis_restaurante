@@ -1,6 +1,6 @@
-<div class="container-fluid py-4 bg-light min-vh-100">
+<div class="container-fluid py-2" style="width: 95%;">
   <!-- Header del Componente -->
-  <div class="row mb-4 align-items-center">
+  <div class="row mb-2 align-items-center">
     <div class="col-md-6">
       <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
         <i class="bi bi-truck text-secondary me-3" style="font-size: 2rem;"></i>
@@ -10,11 +10,11 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar por Nombre/RFC..." (input)="onSearch($event)" />
       </div>
-      <button class="btn btn-secondary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold bg-gradient border-0 text-white" data-bs-toggle="modal" data-bs-target="#proveedoresModal" (click)="nuevoProveedor()">
+      <button class="btn btn-secondary d-inline-flex align-items-center gap-2 shadow-sm fw-semibold bg-gradient border-0 text-white" data-bs-toggle="modal" data-bs-target="#proveedoresModal" (click)="nuevoProveedor()">
         <i class="bi bi-person-plus-fill fs-5"></i>
         Nuevo Proveedor
       </button>
@@ -23,11 +23,6 @@
 
   <!-- Contenedor Principal (Tabla) -->
   <div class="card border-0 shadow-sm rounded-4 ">
-    <div class="card-header bg-white py-3 border-bottom-0">
-      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
-        <i class="bi bi-list-nested me-2 text-secondary"></i> Proveedores Registrados
-      </h6>
-    </div>
     <div class="card-body p-0">
       <div class="table-responsive">
         <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">

@@ -1,6 +1,6 @@
-<div class="container-fluid py-4 bg-light min-vh-100">
+<div class="container-fluid py-2" style="width: 95%;">
   <!-- Header del Componente -->
-  <div class="row mb-4 align-items-center">
+  <div class="row mb-2 align-items-center">
     <div class="col-md-6">
       <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
         <i class="bi bi-box-seam-fill text-primary me-3" style="font-size: 2rem;"></i>
@@ -10,11 +10,11 @@
     </div>
     <div class="col-md-6 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end align-items-center">
       <!-- Buscador rápido -->
-      <div class="input-group shadow-sm rounded-pill  bg-white search-container" style="max-width: 250px;">
+      <div class="input-group shadow-sm bg-white search-container" style="max-width: 250px;">
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input class="form-control border-0 py-2 fs-7 ps-0" type="text" placeholder="Buscar producto o código..." (input)="onSearch($event)" />
       </div>
-      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="nuevoProducto()">
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="nuevoProducto()">
         <i class="bi bi-plus-circle-fill fs-5"></i>
         Nuevo Producto
       </button>
@@ -23,90 +23,135 @@
 
   <!-- Contenedor Principal (Tabla) -->
   <div class="card border-0 shadow-sm rounded-4 ">
-    <div class="card-header bg-white py-3 border-bottom-0">
-      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
-        <i class="bi bi-list-nested me-2 text-primary"></i> Catálogo de Productos
-      </h6>
-    </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light text-uppercase fs-7 text-secondary">
-            <tr>
-              <th class="ps-4" style="width: 25%; text-align: left;">Producto</th>
-              <th style="width: 20%; text-align: left;">Código</th>
-              <th style="width: 10%; text-align: center;">Inventariar</th>
-              <th style="width: 10%; text-align: center;">Se vende</th>
-              <th style="width: 10%; text-align: center;">Se compra</th>
-              <th style="width: 25%; text-align: center;" class="pe-4">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let producto of productosFiltrados">
-              <td class="ps-4">
-                <span class="fw-bold text-dark">{{ producto.nombre }}</span>
-                <span class="text-muted small ms-2">({{ producto.unidad_medida }})</span>
-              </td>
-              <td>
-                <code class="text-primary fw-semibold px-2 py-1 bg-primary-subtle rounded">{{ producto.codigo }}</code>
-              </td>
-              <td class="text-center">
-                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
-                  [ngClass]="producto.inventariar ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
-                  <i class="bi me-1" [ngClass]="producto.inventariar ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
-                  {{ producto.inventariar ? 'Sí' : 'No' }}
-                </span>
-              </td>
-              <td class="text-center">
-                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
-                  [ngClass]="producto.se_vende ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
-                  <i class="bi me-1" [ngClass]="producto.se_vende ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
-                  {{ producto.se_vende ? 'Sí' : 'No' }}
-                </span>
-              </td>
-              <td class="text-center">
-                <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
-                  [ngClass]="producto.se_compra ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
-                  <i class="bi me-1" [ngClass]="producto.se_compra ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
-                  {{ producto.se_compra ? 'Sí' : 'No' }}
-                </span>
-              </td>
-              <td class="text-center pe-4">
-                <div class="d-inline-flex gap-2">
-                  <!-- Modificar -->
-                  <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="setEditar(producto)" title="Editar producto" style="width: 32px; height: 32px;">
-                    <i class="bi bi-pencil-fill fs-8"></i>
-                  </button>
-                  <!-- Inventario -->
-                  <button class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="producto.inventariar" data-bs-toggle="modal" data-bs-target="#inventarioModal" (click)="cargarInventariosData(producto.id, producto.nombre)" title="Modificar Stock" style="width: 32px; height: 32px;">
-                    <i class="bi bi-boxes fs-8"></i>
-                  </button>
-                  <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center bg-light text-muted border-0" *ngIf="!producto.inventariar" disabled style="width: 32px; height: 32px;">
-                    <i class="bi bi-boxes fs-8"></i>
-                  </button>
-                  <!-- Precio -->
-                  <button class="btn btn-outline-success btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#precioModal" (click)="cargarPreciosData(producto.id, producto.nombre)" title="Modificar Precios" style="width: 32px; height: 32px;">
-                    <i class="bi bi-currency-dollar fs-8"></i>
-                  </button>
-                  <!-- Componentes / Receta -->
-                  <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#nuevoModal" (click)="abrirModalConfig(producto)" title="Ver Componentes / Receta" style="width: 32px; height: 32px;">
-                    <i class="bi bi-egg-fried fs-8"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="productosFiltrados.length === 0">
-              <td colspan="6" class="text-center py-5 text-muted">
-                <i class="bi bi-box-seam fs-1 d-block mb-2 text-secondary"></i>
-                No se encontraron productos.
-              </td>
-            </tr>
-          </tbody>
+        <table mat-table [dataSource]="dataSource" matSort class="table table-hover align-middle mb-0">
+          
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 25%;"> Producto </th>
+            <td mat-cell *matCellDef="let element" class="ps-4">
+              <span class="fw-bold text-dark">{{ element.nombre }}</span>
+              <span class="text-muted small ms-2">({{ element.unidad_medida }})</span>
+            </td>
+          </ng-container>
+
+          <!-- Código Column -->
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Código </th>
+            <td mat-cell *matCellDef="let element">
+              <code class="text-primary fw-semibold px-2 py-1 bg-primary-subtle rounded">{{ element.codigo }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Inventariar Column -->
+          <ng-container matColumnDef="inventariar">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 10%;"> Inventariar </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                [ngClass]="element.inventariar ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                <i class="bi me-1" [ngClass]="element.inventariar ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
+                {{ element.inventariar ? 'Sí' : 'No' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Se Vende Column -->
+          <ng-container matColumnDef="se_vende">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 10%;"> Se vende </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                [ngClass]="element.se_vende ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                <i class="bi me-1" [ngClass]="element.se_vende ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
+                {{ element.se_vende ? 'Sí' : 'No' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Se Compra Column -->
+          <ng-container matColumnDef="se_compra">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 10%;"> Se compra </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
+                [ngClass]="element.se_compra ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                <i class="bi me-1" [ngClass]="element.se_compra ? 'bi-check-circle-fill' : 'bi-x-circle'"></i>
+                {{ element.se_compra ? 'Sí' : 'No' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center pe-4" style="width: 25%;"> Acciones </th>
+            <td mat-cell *matCellDef="let element" class="text-center pe-4">
+              <div class="d-inline-flex gap-2">
+                <!-- Modificar -->
+                <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#productosModal" (click)="setEditar(element)" title="Editar producto" style="width: 32px; height: 32px;">
+                  <i class="bi bi-pencil-fill fs-8"></i>
+                </button>
+                <!-- Inventario -->
+                <button class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.inventariar" data-bs-toggle="modal" data-bs-target="#inventarioModal" (click)="cargarInventariosData(element.id, element.nombre)" title="Modificar Stock" style="width: 32px; height: 32px;">
+                  <i class="bi bi-boxes fs-8"></i>
+                </button>
+                <button class="btn btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center bg-light text-muted border-0" *ngIf="!element.inventariar" disabled style="width: 32px; height: 32px;">
+                  <i class="bi bi-boxes fs-8"></i>
+                </button>
+                <!-- Precio -->
+                <button class="btn btn-outline-success btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#precioModal" (click)="cargarPreciosData(element.id, element.nombre)" title="Modificar Precios" style="width: 32px; height: 32px;">
+                  <i class="bi bi-currency-dollar fs-8"></i>
+                </button>
+                <!-- Componentes / Receta -->
+                <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#nuevoModal" (click)="abrirModalConfig(element)" title="Ver Componentes / Receta" style="width: 32px; height: 32px;">
+                  <i class="bi bi-egg-fried fs-8"></i>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Filter Columns -->
+          <ng-container matColumnDef="filter-nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('nombre', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-codigo">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('codigo', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-inventariar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-center">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('inventariar', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-se_vende">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-center">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('se_vende', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-se_compra">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-center">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..." (keyup)="applyColumnFilter('se_compra', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-space">
+            <th mat-header-cell *matHeaderCellDef class="table-light pe-4"></th>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
+        
+        <div *ngIf="totalItems === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-box-seam fs-1 d-block mb-2 text-secondary"></i>
+          No se encontraron productos.
+        </div>
+      </div>
+      <mat-paginator [length]="totalItems" [pageSize]="10" [pageSizeOptions]="[10, 50, 100]" aria-label="Select page" class="border-top">
+      </mat-paginator>
       </div>
     </div>
   </div>
-</div>
 
 <!-- Modal: Producto -->
 <div class="modal fade" id="productosModal" tabindex="-1" aria-labelledby="productosModalLabel" aria-hidden="true" data-bs-backdrop="static">

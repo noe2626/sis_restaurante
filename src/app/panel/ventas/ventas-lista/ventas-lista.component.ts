@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { VentasService } from '../../../services/ventas.service';
 import Swal from 'sweetalert2';
 import { PrintService, TicketData } from '../../../services/print.service';
 import CryptoJS from 'crypto-js';
 import { environment } from '../../../../environments/environment';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -17,9 +19,12 @@ declare var bootstrap: any;
 export class VentasListaComponent implements OnInit {
   data: Array<any> = [];
   displayedColumns: string[] = ['folio', 'cliente', 'fecha', 'total', 'estatus', 'detalle'];
+  displayedColumnsFilters: string[] = ['filter-folio', 'filter-cliente', 'filter-fecha', 'filter-total', 'filter-estatus', 'filter-space'];
+  filterValues: any = { folio: '', cliente: '', fecha: '', total: '', estatus: '' };
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+  @ViewChild(MatSort) sort: MatSort | null = null;
 
   filteredData: Array<any> = [];
   ventaSeleccionada: any = null;
@@ -35,10 +40,41 @@ export class VentasListaComponent implements OnInit {
   montoAbonoLista: number = 0;
   metodoPagoAbonoLista: string = 'efectivo';
 
-  constructor(private ventasService: VentasService, private printService: PrintService) {}
+  constructor(
+    private ventasService: VentasService,
+    private printService: PrintService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.listarVentas();
+    this.setupFilterPredicate();
+  }
+
+  setupFilterPredicate(): void {
+    this.dataSource.filterPredicate = (data: any, filter: string): boolean => {
+      const searchTerms = JSON.parse(filter);
+      
+      const folioMatch = !searchTerms.folio || (data.folio || '').toLowerCase().includes(searchTerms.folio.toLowerCase());
+      const clienteMatch = !searchTerms.cliente || (data.cliente || data.cliente_nombre || '').toLowerCase().includes(searchTerms.cliente.toLowerCase());
+      const fechaMatch = !searchTerms.fecha || (data.fecha || '').toLowerCase().includes(searchTerms.fecha.toLowerCase());
+      const totalMatch = !searchTerms.total || (data.total || '').toString().includes(searchTerms.total);
+      const estatusMatch = !searchTerms.estatus || (data.estatus || '').toLowerCase().includes(searchTerms.estatus.toLowerCase());
+
+      return folioMatch && clienteMatch && fechaMatch && totalMatch && estatusMatch;
+    };
+  }
+
+  applyColumnFilter(column: string, value: string): void {
+    this.filterValues[column] = value.trim().toLowerCase();
+    this.dataSource.filter = JSON.stringify(this.filterValues);
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  editarVenta(id: number): void {
+    this.router.navigate(['/panel/ventas/nueva'], { queryParams: { editVentaId: id } });
   }
 
   listarVentas(): void {
@@ -54,17 +90,16 @@ export class VentasListaComponent implements OnInit {
         this.filteredData = [...this.data];
         this.dataSource.data = this.filteredData;
         this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
         this.totalItems = this.filteredData.length;
       },
       error: (err) => {
         console.error('Error al listar ventas:', err);
-        this.data = [
-          { cliente: 'Cliente General', fecha: '2026-06-03', total: 150.00, estatus: 'Completada' },
-          { cliente: 'Juan Perez', fecha: '2026-06-02', total: 320.50, estatus: 'Completada' }
-        ];
+        this.data = [];
         this.filteredData = [...this.data];
         this.dataSource.data = this.filteredData;
         this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
         this.totalItems = this.filteredData.length;
       }
     });

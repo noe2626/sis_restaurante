@@ -5,12 +5,12 @@
             <a routerLink="/panel/ventas" class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 50%;">
                 <i class="fa-solid fa-arrow-left" style="font-size: 1.25rem;"></i>
             </a>
-            <h5 class="mb-0">Registrar Venta</h5>
+            <h5 class="mb-0">{{ idVentaEditando ? 'Editar Orden: #' + folioEditando : 'Registrar Venta' }}</h5>
         </div>
     </div>
     <br>
     <div class="row g-3">
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
             <label class="form-label font-weight-bold">Cliente</label>
             <ng-select [items]="clientes"
                         bindLabel="nombre"
@@ -29,7 +29,7 @@
                 </ng-template>
             </ng-select>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
             <label class="form-label font-weight-bold">Tipo de Registro</label>
             <ng-select [(ngModel)]="estatusVenta"
                        [clearable]="false"
@@ -41,7 +41,7 @@
                 <ng-option [value]="3">Venta a Crédito</ng-option>
             </ng-select>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
             <label class="form-label font-weight-bold">Método de Pago</label>
             <ng-select [(ngModel)]="metodoPago"
                        [clearable]="false"
@@ -54,6 +54,10 @@
                 <ng-option value="transferencia">Transferencia Bancaria</ng-option>
                 <ng-option value="credito" *ngIf="estatusVenta === 3">Crédito</ng-option>
             </ng-select>
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label font-weight-bold">Fecha / Hora de Registro</label>
+            <input type="datetime-local" class="form-control" [(ngModel)]="fechaVenta" name="fechaVenta" style="height: 38px;">
         </div>
     </div>
     <br>

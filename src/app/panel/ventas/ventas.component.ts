@@ -15,6 +15,7 @@ import CryptoJS from 'crypto-js';
 import { environment } from '../../../environments/environment';
 import { PrintService, TicketData } from '../../services/print.service';
 import { CajasService } from '../../services/cajas.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-ventas',
@@ -68,6 +69,13 @@ export class VentasComponent implements OnInit{
   estatusEntregaPos: number = 1;
   metodoPagoEntregaPos: string = 'efectivo';
   clienteSeleccionado: any = null;
+  ordenSeleccionadaDetalle: number | null = null;
+  productosDeOrdenSeleccionada: any[] = [];
+  cargandoDetalleOrden: boolean = false;
+
+  // Edición de Órdenes de Venta
+  idVentaEditando: number | null = null;
+  folioEditando: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -80,7 +88,9 @@ export class VentasComponent implements OnInit{
     private renderer: Renderer2,
     private sucursalesService: SucursalesService,
     private printService: PrintService,
-    private cajasService: CajasService
+    private cajasService: CajasService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.formProd = this.fb.group({
       idProducto: [null, Validators.required],
@@ -99,6 +109,23 @@ export class VentasComponent implements OnInit{
     this.listarCanalesVenta();
     this.cargarEstatusPredeterminadoCaja();
     this.cargarPedidosPendientes();
+
+    this.route.queryParams.subscribe(params => {
+      const editVentaId = params['editVentaId'];
+      if (editVentaId) {
+        this.ventasService.obtenerDetalleVenta(parseInt(editVentaId)).subscribe({
+          next: (res: any) => {
+            if (res && res.success && res.data) {
+              this.cargarOrdenParaEditar(res.data);
+            }
+          },
+          error: (err) => {
+            console.error('Error al cargar la orden de venta:', err);
+            Swal.fire('Error', 'No se pudo cargar la orden de venta seleccionada.', 'error');
+          }
+        });
+      }
+    });
   }
 
   cargarConfiguracionSucursalLuegoProductos(): void {
@@ -342,7 +369,11 @@ export class VentasComponent implements OnInit{
     this.calcularTotal();
   }
 
+  ventaDirectaSeleccionada = false;
+
   pagar(){
+    this.pago = null;
+    this.ventaDirectaSeleccionada = false;
     if (this.estatusVenta === 2) {
       this.metodoPago = 'efectivo';
       this.pago = 0;
@@ -352,11 +383,32 @@ export class VentasComponent implements OnInit{
     } else {
       this.metodoPago = 'efectivo';
       this.pago = null;
-      setTimeout(() => {
-        var pagoInput = document.getElementById("pagoInput");
-        pagoInput?.focus();
-      }, 500);
     }
+  }
+
+  seleccionarVentaDirecta(): void {
+    this.ventaDirectaSeleccionada = true;
+    this.estatusVenta = 1;
+    this.metodoPago = 'efectivo';
+    this.pago = null;
+    setTimeout(() => {
+      var pagoInput = document.getElementById("pagoInput");
+      pagoInput?.focus();
+    }, 300);
+  }
+
+  seleccionarOrdenVenta(): void {
+    this.estatusVenta = 2;
+    this.metodoPago = 'efectivo';
+    this.pago = 0;
+    this.registrarVenta();
+  }
+
+  seleccionarVentaCredito(): void {
+    this.estatusVenta = 3;
+    this.metodoPago = 'credito';
+    this.pago = this.total;
+    this.registrarVenta();
   }
 
   alCambiarMetodoPago(): void {
@@ -422,6 +474,7 @@ export class VentasComponent implements OnInit{
   }
 
   getClienteSeleccionado() {
+    this.clienteSeleccionado = null;
     this.clientesService.informacionCliente(this.idCliente).subscribe({
       next: (res: any) => {
         
@@ -432,6 +485,57 @@ export class VentasComponent implements OnInit{
       },
       error: (err) => {
         console.error('Error al consultar cliente:', err);
+      }
+    });
+  }
+
+  cargarOrdenParaEditar(venta: any): void {
+    if (!venta) return;
+    this.carrito = [];
+    this.idCliente = venta.idCliente;
+    this.getClienteSeleccionado();
+    this.idCanalVenta = venta.idCanalVenta;
+    
+    if (venta.productos && Array.isArray(venta.productos)) {
+      venta.productos.forEach((prod: any) => {
+        this.carrito.push({
+          id: prod.id,
+          nombre: prod.nombre,
+          precio: parseFloat(prod.pivot.precio),
+          cantidad: parseInt(prod.pivot.cantidad),
+          subtotal: parseFloat(prod.pivot.total),
+          promocion: prod.pivot.promocion || null,
+          unidad_medida: prod.unidad_medida
+        });
+      });
+    }
+
+    this.descuentos = parseFloat(venta.descuentos) || 0;
+    this.extras = parseFloat(venta.extras) || 0;
+    this.iva = parseFloat(venta.iva) || 0;
+    this.subTotal = parseFloat(venta.subtotal) || 0;
+    this.total = parseFloat(venta.total) || 0;
+    
+    this.idVentaEditando = venta.id;
+    this.folioEditando = venta.folio;
+    this.estatusVenta = venta.estatus;
+  }
+
+  iniciarEdicionOrden(id: number): void {
+    this.ventasService.obtenerDetalleVenta(id).subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.data) {
+          this.cargarOrdenParaEditar(res.data);
+          const modalElement = document.getElementById('pedidosPendientesModal');
+          if (modalElement) {
+            const modal = bootstrap.Modal.getInstance(modalElement);
+            modal?.hide();
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error al obtener detalle de orden para edición:', err);
+        Swal.fire('Error', 'No se pudieron obtener los detalles del pedido.', 'error');
       }
     });
   }
@@ -498,6 +602,7 @@ export class VentasComponent implements OnInit{
           modal?.hide();
         }
         this.listarClientes();
+        this.getClienteSeleccionado();
         this.ventaSeleccionadaAbono = null;
         this.montoAbonoInput = 0;
       },
@@ -545,11 +650,16 @@ export class VentasComponent implements OnInit{
         total: item.subtotal
       }))
     };
-    this.ventasService.registrarVenta(venta).subscribe({
+    const requestObservable = this.idVentaEditando
+      ? this.ventasService.actualizarVenta(this.idVentaEditando, venta)
+      : this.ventasService.registrarVenta(venta);
+
+    requestObservable.subscribe({
       next: (data: any) => {
+        const titleMsg = this.idVentaEditando ? "Venta actualizada correctamente" : "Venta registrada correctamente";
         Swal.fire({
           icon: "success",
-          title: "Venta registrada correctamente",
+          title: titleMsg,
           showConfirmButton: false,
           timer: 1500
         });
@@ -632,14 +742,21 @@ export class VentasComponent implements OnInit{
 
   resetearFormulario(): void {
     this.idCliente = null;
+    this.clienteSeleccionado = null;
     this.carrito = [];
     this.total = 0;
     this.iva = 0;
     this.extras = 0;
     this.descuentos = 0;
+    this.idVentaEditando = null;
+    this.folioEditando = null;
     const comedor = this.canalesVenta.find((c: any) => c.id === 1);
     this.idCanalVenta = comedor ? comedor.id : null;
     this.formProd.reset({ idProducto: null, cantidad: 1 });
+
+    if (this.route.snapshot.queryParams['editVentaId']) {
+      this.router.navigate([], { queryParams: { editVentaId: null }, queryParamsHandling: 'merge' });
+    }
   }
 
   getCanalVentaNombre(): string {
@@ -807,6 +924,8 @@ export class VentasComponent implements OnInit{
   }
 
   cargarPedidosPendientes(): void {
+    this.ordenSeleccionadaDetalle = null;
+    this.productosDeOrdenSeleccionada = [];
     this.ventasService.listarVentas().subscribe({
       next: (res: any) => {
         if (res && res.success) {
@@ -831,7 +950,31 @@ export class VentasComponent implements OnInit{
     }
   }
 
+  toggleDetalleOrden(ord: any): void {
+    if (this.ordenSeleccionadaDetalle === ord.id) {
+      this.ordenSeleccionadaDetalle = null;
+      this.productosDeOrdenSeleccionada = [];
+    } else {
+      this.ordenSeleccionadaDetalle = ord.id;
+      this.productosDeOrdenSeleccionada = [];
+      this.cargandoDetalleOrden = true;
+      this.ventasService.obtenerDetalleVenta(ord.id).subscribe({
+        next: (res: any) => {
+          this.cargandoDetalleOrden = false;
+          if (res && res.success && res.data) {
+            this.productosDeOrdenSeleccionada = res.data.productos || [];
+          }
+        },
+        error: (err) => {
+          this.cargandoDetalleOrden = false;
+          console.error('Error al obtener detalle de la orden:', err);
+        }
+      });
+    }
+  }
+
   iniciarCobroOrden(orden: any): void {
+    this.pago = null;
     this.ventasService.obtenerDetalleVenta(orden.id).subscribe({
       next: (res: any) => {
         if (res && res.success) {

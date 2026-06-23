@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { SucursalesService } from '../../../services/sucursales.service';
 import { ComprasService } from '../../../services/compras.service';
@@ -19,9 +20,12 @@ export class ComprasComponent implements OnInit{
   idSucursal:any;
   sucursales: any = null;
   displayedColumns: string[] = ['folio', 'folio_proveedor', 'proveedor','fecha','total','estatus', 'detalle']; 
+  displayedColumnsFilters: string[] = ['filter-folio', 'filter-folio_proveedor', 'filter-proveedor', 'filter-fecha', 'filter-total', 'filter-estatus', 'filter-space'];
+  filterValues: any = { folio: '', folio_proveedor: '', proveedor: '', fecha: '', total: '', estatus: '' };
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+  @ViewChild(MatSort) sort: MatSort | null = null;
   
   originalData = [JSON.parse(JSON.stringify(this.data))]; // Copia profunda de los datos originales 
   
@@ -50,34 +54,60 @@ export class ComprasComponent implements OnInit{
     }
 
     ngOnInit(): void {
-      this.listarCompras();
-    }
+    this.listarCompras();
+    this.setupFilterPredicate();
+  }
 
-    listarCompras(): void {
-      this.comprasService.listarCompras().subscribe({
-        next: (res: any) => {
-          if (res && res.success) {
-            this.data = res.data;
-          } else if (Array.isArray(res)) {
-            this.data = res;
-          } else {
-            this.data = [];
-          }
-          this.filteredData = [...this.data];
-          this.dataSource.data = this.filteredData;
-          this.dataSource.paginator = this.paginator;
-          this.totalItems = this.filteredData.length;
-        },
-        error: (err) => {
-          console.error('Error al listar compras:', err);
-          this.data = [];
-          this.filteredData = [...this.data];
-          this.dataSource.data = this.filteredData;
-          this.dataSource.paginator = this.paginator;
-          this.totalItems = this.filteredData.length;
-        }
-      });
+  setupFilterPredicate(): void {
+    this.dataSource.filterPredicate = (data: any, filter: string): boolean => {
+      const searchTerms = JSON.parse(filter);
+      
+      const folioMatch = !searchTerms.folio || (data.folio || '').toLowerCase().includes(searchTerms.folio.toLowerCase());
+      const folioProvMatch = !searchTerms.folio_proveedor || (data.folio_proveedor || '').toLowerCase().includes(searchTerms.folio_proveedor.toLowerCase());
+      const proveedorMatch = !searchTerms.proveedor || (data.proveedor || '').toLowerCase().includes(searchTerms.proveedor.toLowerCase());
+      const fechaMatch = !searchTerms.fecha || (data.fecha || '').toLowerCase().includes(searchTerms.fecha.toLowerCase());
+      const totalMatch = !searchTerms.total || (data.total || '').toString().includes(searchTerms.total);
+      const estatusMatch = !searchTerms.estatus || (data.estatus || '').toLowerCase().includes(searchTerms.estatus.toLowerCase());
+
+      return folioMatch && folioProvMatch && proveedorMatch && fechaMatch && totalMatch && estatusMatch;
+    };
+  }
+
+  applyColumnFilter(column: string, value: string): void {
+    this.filterValues[column] = value.trim().toLowerCase();
+    this.dataSource.filter = JSON.stringify(this.filterValues);
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
     }
+  }
+
+  listarCompras(): void {
+    this.comprasService.listarCompras().subscribe({
+      next: (res: any) => {
+        if (res && res.success) {
+          this.data = res.data;
+        } else if (Array.isArray(res)) {
+          this.data = res;
+        } else {
+          this.data = [];
+        }
+        this.filteredData = [...this.data];
+        this.dataSource.data = this.filteredData;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.totalItems = this.filteredData.length;
+      },
+      error: (err) => {
+        console.error('Error al listar compras:', err);
+        this.data = [];
+        this.filteredData = [...this.data];
+        this.dataSource.data = this.filteredData;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        this.totalItems = this.filteredData.length;
+      }
+    });
+  }
 
     onSearch(event: Event): void {
       const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();

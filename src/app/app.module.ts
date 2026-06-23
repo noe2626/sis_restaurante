@@ -17,6 +17,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
 import { AperturaComponent } from './panel/ventas/cajas/apertura/apertura.component';
 import { NavCajaComponent } from './panel/ventas/cajas/nav-caja/nav-caja.component';
 import { ProveedoresComponent } from './panel/compras/proveedores/proveedores.component';
@@ -75,6 +76,7 @@ import { A11yModule } from "@angular/cdk/a11y";
     MatPaginatorModule,
     MatFormFieldModule,
     MatTableModule,
+    MatSortModule,
     A11yModule
 ],
   providers: [

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import CryptoJS from 'crypto-js';
@@ -23,6 +23,8 @@ export class NuevaVentaComponent implements OnInit {
   idProducto: any = null;
   productos: any[] = [];
   clientes: any[] = [];
+  idVentaEditando: number | null = null;
+  folioEditando: string | null = null;
   dataSource = new MatTableDataSource<any>([]);
   displayedColumns: string[] = ['producto', 'codigo', 'cantidad', 'unidad_medida', 'precio', 'iva', 'subtotal', 'total', 'eliminar'];
   totalItems = 0;
@@ -35,6 +37,7 @@ export class NuevaVentaComponent implements OnInit {
   manejaIva: boolean = false;
   metodoPago: string = 'efectivo';
   estatusVenta: number = 1; // 1=Completada, 2=Orden, 3=Crédito
+  fechaVenta: string = '';
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
   constructor(
@@ -45,18 +48,30 @@ export class NuevaVentaComponent implements OnInit {
     private preciosService: PreciosService,
     private router: Router,
     private sucursalesService: SucursalesService,
-    private printService: PrintService
+    private printService: PrintService,
+    private route: ActivatedRoute
   ) {
     this.formVenta = this.fb.group({
       idCliente: [null, Validators.required]
     });
     this.idSucursal = localStorage.getItem('idSucursal');
     this.manejaIva = localStorage.getItem('manejaIva') === '1';
+
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    this.fechaVenta = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 16);
   }
 
   ngOnInit(): void {
     this.cargarConfiguracionSucursalLuegoProductos();
     this.listarClientes();
+
+    this.route.queryParams.subscribe(params => {
+      const editVentaId = params['editVentaId'];
+      if (editVentaId) {
+        this.idVentaEditando = parseInt(editVentaId);
+        this.cargarOrdenParaEditar(this.idVentaEditando);
+      }
+    });
   }
 
   cargarConfiguracionSucursalLuegoProductos(): void {
@@ -109,13 +124,61 @@ export class NuevaVentaComponent implements OnInit {
     this.clientesService.listarClientes().subscribe({
       next: (data: any) => {
         this.clientes = data || [];
-        const defaultClient = this.clientes.find(c => c.nombre.toLowerCase().includes('público general') || c.nombre.toLowerCase().includes('general'));
-        if (defaultClient) {
-          this.idCliente = defaultClient.id;
+        if (!this.idVentaEditando) {
+          const defaultClient = this.clientes.find(c => c.nombre.toLowerCase().includes('público general') || c.nombre.toLowerCase().includes('general'));
+          if (defaultClient) {
+            this.idCliente = defaultClient.id;
+          }
         }
       },
       error: (err) => {
         console.log(err);
+      }
+    });
+  }
+
+  cargarOrdenParaEditar(id: number): void {
+    this.ventasService.obtenerDetalleVenta(id).subscribe({
+      next: (res: any) => {
+        if (res && res.success && res.data) {
+          const venta = res.data;
+          this.idCliente = venta.idCliente;
+          this.estatusVenta = venta.estatus;
+          this.metodoPago = venta.metodo_pago;
+          this.folioEditando = venta.folio;
+          if (venta.fecha) {
+            this.fechaVenta = venta.fecha.replace(' ', 'T').substring(0, 16);
+          }
+
+          if (venta.productos && Array.isArray(venta.productos)) {
+            this.dataSource.data = venta.productos.map((prod: any) => {
+              const precio = parseFloat(prod.pivot.precio) || 0;
+              const cantidad = parseInt(prod.pivot.cantidad) || 0;
+              const subtotal = cantidad * precio;
+              const ivaVal = this.manejaIva ? 16 : 0;
+              const total = subtotal + (subtotal * (ivaVal / 100));
+
+              return {
+                id: prod.id,
+                nombre: prod.nombre,
+                codigo: prod.codigo,
+                unidad_medida: prod.unidad_medida,
+                cantidad: cantidad,
+                precio: precio,
+                subtotal: subtotal,
+                total: total,
+                iva: ivaVal
+              };
+            });
+            this.dataSource.paginator = this.paginator;
+            this.totalItems = this.dataSource.data.length;
+            this.recalcularTodo();
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar la orden de venta:', err);
+        Swal.fire('Error', 'No se pudo cargar el detalle de la orden de venta.', 'error');
       }
     });
   }
@@ -277,6 +340,8 @@ export class NuevaVentaComponent implements OnInit {
       console.error('Error decrypting caja id', e);
     }
 
+    const fechaCompleta = this.fechaVenta ? this.fechaVenta.replace('T', ' ') + ':00' : null;
+
     const dataVenta = {
       idUser: parseInt(idUsuario) || 1,
       idCliente: this.idCliente,
@@ -287,6 +352,7 @@ export class NuevaVentaComponent implements OnInit {
       idCaja: idCaja ? parseInt(idCaja) : null,
       metodo_pago: this.metodoPago,
       estatus: this.estatusVenta,
+      fecha: fechaCompleta,
       descuentos: 0,
       extras: 0,
       productos: this.dataSource.data.map(item => ({
@@ -298,17 +364,21 @@ export class NuevaVentaComponent implements OnInit {
       }))
     };
 
-    this.ventasService.registrarVenta(dataVenta).subscribe({
+    const requestObservable = this.idVentaEditando
+      ? this.ventasService.actualizarVenta(this.idVentaEditando, dataVenta)
+      : this.ventasService.registrarVenta(dataVenta);
+
+    requestObservable.subscribe({
       next: (res: any) => {
+        const titleMsg = this.idVentaEditando ? 'Venta actualizada' : 'Venta registrada';
+        const textMsg = this.idVentaEditando ? 'La venta se ha modificado correctamente.' : 'La venta se ha guardado correctamente.';
         Swal.fire({
           icon: 'success',
-          title: 'Venta registrada',
-          text: 'La venta se ha guardado correctamente.',
+          title: titleMsg,
+          text: textMsg,
           showConfirmButton: false,
           timer: 1500
         });
-
-
 
         this.router.navigate(['/panel/ventas']);
       },

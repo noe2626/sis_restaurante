@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ClientesService } from '../../services/clientes.service';
 import Swal from 'sweetalert2';
@@ -13,9 +14,12 @@ import Swal from 'sweetalert2';
 export class ClientesComponent implements OnInit {
   data: Array<any> = [];
   displayedColumns: string[] = ['nombre', 'email', 'telefono', 'limite_credito', 'modificar', 'eliminar'];
+  displayedColumnsFilters: string[] = ['filter-nombre', 'filter-email', 'filter-telefono', 'filter-limite_credito', 'filter-space-mod', 'filter-space-el'];
+  filterValues: any = { nombre: '', email: '', telefono: '', limite_credito: '' };
   dataSource = new MatTableDataSource<any>([]);
   totalItems = 0;
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+  @ViewChild(MatSort) sort: MatSort | null = null;
   formCli: FormGroup;
 
   originalData = [JSON.parse(JSON.stringify(this.data))];
@@ -36,6 +40,28 @@ export class ClientesComponent implements OnInit {
 
   ngOnInit(): void {
     this.listarClientes();
+    this.setupFilterPredicate();
+  }
+
+  setupFilterPredicate(): void {
+    this.dataSource.filterPredicate = (data: any, filter: string): boolean => {
+      const searchTerms = JSON.parse(filter);
+      
+      const nombreMatch = !searchTerms.nombre || (data.nombre || '').toLowerCase().includes(searchTerms.nombre.toLowerCase());
+      const emailMatch = !searchTerms.email || (data.email || '').toLowerCase().includes(searchTerms.email.toLowerCase());
+      const telefonoMatch = !searchTerms.telefono || (data.telefono || '').toLowerCase().includes(searchTerms.telefono.toLowerCase());
+      const limiteCreditoMatch = !searchTerms.limite_credito || (data.limite_credito || '').toString().includes(searchTerms.limite_credito);
+
+      return nombreMatch && emailMatch && telefonoMatch && limiteCreditoMatch;
+    };
+  }
+
+  applyColumnFilter(column: string, value: string): void {
+    this.filterValues[column] = value.trim().toLowerCase();
+    this.dataSource.filter = JSON.stringify(this.filterValues);
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   onSearch(event: Event): void {
@@ -46,6 +72,7 @@ export class ClientesComponent implements OnInit {
     );
     this.dataSource.data = this.filteredData;
     this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
     this.totalItems = this.filteredData.length;
   }
 
@@ -102,6 +129,7 @@ export class ClientesComponent implements OnInit {
         this.filteredData = [...this.data];
         this.dataSource.data = this.filteredData;
         this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
         this.totalItems = this.filteredData.length;
       },
       error: (err: any) => {

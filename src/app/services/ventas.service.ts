@@ -20,6 +20,14 @@ export class VentasService {
     return this.http.post(`${this.apiUrl}ventas`, venta, header);
   }
 
+  actualizarVenta(id: number, venta: any){
+    let token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+    return this.http.put(`${this.apiUrl}ventas/${id}`, venta, header);
+  }
+
   listarVentas(){
     let token = localStorage.getItem('userToken');
     let idSucursal = localStorage.getItem('idSucursal');

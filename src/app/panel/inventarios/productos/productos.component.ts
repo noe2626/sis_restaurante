@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductosService } from '../../../services/productos.service';
 import Swal from 'sweetalert2';
 import { SucursalesService } from '../../../services/sucursales.service';
 import { PreciosService } from '../../../services/precios.service';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-productos',
@@ -29,6 +32,13 @@ export class ProductosComponent implements OnInit {
   cantidadComponente: number = 1;
   idIngrediente: any = null;
   cantidadIngrediente: number = 1;
+
+  displayedColumns: string[] = ['nombre', 'codigo', 'inventariar', 'se_vende', 'se_compra', 'acciones'];
+  filterValues: any = { nombre: '', codigo: '', inventariar: '', se_vende: '', se_compra: '' };
+  dataSource = new MatTableDataSource<any>([]);
+  totalItems = 0;
+  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
+  @ViewChild(MatSort) sort: MatSort | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -66,6 +76,47 @@ export class ProductosComponent implements OnInit {
 
   ngOnInit(): void {
     this.listarProductos();
+    this.setupFilterPredicate();
+  }
+
+  setupFilterPredicate(): void {
+    this.dataSource.filterPredicate = (data: any, filter: string): boolean => {
+      const searchTerms = JSON.parse(filter);
+      
+      const nombreMatch = !searchTerms.nombre || (data.nombre || '').toLowerCase().includes(searchTerms.nombre.toLowerCase());
+      const codigoMatch = !searchTerms.codigo || (data.codigo || '').toLowerCase().includes(searchTerms.codigo.toLowerCase());
+      
+      let inventariarMatch = true;
+      if (searchTerms.inventariar) {
+        const val = searchTerms.inventariar.toLowerCase();
+        const statusText = data.inventariar ? 'sí' : 'no';
+        inventariarMatch = statusText.includes(val);
+      }
+
+      let seVendeMatch = true;
+      if (searchTerms.se_vende) {
+        const val = searchTerms.se_vende.toLowerCase();
+        const statusText = data.se_vende ? 'sí' : 'no';
+        seVendeMatch = statusText.includes(val);
+      }
+
+      let seCompraMatch = true;
+      if (searchTerms.se_compra) {
+        const val = searchTerms.se_compra.toLowerCase();
+        const statusText = data.se_compra ? 'sí' : 'no';
+        seCompraMatch = statusText.includes(val);
+      }
+
+      return nombreMatch && codigoMatch && inventariarMatch && seVendeMatch && seCompraMatch;
+    };
+  }
+
+  applyColumnFilter(column: string, value: string): void {
+    this.filterValues[column] = value.trim().toLowerCase();
+    this.dataSource.filter = JSON.stringify(this.filterValues);
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   listarProductos() {
@@ -73,7 +124,11 @@ export class ProductosComponent implements OnInit {
       next: (data: any) => {
         if (data.success) {
           this.productos = data.data;
-          this.filtrarProductos('');
+          this.productosFiltrados = [...this.productos];
+          this.dataSource.data = this.productosFiltrados;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+          this.totalItems = this.productosFiltrados.length;
         } else {
           console.log(data);
         }
@@ -84,17 +139,16 @@ export class ProductosComponent implements OnInit {
     });
   }
 
-  filtrarProductos(termino: string) {
-    const searchTerm = termino.toLowerCase();
-    this.productosFiltrados = this.productos.filter(prod =>
-      prod.nombre.toLowerCase().includes(searchTerm) ||
-      (prod.codigo && prod.codigo.toString().includes(searchTerm))
-    );
-  }
-
   onSearch(event: Event): void {
-    const searchTerm = (event.target as HTMLInputElement).value;
-    this.filtrarProductos(searchTerm);
+    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
+    this.productosFiltrados = this.productos.filter(prod =>
+      (prod.nombre && prod.nombre.toLowerCase().includes(searchTerm)) ||
+      (prod.codigo && prod.codigo.toString().toLowerCase().includes(searchTerm))
+    );
+    this.dataSource.data = this.productosFiltrados;
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    this.totalItems = this.productosFiltrados.length;
   }
 
   getSucursales() {

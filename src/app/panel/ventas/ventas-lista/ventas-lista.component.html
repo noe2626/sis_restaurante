@@ -1,6 +1,6 @@
 <div class="container-fluid py-3" style="width: 95%;">
   <!-- Header del Componente -->
-  <div class="row mb-4 align-items-center">
+  <div class="row mb-2 align-items-center">
     <div class="col-md-6">
       <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
         <i class="bi bi-receipt text-success me-3" style="font-size: 2rem;"></i>
@@ -14,7 +14,7 @@
         <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
         <input class="form-control py-2 fs-7 ps-0" style="border: 0 !important; outline: none !important;" type="text" placeholder="Buscar por Cliente o Fecha..." (input)="onSearch($event)" />
       </div>
-      <button class="btn btn-success d-inline-flex align-items-center gap-2 px-4 py-2 shadow-sm fw-semibold text-white border-0 bg-gradient" routerLink="nueva">
+      <button class="btn btn-success d-inline-flex align-items-center gap-2 shadow-sm fw-semibold text-white border-0 bg-gradient" routerLink="nueva">
         <i class="bi bi-plus-circle-fill fs-5"></i>
         Registrar Venta
       </button>
@@ -23,18 +23,13 @@
 
   <!-- Contenedor Principal (Tabla) -->
   <div class="card border-0 shadow-sm rounded-4 ">
-    <div class="card-header bg-white py-3 border-bottom-0">
-      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
-        <i class="bi bi-list-nested me-2 text-success"></i> Historial de Ventas
-      </h6>
-    </div>
     <div class="card-body p-0">
       <div class="table-responsive">
-        <table mat-table [dataSource]="dataSource" class="table table-hover align-middle mb-0">
+        <table mat-table [dataSource]="dataSource" matSort class="table table-hover align-middle mb-0">
           
           <!-- Folio Column -->
           <ng-container matColumnDef="folio">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 15%;"> Folio </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase text-secondary" style="width: 15%; height: 20px;"> Folio </th>
             <td mat-cell *matCellDef="let element" class="ps-4 fw-bold text-dark">
               {{ element.folio || 'N/A' }}
             </td>
@@ -42,7 +37,7 @@
 
           <!-- Cliente Column -->
           <ng-container matColumnDef="cliente">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Cliente </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Cliente </th>
             <td mat-cell *matCellDef="let element" class="fw-semibold text-secondary">
               {{ element.cliente || element.cliente_nombre || 'Cliente General' }}
             </td>
@@ -50,7 +45,7 @@
 
           <!-- Fecha Column -->
           <ng-container matColumnDef="fecha">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Fecha </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 25%;"> Fecha </th>
             <td mat-cell *matCellDef="let element" class="small text-secondary fw-semibold">
               {{ element.fecha | date:'yyyy-MM-dd HH:mm' }}
             </td>
@@ -58,7 +53,7 @@
 
           <!-- Estatus Column -->
           <ng-container matColumnDef="estatus">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 15%;"> Estatus </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 15%;"> Estatus </th>
             <td mat-cell *matCellDef="let element" class="text-center">
               <span class="badge rounded-pill px-2.5 py-1.5 fw-semibold fs-8"
                 [ngClass]="element.estatus_raw == 0 ? 'bg-danger-subtle text-danger' : 
@@ -74,7 +69,7 @@
 
           <!-- Total Column -->
           <ng-container matColumnDef="total">
-            <th mat-header-cell *matHeaderCellDef class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 10%;"> Total </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 10%;"> Total </th>
             <td mat-cell *matCellDef="let element" class="text-end fw-bold text-dark">
               {{ (element.total || 0) | currency }}
             </td>
@@ -87,6 +82,9 @@
               <div class="d-inline-flex gap-2">
                 <button class="btn btn-outline-primary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" (click)="verDetalle(element.id)" title="Ver Detalle" style="width: 32px; height: 32px;">
                   <i class="bi bi-eye-fill fs-8"></i>
+                </button>
+                <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 2" (click)="editarVenta(element.id)" title="Editar Orden" style="width: 32px; height: 32px;">
+                  <i class="bi bi-pencil fs-8"></i>
                 </button>
                 <button class="btn btn-outline-info btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 2" (click)="abrirEntregarModal(element)" title="Entregar Orden" style="width: 32px; height: 32px;">
                   <i class="bi bi-truck fs-8"></i>
@@ -101,7 +99,38 @@
             </td>
           </ng-container>
 
+          <!-- Filter Columns -->
+          <ng-container matColumnDef="filter-folio">
+            <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar Folio" (keyup)="applyColumnFilter('folio', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-cliente">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar Cliente" (keyup)="applyColumnFilter('cliente', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-fecha">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar Fecha" (keyup)="applyColumnFilter('fecha', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-total">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar Total" (keyup)="applyColumnFilter('total', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-estatus">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-center">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar Estatus" (keyup)="applyColumnFilter('estatus', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-space">
+            <th mat-header-cell *matHeaderCellDef class="table-light pe-4"></th>
+          </ng-container>
+
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsFilters" class="filter-header-row"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
         

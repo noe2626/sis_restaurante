@@ -69,3 +69,11 @@
 mat-table, table {
   width: 100%;
 }
+
+table{
+    margin-top: 0;
+}
+
+tr {
+    height: 40px;
+}

@@ -33,6 +33,7 @@ export class EditarCompraComponent implements OnInit{
   folio_proveedor: string = '';
   estatus: number = 1; // 1=Completada, 2=Orden, 3=Crédito
   metodo_pago: string = 'efectivo';
+  fechaCompra: string = '';
   @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
   constructor(private fb: FormBuilder,
@@ -44,6 +45,9 @@ export class EditarCompraComponent implements OnInit{
       idProveedor: [null, Validators.required]
     });
     this.idSucursal=localStorage.getItem('idSucursal');
+
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    this.fechaCompra = (new Date(Date.now() - tzoffset)).toISOString().slice(0, 16);
   }
 
   ngOnInit(): void {
@@ -198,6 +202,8 @@ export class EditarCompraComponent implements OnInit{
       console.error('Error decrypting user id', e);
     }
 
+    const fechaCompleta = this.fechaCompra ? this.fechaCompra.replace('T', ' ') + ':00' : null;
+
     var dataCompra = {
       idUser: parseInt(idUsuario) || 1,
       subTotal: this.subtotal,
@@ -210,6 +216,7 @@ export class EditarCompraComponent implements OnInit{
       extras: 0,
       folio_proveedor: this.folio_proveedor,
       estatus: this.estatus,
+      fecha: fechaCompleta,
       metodo_pago: this.estatus == 3 ? 'credito' : this.metodo_pago
     };
     
