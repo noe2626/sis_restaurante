@@ -1,20 +1,24 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ViewChild, OnDestroy } from '@angular/core';
 import { ReportesService } from '../../services/reportes.service';
 import { SucursalesService } from '../../services/sucursales.service';
 import { ProductosService } from '../../services/productos.service';
 import { ProveedoresService } from '../../services/proveedores.service';
 import { ClientesService } from '../../services/clientes.service';
 import { isPlatformBrowser } from '@angular/common';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import CryptoJS from 'crypto-js';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
+import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-reportes',
   templateUrl: './reportes.component.html',
   styleUrl: './reportes.component.css'
 })
-export class ReportesComponent implements OnInit {
+export class ReportesComponent implements OnInit, OnDestroy {
 
   fechaInicio: string = '';
   fechaFin: string = '';
@@ -27,14 +31,132 @@ export class ReportesComponent implements OnInit {
   reportData: any = null;
   cajasData: any[] = [];
   horasData: any[] = [];
+  ventasDiaData: any[] = [];
   comprasData: any[] = [];
   maxHourlySales: number = 1;
+  salesChart: any = null;
+  sidebarCollapsed: boolean = false;
 
   // Inventario
   inventarioData: any[] = [];
   inventarioSummary: any = null;
   filtroEstatus: string = 'todos';
   searchTextInventario: string = '';
+  
+  // MatTable para Inventario
+  inventarioDataSource = new MatTableDataSource<any>([]);
+  totalItemsInventario = 0;
+  filterValuesInventario: any = { producto: '', codigo: '', sucursal: '', inventariar: '', stock_minimo: '', cantidad: '', estado: '' };
+  
+  // MatTable para Historico Inventario
+  historicoData: any[] = [];
+  historicoDataSource = new MatTableDataSource<any>([]);
+  filterValuesHistorico: any = { fecha: '', sucursal_nombre: '', producto_nombre: '', producto_codigo: '', unidad_medida: '', cantidad_stock: '', momento: '' };
+
+  // MatTable para Ajustes Inventario
+  ajustesData: any[] = [];
+  ajustesDataSource = new MatTableDataSource<any>([]);
+  filterValuesAjustes: any = { fecha: '', sucursal_nombre: '', usuario_nombre: '', producto_nombre: '', producto_codigo: '', unidad_medida: '', stock_anterior: '', stock_nuevo: '', stock_minimo_anterior: '', stock_minimo_nuevo: '', precio_anterior: '', precio_nuevo: '' };
+
+  // ViewChild setters for dynamic conditional templates (*ngIf)
+  private inventarioPaginator: MatPaginator | null = null;
+  private inventarioSort: MatSort | null = null;
+
+  @ViewChild('inventarioPaginator') set invPaginator(paginator: MatPaginator) {
+    if (paginator) {
+      this.inventarioPaginator = paginator;
+      this.inventarioDataSource.paginator = paginator;
+    }
+  }
+
+  @ViewChild('inventarioSort') set invSort(sort: MatSort) {
+    if (sort) {
+      this.inventarioSort = sort;
+      this.inventarioDataSource.sort = sort;
+    }
+  }
+
+  private historicoPaginator: MatPaginator | null = null;
+  private historicoSort: MatSort | null = null;
+
+  @ViewChild('historicoPaginator') set histPaginator(paginator: MatPaginator) {
+    if (paginator) {
+      this.historicoPaginator = paginator;
+      this.historicoDataSource.paginator = paginator;
+    }
+  }
+
+  @ViewChild('historicoSort') set histSort(sort: MatSort) {
+    if (sort) {
+      this.historicoSort = sort;
+      this.historicoDataSource.sort = sort;
+    }
+  }
+
+  private ajustesPaginator: MatPaginator | null = null;
+  private ajustesSort: MatSort | null = null;
+
+  @ViewChild('ajustesPaginator') set ajusPaginator(paginator: MatPaginator) {
+    if (paginator) {
+      this.ajustesPaginator = paginator;
+      this.ajustesDataSource.paginator = paginator;
+    }
+  }
+
+  @ViewChild('ajustesSort') set ajusSort(sort: MatSort) {
+    if (sort) {
+      this.ajustesSort = sort;
+      this.ajustesDataSource.sort = sort;
+    }
+  }
+
+  get displayedColumnsInventario(): string[] {
+    if (this.idSucursalSelected === 0) {
+      return ['producto', 'codigo', 'sucursal', 'inventariar', 'stock_minimo', 'cantidad', 'estado'];
+    } else {
+      return ['producto', 'codigo', 'inventariar', 'stock_minimo', 'cantidad', 'estado'];
+    }
+  }
+
+  get displayedColumnsFiltersInventario(): string[] {
+    if (this.idSucursalSelected === 0) {
+      return ['filter-producto', 'filter-codigo', 'filter-sucursal', 'filter-inventariar', 'filter-stock_minimo', 'filter-cantidad', 'filter-estado'];
+    } else {
+      return ['filter-producto', 'filter-codigo', 'filter-inventariar', 'filter-stock_minimo', 'filter-cantidad', 'filter-estado'];
+    }
+  }
+
+  get displayedColumnsHistorico(): string[] {
+    if (this.idSucursalSelected === 0) {
+      return ['fecha', 'sucursal_nombre', 'producto_nombre', 'producto_codigo', 'unidad_medida', 'cantidad_stock', 'momento'];
+    } else {
+      return ['fecha', 'producto_nombre', 'producto_codigo', 'unidad_medida', 'cantidad_stock', 'momento'];
+    }
+  }
+
+  get displayedColumnsFiltersHistorico(): string[] {
+    if (this.idSucursalSelected === 0) {
+      return ['filter-fecha', 'filter-sucursal_nombre', 'filter-producto_nombre', 'filter-producto_codigo', 'filter-unidad_medida', 'filter-cantidad_stock', 'filter-momento'];
+    } else {
+      return ['filter-fecha', 'filter-producto_nombre', 'filter-producto_codigo', 'filter-unidad_medida', 'filter-cantidad_stock', 'filter-momento'];
+    }
+  }
+
+  get displayedColumnsAjustes(): string[] {
+    if (this.idSucursalSelected === 0) {
+      return ['fecha', 'sucursal_nombre', 'usuario_nombre', 'producto_nombre', 'producto_codigo', 'unidad_medida', 'stock_anterior', 'stock_nuevo', 'stock_minimo_anterior', 'stock_minimo_nuevo', 'precio_anterior', 'precio_nuevo'];
+    } else {
+      return ['fecha', 'usuario_nombre', 'producto_nombre', 'producto_codigo', 'unidad_medida', 'stock_anterior', 'stock_nuevo', 'stock_minimo_anterior', 'stock_minimo_nuevo', 'precio_anterior', 'precio_nuevo'];
+    }
+  }
+
+  get displayedColumnsFiltersAjustes(): string[] {
+    if (this.idSucursalSelected === 0) {
+      return ['filter-fecha', 'filter-sucursal_nombre', 'filter-usuario_nombre', 'filter-producto_nombre', 'filter-producto_codigo', 'filter-unidad_medida', 'filter-stock_anterior', 'filter-stock_nuevo', 'filter-stock_minimo_anterior', 'filter-stock_minimo_nuevo', 'filter-precio_anterior', 'filter-precio_nuevo'];
+    } else {
+      return ['filter-fecha', 'filter-usuario_nombre', 'filter-producto_nombre', 'filter-producto_codigo', 'filter-unidad_medida', 'filter-stock_anterior', 'filter-stock_nuevo', 'filter-stock_minimo_anterior', 'filter-stock_minimo_nuevo', 'filter-precio_anterior', 'filter-precio_nuevo'];
+    }
+  }
   
   // Nuevos Reportes Detallados y sus Listados
   productos: any[] = [];
@@ -95,6 +217,7 @@ export class ReportesComponent implements OnInit {
     this.cargarProveedores();
     this.cargarClientes();
     this.cargarReporte();
+    this.setupFilterPredicate();
   }
 
   cargarProductos(): void {
@@ -205,16 +328,32 @@ export class ReportesComponent implements OnInit {
         },
         error: (err: any) => { this.loading = false; this.handleError(err); }
       });
-    } else if (this.activeTab === 'ventas-hora') {
-      this.reportesService.obtenerReporteVentasHora(this.fechaInicio, this.fechaFin, filterSucursal).subscribe({
-        next: (response: any) => {
-          this.loading = false;
-          if (response && response.success) {
-            this.horasData = response.data || [];
-            this.maxHourlySales = Math.max(...this.horasData.map(h => h.pedidos), 1);
+    } else if (this.activeTab === 'ventas-analisis') {
+      this.reportesService.obtenerReporteVentasDia(this.fechaInicio, this.fechaFin, filterSucursal).subscribe({
+        next: (diaRes: any) => {
+          if (diaRes && diaRes.success) {
+            this.ventasDiaData = diaRes.data || [];
+            
+            this.reportesService.obtenerReporteVentasHora(this.fechaInicio, this.fechaFin, filterSucursal).subscribe({
+              next: (horaRes: any) => {
+                this.loading = false;
+                if (horaRes && horaRes.success) {
+                  this.horasData = horaRes.data || [];
+                  this.maxHourlySales = Math.max(...this.horasData.map(h => h.pedidos), 1);
+                  setTimeout(() => {
+                    this.inicializarGraficaVentas();
+                  }, 50);
+                } else {
+                  this.horasData = [];
+                  Swal.fire({ icon: 'error', title: 'Error', text: horaRes.message || 'No se pudieron obtener las ventas por hora.' });
+                }
+              },
+              error: (err: any) => { this.loading = false; this.handleError(err); }
+            });
           } else {
-            this.horasData = [];
-            Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'No se pudieron obtener los datos.' });
+            this.loading = false;
+            this.ventasDiaData = [];
+            Swal.fire({ icon: 'error', title: 'Error', text: diaRes.message || 'No se pudieron obtener las ventas por día.' });
           }
         },
         error: (err: any) => { this.loading = false; this.handleError(err); }
@@ -258,9 +397,43 @@ export class ReportesComponent implements OnInit {
           if (response && response.success) {
             this.inventarioData = response.data || [];
             this.inventarioSummary = response.summary || null;
+            this.actualizarInventarioDataSource();
           } else {
             this.inventarioData = [];
             this.inventarioSummary = null;
+            this.actualizarInventarioDataSource();
+            Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'No se pudieron obtener los datos.' });
+          }
+        },
+        error: (err: any) => { this.loading = false; this.handleError(err); }
+      });
+    } else if (this.activeTab === 'historico-inventario') {
+      const prodFilter = this.idProductoSelected ? this.idProductoSelected : undefined;
+      this.reportesService.obtenerReporteHistoricoInventario(this.fechaInicio, this.fechaFin, filterSucursal, prodFilter).subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          if (response && response.success) {
+            this.historicoData = response.data || [];
+            this.historicoDataSource.data = this.historicoData;
+          } else {
+            this.historicoData = [];
+            this.historicoDataSource.data = [];
+            Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'No se pudieron obtener los datos.' });
+          }
+        },
+        error: (err: any) => { this.loading = false; this.handleError(err); }
+      });
+    } else if (this.activeTab === 'ajustes-inventario') {
+      const prodFilter = this.idProductoSelected ? this.idProductoSelected : undefined;
+      this.reportesService.obtenerReporteAjustesInventario(this.fechaInicio, this.fechaFin, filterSucursal, prodFilter).subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          if (response && response.success) {
+            this.ajustesData = response.data || [];
+            this.ajustesDataSource.data = this.ajustesData;
+          } else {
+            this.ajustesData = [];
+            this.ajustesDataSource.data = [];
             Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'No se pudieron obtener los datos.' });
           }
         },
@@ -286,15 +459,132 @@ export class ReportesComponent implements OnInit {
     this.cargarReporte();
   }
 
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+    if (this.salesChart) {
+      setTimeout(() => {
+        this.salesChart.resize();
+      }, 310);
+    }
+  }
+
   onFilterChange(): void {
     this.cargarReporte();
   }
 
-  get inventarioFiltrado(): any[] {
+  setupFilterPredicate(): void {
+    this.inventarioDataSource.filterPredicate = (data: any, filter: string): boolean => {
+      const searchTerms = JSON.parse(filter);
+      
+      const productoMatch = !searchTerms.producto || (data.producto || '').toLowerCase().includes(searchTerms.producto.toLowerCase());
+      const codigoMatch = !searchTerms.codigo || (data.codigo || '').toLowerCase().includes(searchTerms.codigo.toLowerCase());
+      const sucursalMatch = !searchTerms.sucursal || (data.sucursal || '').toLowerCase().includes(searchTerms.sucursal.toLowerCase());
+      
+      let inventariableMatch = true;
+      if (searchTerms.inventariar) {
+        const val = searchTerms.inventariar.toLowerCase();
+        const text = data.inventariar ? 'sí' : 'no';
+        inventariableMatch = text.includes(val);
+      }
+
+      let stockMinimoMatch = true;
+      if (searchTerms.stock_minimo) {
+        if (!data.inventariar) {
+          stockMinimoMatch = false;
+        } else {
+          stockMinimoMatch = (data.stock_minimo || 0).toString().includes(searchTerms.stock_minimo);
+        }
+      }
+
+      let cantidadMatch = true;
+      if (searchTerms.cantidad) {
+        cantidadMatch = (data.cantidad || 0).toString().includes(searchTerms.cantidad);
+      }
+      
+      let estadoMatch = true;
+      if (searchTerms.estado) {
+        const val = searchTerms.estado.toLowerCase();
+        let estStr = 'saludable';
+        if (data.inventariar && data.cantidad <= 0) estStr = 'agotado';
+        else if (data.inventariar && data.cantidad > 0 && data.cantidad < data.stock_minimo) estStr = 'stock bajo';
+        estadoMatch = estStr.includes(val);
+      }
+
+      return productoMatch && codigoMatch && sucursalMatch && inventariableMatch && stockMinimoMatch && cantidadMatch && estadoMatch;
+    };
+
+    this.historicoDataSource.filterPredicate = (data: any, filter: string): boolean => {
+      const searchTerms = JSON.parse(filter);
+      
+      const fechaMatch = !searchTerms.fecha || new Date(data.fecha).toLocaleString('es-MX').toLowerCase().includes(searchTerms.fecha.toLowerCase());
+      const sucursalMatch = !searchTerms.sucursal_nombre || (data.sucursal_nombre || '').toLowerCase().includes(searchTerms.sucursal_nombre.toLowerCase());
+      const productoMatch = !searchTerms.producto_nombre || (data.producto_nombre || '').toLowerCase().includes(searchTerms.producto_nombre.toLowerCase());
+      const codigoMatch = !searchTerms.producto_codigo || (data.producto_codigo || '').toLowerCase().includes(searchTerms.producto_codigo.toLowerCase());
+      const unidadMatch = !searchTerms.unidad_medida || (data.unidad_medida || '').toLowerCase().includes(searchTerms.unidad_medida.toLowerCase());
+      const cantidadMatch = !searchTerms.cantidad_stock || (data.cantidad_stock || 0).toString().includes(searchTerms.cantidad_stock);
+      const momentoMatch = !searchTerms.momento || (data.momento || '').toLowerCase().includes(searchTerms.momento.toLowerCase());
+
+      return fechaMatch && sucursalMatch && productoMatch && codigoMatch && unidadMatch && cantidadMatch && momentoMatch;
+    };
+
+    this.ajustesDataSource.filterPredicate = (data: any, filter: string): boolean => {
+      const searchTerms = JSON.parse(filter);
+
+      const fechaMatch = !searchTerms.fecha || new Date(data.fecha).toLocaleString('es-MX').toLowerCase().includes(searchTerms.fecha.toLowerCase());
+      const sucursalMatch = !searchTerms.sucursal_nombre || (data.sucursal_nombre || '').toLowerCase().includes(searchTerms.sucursal_nombre.toLowerCase());
+      const usuarioMatch = !searchTerms.usuario_nombre || (data.usuario_nombre || '').toLowerCase().includes(searchTerms.usuario_nombre.toLowerCase());
+      const productoMatch = !searchTerms.producto_nombre || (data.producto_nombre || '').toLowerCase().includes(searchTerms.producto_nombre.toLowerCase());
+      const codigoMatch = !searchTerms.producto_codigo || (data.producto_codigo || '').toLowerCase().includes(searchTerms.producto_codigo.toLowerCase());
+      const unidadMatch = !searchTerms.unidad_medida || (data.unidad_medida || '').toLowerCase().includes(searchTerms.unidad_medida.toLowerCase());
+      const stockAnteriorMatch = !searchTerms.stock_anterior || (data.stock_anterior || 0).toString().includes(searchTerms.stock_anterior);
+      const stockNuevoMatch = !searchTerms.stock_nuevo || (data.stock_nuevo || 0).toString().includes(searchTerms.stock_nuevo);
+      const stockMinAnteriorMatch = !searchTerms.stock_minimo_anterior || (data.stock_minimo_anterior !== null ? data.stock_minimo_anterior : '').toString().includes(searchTerms.stock_minimo_anterior);
+      const stockMinNuevoMatch = !searchTerms.stock_minimo_nuevo || (data.stock_minimo_nuevo !== null ? data.stock_minimo_nuevo : '').toString().includes(searchTerms.stock_minimo_nuevo);
+      const precioAnteriorMatch = !searchTerms.precio_anterior || (data.precio_anterior !== null ? data.precio_anterior : '').toString().includes(searchTerms.precio_anterior);
+      const precioNuevoMatch = !searchTerms.precio_nuevo || (data.precio_nuevo !== null ? data.precio_nuevo : '').toString().includes(searchTerms.precio_nuevo);
+
+      return fechaMatch && sucursalMatch && usuarioMatch && productoMatch && codigoMatch && unidadMatch && stockAnteriorMatch && stockNuevoMatch && stockMinAnteriorMatch && stockMinNuevoMatch && precioAnteriorMatch && precioNuevoMatch;
+    };
+  }
+
+  applyColumnFilter(column: string, value: string): void {
+    this.filterValuesInventario[column] = value.trim().toLowerCase();
+    this.inventarioDataSource.filter = JSON.stringify(this.filterValuesInventario);
+    if (this.inventarioDataSource.paginator) {
+      this.inventarioDataSource.paginator.firstPage();
+    }
+  }
+
+  applyColumnFilterHistorico(column: string, value: string): void {
+    this.filterValuesHistorico[column] = value.trim().toLowerCase();
+    this.historicoDataSource.filter = JSON.stringify(this.filterValuesHistorico);
+    if (this.historicoDataSource.paginator) {
+      this.historicoDataSource.paginator.firstPage();
+    }
+  }
+
+  applyColumnFilterAjustes(column: string, value: string): void {
+    this.filterValuesAjustes[column] = value.trim().toLowerCase();
+    this.ajustesDataSource.filter = JSON.stringify(this.filterValuesAjustes);
+    if (this.ajustesDataSource.paginator) {
+      this.ajustesDataSource.paginator.firstPage();
+    }
+  }
+
+  actualizarInventarioDataSource(): void {
     let result = this.inventarioData || [];
 
     if (this.filtroEstatus !== 'todos') {
-      result = result.filter(item => item.estatus === this.filtroEstatus);
+      result = result.filter(item => {
+        if (this.filtroEstatus === 'critico') {
+          return item.inventariar && item.cantidad <= 0;
+        } else if (this.filtroEstatus === 'bajo') {
+          return item.inventariar && item.cantidad > 0 && item.cantidad < item.stock_minimo;
+        } else if (this.filtroEstatus === 'ok') {
+          return !item.inventariar || item.cantidad >= item.stock_minimo;
+        }
+        return true;
+      });
     }
 
     if (this.searchTextInventario && this.searchTextInventario.trim()) {
@@ -306,11 +596,13 @@ export class ReportesComponent implements OnInit {
       );
     }
 
-    return result;
+    this.inventarioDataSource.data = result;
+    this.totalItemsInventario = result.length;
   }
 
   cambiarFiltroEstatus(estatus: string): void {
     this.filtroEstatus = estatus;
+    this.actualizarInventarioDataSource();
   }
 
   verRetiros(item: any) {
@@ -379,5 +671,150 @@ export class ReportesComponent implements OnInit {
 
   imprimirReporte(): void {
     window.print();
+  }
+
+  ngOnDestroy(): void {
+    if (this.salesChart) {
+      this.salesChart.destroy();
+    }
+  }
+
+  inicializarGraficaVentas(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const ctx = document.getElementById('salesLineChart') as HTMLCanvasElement;
+    if (!ctx) {
+      console.warn('Canvas para gráfica lineal de ventas no encontrado.');
+      return;
+    }
+
+    if (this.salesChart) {
+      this.salesChart.destroy();
+    }
+
+    const labels = this.ventasDiaData.map(d => {
+      const parts = d.fecha.split('-');
+      if (parts.length === 3) {
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const mesIndex = parseInt(parts[1], 10) - 1;
+        return `${parts[2]} ${meses[mesIndex]}`;
+      }
+      return d.fecha;
+    });
+
+    const montos = this.ventasDiaData.map(d => d.monto);
+    const pedidos = this.ventasDiaData.map(d => d.pedidos);
+
+    this.salesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Monto de Ventas ($)',
+            data: montos,
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Número de Pedidos',
+            data: pedidos,
+            borderColor: '#0d6efd',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              font: {
+                weight: 'bold'
+              }
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ': ';
+                }
+                const val = context.parsed.y ?? 0;
+                if (context.datasetIndex === 0) {
+                  label += new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(val);
+                } else {
+                  label += val;
+                }
+                return label;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: {
+                size: 11
+              }
+            }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Monto Facturado ($)',
+              font: {
+                weight: 'bold'
+              }
+            },
+            ticks: {
+              callback: function(value) {
+                return '$' + value;
+              }
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Cantidad de Pedidos',
+              font: {
+                weight: 'bold'
+              }
+            },
+            grid: {
+              drawOnChartArea: false
+            },
+            ticks: {
+              precision: 0
+            }
+          }
+        }
+      }
+    });
   }
 }

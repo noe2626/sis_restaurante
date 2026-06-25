@@ -1,0 +1,156 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+  <!-- Header del Componente -->
+  <div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+      <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+        <i class="bi bi-clock-history text-primary me-3" style="font-size: 2rem;"></i>
+        Control de Sesiones de Caja
+      </h3>
+      <p class="text-muted mb-0">Monitorea las sesiones activas en cada sucursal y cierra de forma segura aquellas que se queden abiertas.</p>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0 d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
+      <!-- Selector de Estado de Sesión -->
+      <div class="btn-group shadow-sm bg-white p-1 rounded-pill" role="group" aria-label="Filtrar por Estado">
+        <button type="button" 
+                class="btn rounded-pill px-3 py-1.5 fs-7 fw-semibold border-0 transition-all"
+                [class.btn-primary]="filterStatus === 'todas'"
+                [class.btn-light]="filterStatus !== 'todas'"
+                (click)="filterStatus = 'todas'">
+          Todas
+        </button>
+        <button type="button" 
+                class="btn rounded-pill px-3 py-1.5 fs-7 fw-semibold border-0 transition-all"
+                [class.btn-warning]="filterStatus === 'abiertas'"
+                [class.btn-light]="filterStatus !== 'abiertas'"
+                (click)="filterStatus = 'abiertas'">
+          Abiertas
+        </button>
+        <button type="button" 
+                class="btn rounded-pill px-3 py-1.5 fs-7 fw-semibold border-0 transition-all"
+                [class.btn-secondary]="filterStatus === 'cerradas'"
+                [class.btn-light]="filterStatus !== 'cerradas'"
+                (click)="filterStatus = 'cerradas'">
+          Cerradas
+        </button>
+      </div>
+
+      <!-- Buscador rápido -->
+      <div class="input-group shadow-sm rounded-pill bg-white search-container" style="max-width: 280px;">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" [(ngModel)]="searchText" class="form-control border-0 py-2 fs-7 ps-0" placeholder="Buscar caja, sucursal o cajero...">
+      </div>
+      
+      <!-- Botón de Recargar -->
+      <button class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center rounded-circle shadow-sm" 
+              (click)="cargarDatos()" 
+              style="width: 38px; height: 38px;" 
+              title="Recargar datos">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="d-flex justify-content-center my-5" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal (Tabla) -->
+  <div class="card border-0 shadow-sm rounded-4" *ngIf="!loading">
+    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-hdd-network me-2 text-primary"></i> Estado de Cajas y Sesiones
+      </h6>
+      <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-1.5 fs-8 fw-semibold">
+        Total Cajas: {{ cajasFiltradas.length }}
+      </span>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light text-uppercase fs-7 text-secondary">
+            <tr>
+              <th class="ps-4" style="width: 5%;">ID</th>
+              <th style="width: 20%;">Caja</th>
+              <th style="width: 15%;">Sucursal</th>
+              <th style="width: 20%;">Cajero / Usuario</th>
+              <th style="width: 15%;">Fecha de Apertura</th>
+              <th style="width: 12%;">Efectivo Actual</th>
+              <th style="width: 13%;">Estado</th>
+              <th class="pe-4 text-end" style="width: 10%;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let caja of cajasFiltradas">
+              <td class="ps-4 fw-medium text-secondary">#{{ caja.id }}</td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="avatar-circle-caja text-white fw-bold me-3" 
+                       [class.bg-success]="caja.active_session" 
+                       [class.bg-secondary]="!caja.active_session">
+                    <i class="bi" [class.bi-unlock-fill]="caja.active_session" [class.bi-lock-fill]="!caja.active_session"></i>
+                  </div>
+                  <span class="fw-bold text-dark">{{ caja.caja }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="text-secondary fw-semibold fs-7">{{ caja.sucursal?.nombre || 'N/A' }}</span>
+              </td>
+              <td>
+                <div *ngIf="caja.active_session" class="d-flex align-items-center">
+                  <div class="bg-warning-subtle text-warning border rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px;">
+                    <i class="bi bi-person-fill fs-7"></i>
+                  </div>
+                  <span class="fw-semibold text-dark fs-7">{{ caja.active_session.user?.name || 'N/A' }}</span>
+                </div>
+                <div *ngIf="!caja.active_session" class="text-muted fs-7">
+                  <i class="bi bi-dash-circle me-1"></i> Sin sesión activa
+                </div>
+              </td>
+              <td>
+                <span *ngIf="caja.active_session" class="text-secondary fs-7">
+                  <i class="bi bi-calendar3 me-1 text-primary"></i>
+                  {{ caja.active_session.fecha_apertura | date:'dd/MM/yyyy HH:mm' }}
+                </span>
+                <span *ngIf="!caja.active_session" class="text-muted fs-7">-</span>
+              </td>
+              <td>
+                <span class="fw-bold text-dark fs-7">
+                  {{ caja.efectivo | currency:'MXN':'symbol':'1.2-2' }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="caja.active_session" class="badge bg-warning-subtle text-warning border rounded-pill px-3 py-1.5 fs-8 fw-semibold animate-pulse">
+                  <span class="spinner-grow spinner-grow-sm me-1 text-warning" role="status" style="width: 8px; height: 8px;"></span>
+                  Sesión Abierta
+                </span>
+                <span *ngIf="!caja.active_session" class="badge bg-light text-secondary border rounded-pill px-3 py-1.5 fs-8 fw-semibold">
+                  Cerrada
+                </span>
+              </td>
+              <td class="pe-4 text-end">
+                <!-- Solo supervisores (roleId === 2) o administradores (roleId === 1) pueden forzar el cierre de una caja activa -->
+                <button *ngIf="caja.active_session && (roleId === 1 || roleId === 2)" 
+                        class="btn btn-danger btn-sm rounded-pill px-3 py-1.5 d-inline-flex align-items-center gap-1.5 fw-semibold shadow-sm text-uppercase fs-8 hover-scale" 
+                        (click)="cerrarSesionForzado(caja)" 
+                        title="Forzar Cierre de Sesión">
+                  <i class="bi bi-lock-fill"></i>
+                  Cerrar
+                </button>
+                <span *ngIf="!caja.active_session" class="text-muted small italic fs-8">Sin acciones</span>
+              </td>
+            </tr>
+            <tr *ngIf="cajasFiltradas.length === 0">
+              <td colspan="8" class="text-center py-5 text-muted">
+                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                No se encontraron cajas con los criterios especificados.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

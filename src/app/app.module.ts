@@ -31,6 +31,7 @@ import { DashboardComponent } from './panel/dashboard/dashboard.component';
 import { UsuariosComponent } from './panel/usuarios/usuarios.component';
 import { SucursalesAdminComponent } from './panel/sucursales/sucursales.component';
 import { CajasAdminComponent } from './panel/cajas/cajas.component';
+import { SesionesCajaComponent } from './panel/sesiones-caja/sesiones-caja.component';
 import { PreciosClienteComponent } from './panel/precios-cliente/precios-cliente.component';
 import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.component';
 import { ReportesComponent } from './panel/reportes/reportes.component';
@@ -61,6 +62,7 @@ import { A11yModule } from "@angular/cdk/a11y";
     UsuariosComponent,
     SucursalesAdminComponent,
     CajasAdminComponent,
+    SesionesCajaComponent,
     PreciosClienteComponent,
     CanalesVentaComponent,
     ReportesComponent,

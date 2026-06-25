@@ -17,6 +17,7 @@ import { DashboardComponent } from './panel/dashboard/dashboard.component';
 import { UsuariosComponent } from './panel/usuarios/usuarios.component';
 import { SucursalesAdminComponent } from './panel/sucursales/sucursales.component';
 import { CajasAdminComponent } from './panel/cajas/cajas.component';
+import { SesionesCajaComponent } from './panel/sesiones-caja/sesiones-caja.component';
 import { PreciosClienteComponent } from './panel/precios-cliente/precios-cliente.component';
 import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.component';
 import { ReportesComponent } from './panel/reportes/reportes.component';
@@ -55,7 +56,8 @@ const routes: Routes = [
       { path: 'reportes', component: ReportesComponent, canActivate: [roleGuard], data: { roles: [1, 2] } },
       { path: 'usuarios', component: UsuariosComponent, canActivate: [roleGuard], data: { roles: [1] } },
       { path: 'sucursales', component: SucursalesAdminComponent, canActivate: [roleGuard], data: { roles: [1] } },
-      { path: 'cajas', component: CajasAdminComponent, canActivate: [roleGuard], data: { roles: [1] } }
+      { path: 'cajas', component: CajasAdminComponent, canActivate: [roleGuard], data: { roles: [1] } },
+      { path: 'sesiones-caja', component: SesionesCajaComponent, canActivate: [roleGuard], data: { roles: [1, 2] } }
     ]
   },
   { path: 'sucursales', component: SucursalesComponent, canActivate: [authGuard] },

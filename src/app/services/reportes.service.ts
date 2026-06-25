@@ -62,6 +62,23 @@ export class ReportesService {
     return this.http.get(`${this.apiUrl}reportes/ventas-hora`, { ...header, params });
   }
 
+  obtenerReporteVentasDia(fechaInicio: string, fechaFin: string, idSucursal?: number) {
+    const token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+
+    let params = new HttpParams()
+      .set('fecha_inicio', fechaInicio)
+      .set('fecha_fin', fechaFin);
+
+    if (idSucursal) {
+      params = params.set('idSucursal', idSucursal.toString());
+    }
+
+    return this.http.get(`${this.apiUrl}reportes/ventas-dia`, { ...header, params });
+  }
+
   obtenerReporteComprasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number, idProveedor?: number) {
     const token = localStorage.getItem('userToken');
     const header = {
@@ -120,5 +137,45 @@ export class ReportesService {
     }
 
     return this.http.get(`${this.apiUrl}reportes/inventario`, { ...header, params });
+  }
+
+  obtenerReporteHistoricoInventario(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number) {
+    const token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+
+    let params = new HttpParams()
+      .set('fecha_inicio', fechaInicio)
+      .set('fecha_fin', fechaFin);
+
+    if (idSucursal) {
+      params = params.set('idSucursal', idSucursal.toString());
+    }
+    if (idProducto) {
+      params = params.set('idProducto', idProducto.toString());
+    }
+
+    return this.http.get(`${this.apiUrl}reportes/historico-inventario`, { ...header, params });
+  }
+
+  obtenerReporteAjustesInventario(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number) {
+    const token = localStorage.getItem('userToken');
+    const header = {
+      headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+    };
+
+    let params = new HttpParams()
+      .set('fecha_inicio', fechaInicio)
+      .set('fecha_fin', fechaFin);
+
+    if (idSucursal) {
+      params = params.set('idSucursal', idSucursal.toString());
+    }
+    if (idProducto) {
+      params = params.set('idProducto', idProducto.toString());
+    }
+
+    return this.http.get(`${this.apiUrl}reportes/ajustes-inventario`, { ...header, params });
   }
 }
