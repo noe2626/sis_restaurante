@@ -97,7 +97,22 @@ body {
   body {
     background-color: #ffffff !important;
     color: #1a1a1a !important;
-    font-size: 11px !important;
+    font-size: 9px !important;
+  }
+
+  /* Ajustar tamaños generales de la cabecera de filtros en impresión */
+  .print-header h2 {
+    font-size: 20px !important;
+  }
+  .print-header h4 {
+    font-size: 16px !important;
+  }
+  .print-header p,
+  .print-header span,
+  .print-header strong,
+  .print-header div,
+  .print-header h6 {
+    font-size: 10px !important;
   }
 
   /* Mostrar la cabecera de impresión limpia */
@@ -260,9 +275,9 @@ body {
   }
 
   th, td {
-    padding: 8px 10px !important;
+    padding: 6px 8px !important;
     border: 1px solid #94a3b8 !important;
-    font-size: 11px !important;
+    font-size: 9px !important;
     color: #1e293b !important;
   }
 
@@ -275,8 +290,8 @@ body {
   /* Badges Dinámicos de Contado / Crédito en Impresión */
   .badge {
     border: 1px solid #cbd5e1 !important;
-    padding: 3px 8px !important;
-    font-size: 9px !important;
+    padding: 2px 6px !important;
+    font-size: 7px !important;
     font-weight: bold !important;
     border-radius: 4px !important;
   }
