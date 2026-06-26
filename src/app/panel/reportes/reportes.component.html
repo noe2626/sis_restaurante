@@ -78,147 +78,140 @@
 
     <!-- Contenido reportes -->
     <div class="flex-fill" style="padding: 10px;">
-      
-      <!-- Fila de Encabezado y Filtros -->
-      <div class="row mb-4 align-items-center">
-        <div class="col-md-6">
-          <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
-            <i class="bi bi-graph-up-arrow text-danger me-3" style="font-size: 2rem;"></i>
-            Reportes y Estadísticas Financieras
-          </h3>
-          <p class="text-muted mb-0">Visualiza el rendimiento de tus ventas, compras e inventarios.</p>
-        </div>
-        
-        <!-- Filtros Compartidos -->
-        <div class="col-md-6 mt-3 mt-md-0">
-          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
-            <div class="row g-2 align-items-center">
-              
-              <!-- Fecha Inicio (Solo si no es pestaña Inventario) -->
-              <div class="col-md-2" *ngIf="activeTab !== 'inventario'">
-                <div class="form-floating">
-                  <input type="date" class="form-control border-0 bg-light rounded-3 py-2 fs-7" id="fechaInicio" [(ngModel)]="fechaInicio" (change)="onFilterChange()">
-                  <label for="fechaInicio" class="fs-8 text-secondary">Fecha Inicio</label>
-                </div>
-              </div>
-              
-              <!-- Fecha Fin (Solo si no es pestaña Inventario) -->
-              <div class="col-md-2" *ngIf="activeTab !== 'inventario'">
-                <div class="form-floating">
-                  <input type="date" class="form-control border-0 bg-light rounded-3 py-2 fs-7" id="fechaFin" [(ngModel)]="fechaFin" (change)="onFilterChange()">
-                  <label for="fechaFin" class="fs-8 text-secondary">Fecha Fin</label>
-                </div>
-              </div>
-              
-              <!-- Sucursal -->
-              <div [ngClass]="activeTab === 'inventario' ? 'col-md-12' : 'col-md-2'">
-                <div>
-                  <label for="idSucursal" class="fs-8 text-secondary fw-semibold mb-1 d-block">Sucursal</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" 
-                             [(ngModel)]="idSucursalSelected" 
-                             (change)="onFilterChange()"
-                             [clearable]="false"
-                             id="idSucursal">
-                    <ng-option [value]="0" *ngIf="roleId === 1">Todas las Sucursales</ng-option>
-                    <ng-option *ngFor="let suc of sucursales" [value]="suc.idSucursal || suc.id">
-                      {{ suc.sucursal || suc.nombre }}
-                    </ng-option>
-                  </ng-select>
-                </div>
-              </div>
-              
-              <!-- Filtros de Compras Detalladas -->
-              <div class="col-md-2" *ngIf="activeTab === 'compras-detallado'">
-                <div>
-                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
-                    <ng-option [value]="0">Todos</ng-option>
-                    <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                      {{ prod.nombre }}
-                    </ng-option>
-                  </ng-select>
-                </div>
-              </div>
-              
-              <div class="col-md-2" *ngIf="activeTab === 'compras-detallado'">
-                <div>
-                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Proveedor</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProveedorSelected"
-                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
-                    <ng-option [value]="0">Todos</ng-option>
-                    <ng-option *ngFor="let prov of proveedores" [value]="prov.id">
-                      {{ prov.nombre }}
-                    </ng-option>
-                  </ng-select>
-                </div>
-              </div>
-              
-              <div class="col-md-2" *ngIf="activeTab === 'compras-detallado'">
-                <div>
-                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Tipo de Pago</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="tipoPagoSelected"
-                    (change)="onFilterChange()" [clearable]="false">
-                    <ng-option value="todos">Todos</ng-option>
-                    <ng-option value="contado">Solo Contado</ng-option>
-                    <ng-option value="credito">Solo Crédito</ng-option>
-                  </ng-select>
-                </div>
-              </div>
-              
-              <!-- Filtros de Ventas Detalladas -->
-              <div class="col-md-2" *ngIf="activeTab === 'ventas-detallado'">
-                <div>
-                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
-                    <ng-option [value]="0">Todos</ng-option>
-                    <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                      {{ prod.nombre }}
-                    </ng-option>
-                  </ng-select>
-                </div>
-              </div>
-              
-              <div class="col-md-2" *ngIf="activeTab === 'ventas-detallado'">
-                <div>
-                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Cliente</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idClienteSelected"
-                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
-                    <ng-option [value]="0">Todos</ng-option>
-                    <ng-option *ngFor="let cli of clientes" [value]="cli.id">
-                      {{ cli.nombre }}
-                    </ng-option>
-                  </ng-select>
-                </div>
-              </div>
-              
-              <div class="col-md-2" *ngIf="activeTab === 'ventas-detallado'">
-                <div>
-                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Tipo de Pago</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="tipoPagoSelected"
-                    (change)="onFilterChange()" [clearable]="false">
-                    <ng-option value="todos">Todos</ng-option>
-                    <ng-option value="contado">Solo Contado</ng-option>
-                    <ng-option value="credito">Solo Crédito</ng-option>
-                  </ng-select>
-                </div>
-              </div>
-              
-              <!-- Filtros de Histórico / Ajustes de Inventario -->
-              <div class="col-md-6" *ngIf="activeTab === 'historico-inventario' || activeTab === 'ajustes-inventario'">
-                <div>
-                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Insumo</label>
-                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
-                    <ng-option [value]="0">Todos los Productos</ng-option>
-                    <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                      {{ prod.nombre }}
-                    </ng-option>
-                  </ng-select>
-                </div>
-              </div>
-
+        <!-- Fila de Encabezado y Filtros -->
+      <div class="row">
+        <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+          <i class="bi bi-graph-up-arrow text-danger me-3" style="font-size: 2rem;"></i>
+          Reportes y Estadísticas Financieras
+        </h3>
+      </div>
+      <div class="card border-0">
+        <div class="row align-items-center bg-white m-2">
+          
+          <!-- Fecha Inicio (Solo si no es pestaña Inventario) -->
+          <div class="col-2" *ngIf="activeTab !== 'inventario'">
+            <div>
+              <label for="fechaInicio" class="fs-7 text-secondary">Fecha Inicio</label>
+              <input type="date" class="form-control border-0 bg-light rounded-3 py-2" id="fechaInicio"
+                [(ngModel)]="fechaInicio" (change)="onFilterChange()">
+            </div>
+          </div>
+          
+          <!-- Fecha Fin (Solo si no es pestaña Inventario) -->
+          <div class="col-2" *ngIf="activeTab !== 'inventario'">
+            <div>
+              <label for="fechaFin" class="fs-7 text-secondary">Fecha Fin</label>
+              <input type="date" class="form-control border-0 bg-light rounded-3 py-2" id="fechaFin"
+                [(ngModel)]="fechaFin" (change)="onFilterChange()">
+            </div>
+          </div>
+          
+          <!-- Sucursal -->
+          <div [ngClass]="activeTab === 'inventario' ? 'col-2' : 'col-2'">
+            <div>
+              <label for="idSucursal" class="fs-8 text-secondary fw-semibold mb-1 d-block">Sucursal</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" 
+                         [(ngModel)]="idSucursalSelected" 
+                         (change)="onFilterChange()"
+                         [clearable]="false"
+                         id="idSucursal">
+                <ng-option [value]="0" *ngIf="roleId === 1">Todas las Sucursales</ng-option>
+                <ng-option *ngFor="let suc of sucursales" [value]="suc.idSucursal || suc.id">
+                  {{ suc.sucursal || suc.nombre }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          
+          <!-- Filtros de Compras Detalladas -->
+          <div class="col-2" *ngIf="activeTab === 'compras-detallado'">
+            <div>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Insumo</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
+                (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
+                <ng-option [value]="0">Todos los Productos</ng-option>
+                <ng-option *ngFor="let prod of productos" [value]="prod.id">
+                  {{ prod.nombre }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          
+          <div class="col-2" *ngIf="activeTab === 'compras-detallado'">
+            <div>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Proveedor</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProveedorSelected"
+                (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Proveedores">
+                <ng-option [value]="0">Todos los Proveedores</ng-option>
+                <ng-option *ngFor="let prov of proveedores" [value]="prov.id">
+                  {{ prov.nombre }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          
+          <div class="col-2" *ngIf="activeTab === 'compras-detallado'">
+            <div>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Tipo de Pago</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="tipoPagoSelected"
+                (change)="onFilterChange()" [clearable]="false">
+                <ng-option value="todos">Todos</ng-option>
+                <ng-option value="contado">Solo Contado</ng-option>
+                <ng-option value="credito">Solo Crédito</ng-option>
+              </ng-select>
+            </div>
+          </div>
+          
+          <!-- Filtros de Ventas Detalladas -->
+          <div class="col-2" *ngIf="activeTab === 'ventas-detallado'">
+            <div>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Platillo</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
+                (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
+                <ng-option [value]="0">Todos los Productos</ng-option>
+                <ng-option *ngFor="let prod of productos" [value]="prod.id">
+                  {{ prod.nombre }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          
+          <div class="col-2" *ngIf="activeTab === 'ventas-detallado'">
+            <div>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Cliente</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idClienteSelected"
+                (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Clientes">
+                <ng-option [value]="0">Todos los Clientes</ng-option>
+                <ng-option *ngFor="let cli of clientes" [value]="cli.id">
+                  {{ cli.nombre }}
+                </ng-option>
+              </ng-select>
+            </div>
+          </div>
+          
+          <div class="col-2" *ngIf="activeTab === 'ventas-detallado'">
+            <div>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Tipo de Pago</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="tipoPagoSelected"
+                (change)="onFilterChange()" [clearable]="false">
+                <ng-option value="todos">Todos</ng-option>
+                <ng-option value="contado">Solo Contado</ng-option>
+                <ng-option value="credito">Solo Crédito</ng-option>
+              </ng-select>
+            </div>
+          </div>
+          
+          <!-- Filtros de Histórico / Ajustes de Inventario -->
+          <div class="col-3" *ngIf="activeTab === 'historico-inventario' || activeTab === 'ajustes-inventario'">
+            <div>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Insumo</label>
+              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
+                (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
+                <ng-option [value]="0">Todos los Productos</ng-option>
+                <ng-option *ngFor="let prod of productos" [value]="prod.id">
+                  {{ prod.nombre }}
+                </ng-option>
+              </ng-select>
             </div>
           </div>
         </div>
