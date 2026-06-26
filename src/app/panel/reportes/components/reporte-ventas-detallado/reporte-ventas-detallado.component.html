@@ -7,21 +7,21 @@
 
 <div *ngIf="!loading">
   <!-- KPIs Rápidos de Ventas -->
-  <div class="row g-3 mb-4 hide-on-print">
+  <div class="row g-3 mb-2 hide-on-print">
     <div class="col-md-4">
-      <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+      <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
         <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Partidas Encontradas</h6>
-        <h3 class="fw-extrabold text-primary mb-0">{{ ventasDetalladasData.length }}</h3>
+        <h4 class="fw-extrabold text-primary mb-0">{{ ventasDetalladasData.length }}</h4>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+      <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
         <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Cantidad Total Vendida</h6>
         <h3 class="fw-extrabold text-success mb-0">{{ cantidadVentasDetallado | number:'1.0-3' }}</h3>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+      <div class="card border-0 rounded-4 shadow-sm p-3 bg-white">
         <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Monto Total de Venta</h6>
         <h3 class="fw-extrabold text-danger mb-0">{{ totalVentasDetallado | currency }}</h3>
       </div>

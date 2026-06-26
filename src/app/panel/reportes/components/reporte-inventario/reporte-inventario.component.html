@@ -7,17 +7,17 @@
 
 <div *ngIf="!loading && inventarioSummary">
   <!-- Tarjetas de KPIs de Inventario -->
-  <div class="row g-3 mb-4 kpi-row hide-on-print">
+  <div class="row g-3 mb-2 kpi-row hide-on-print">
     <!-- Total SKUs -->
     <div class="col-md-3 kpi-col">
-      <div class="card border-0 shadow-sm rounded-4 bg-white p-3 h-100 position-relative overflow-hidden card-hover">
+      <div class="card border-0 shadow-sm rounded-4 bg-white p-2 position-relative overflow-hidden card-hover">
         <div class="d-flex align-items-center">
-          <div class="bg-primary-subtle p-3 rounded-4 me-3 text-primary">
+          <div class="p-3 rounded-4 me-3 text-primary">
             <i class="bi bi-box-seam fs-4"></i>
           </div>
           <div>
             <h6 class="text-uppercase text-secondary small mb-1 fw-semibold tracking-wider">Total Productos</h6>
-            <h3 class="fw-bold mb-0 text-dark">{{ inventarioSummary.total }}</h3>
+            <h4 class="fw-bold mb-0 text-dark">{{ inventarioSummary.total }}</h4>
           </div>
         </div>
       </div>
@@ -25,17 +25,17 @@
     
     <!-- Críticos (Sin Stock) -->
     <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'critico' ? 'todos' : 'critico')" style="cursor: pointer;">
-      <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
+      <div class="card border-0 shadow-sm rounded-4 p-2 h-100 position-relative overflow-hidden card-hover"
         [ngClass]="filtroEstatus === 'critico' ? 'bg-danger text-white' : 'bg-white text-dark'">
         <div class="d-flex align-items-center">
           <div class="p-3 rounded-4 me-3"
-            [ngClass]="filtroEstatus === 'critico' ? 'bg-white-subtle text-white' : 'bg-danger-subtle text-danger'">
+            [ngClass]="filtroEstatus === 'critico' ? 'bg-white-subtle text-white' : 'text-danger'">
             <i class="bi bi-x-circle-fill fs-4"></i>
           </div>
           <div>
             <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
               [ngClass]="filtroEstatus === 'critico' ? 'text-white-50' : 'text-secondary'">Agotados (Sin Stock)</h6>
-            <h3 class="fw-bold mb-0">{{ inventarioSummary.critico }}</h3>
+            <h4 class="fw-bold mb-0">{{ inventarioSummary.critico }}</h4>
           </div>
         </div>
       </div>
@@ -43,17 +43,17 @@
     
     <!-- Bajos (Alerta Bajo Stock) -->
     <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'bajo' ? 'todos' : 'bajo')" style="cursor: pointer;">
-      <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
+      <div class="card border-0 shadow-sm rounded-4 p-2 h-100 position-relative overflow-hidden card-hover"
         [ngClass]="filtroEstatus === 'bajo' ? 'bg-warning text-dark' : 'bg-white text-dark'">
         <div class="d-flex align-items-center">
           <div class="p-3 rounded-4 me-3"
-            [ngClass]="filtroEstatus === 'bajo' ? 'bg-white-subtle text-dark' : 'bg-warning-subtle text-warning'">
+            [ngClass]="filtroEstatus === 'bajo' ? 'bg-white-subtle text-dark' : 'text-warning'">
             <i class="bi bi-exclamation-triangle-fill fs-4"></i>
           </div>
           <div>
             <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
               [ngClass]="filtroEstatus === 'bajo' ? 'text-dark-50' : 'text-secondary'">Inventario Bajo</h6>
-            <h3 class="fw-bold mb-0">{{ inventarioSummary.bajo }}</h3>
+            <h4 class="fw-bold mb-0">{{ inventarioSummary.bajo }}</h4>
           </div>
         </div>
       </div>
@@ -61,17 +61,17 @@
     
     <!-- Saludables (OK) -->
     <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'ok' ? 'todos' : 'ok')" style="cursor: pointer;">
-      <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
+      <div class="card border-0 shadow-sm rounded-4 p-2 h-100 position-relative overflow-hidden card-hover"
         [ngClass]="filtroEstatus === 'ok' ? 'bg-success text-white' : 'bg-white text-dark'">
         <div class="d-flex align-items-center">
           <div class="p-3 rounded-4 me-3"
-            [ngClass]="filtroEstatus === 'ok' ? 'bg-white-subtle text-white' : 'bg-success-subtle text-success'">
+            [ngClass]="filtroEstatus === 'ok' ? 'bg-white-subtle text-white' : 'text-success'">
             <i class="bi bi-check-circle-fill fs-4"></i>
           </div>
           <div>
             <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
               [ngClass]="filtroEstatus === 'ok' ? 'text-white-50' : 'text-secondary'">Stock Saludable</h6>
-            <h3 class="fw-bold mb-0">{{ inventarioSummary.ok }}</h3>
+            <h4 class="fw-bold mb-0">{{ inventarioSummary.ok }}</h4>
           </div>
         </div>
       </div>
@@ -79,7 +79,7 @@
   </div>
 
   <!-- Controles de Filtros y Búsqueda -->
-  <div class="card border-0 shadow-sm rounded-4 mb-4 hide-on-print">
+  <div class="card border-0 shadow-sm rounded-4 mb-2 hide-on-print">
     <div class="card-body py-3">
       <div class="row g-2 align-items-center justify-content-between">
         <div class="col-md-6 d-flex gap-2 align-items-center flex-wrap">

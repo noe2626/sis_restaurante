@@ -8,72 +8,61 @@
 <div *ngIf="!loading && reportData">
   
   <!-- Tarjetas de Resumen Financiero (KPIs) -->
-  <div class="row g-3 mb-4 hide-on-print">
+  <div class="d-flex mb-3 hide-on-print">
     
     <!-- Ventas Brutas -->
     <div class="col-md-3">
-      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi"
+      <div class="card border-0 rounded-4 shadow-sm card-kpi m-1 h-100"
         style="background: linear-gradient(135deg, #122957 0%, #1c1f24 100%); color: white;">
-        <div class="card-body p-4 position-relative">
+        <div class="card-body p-3 position-relative">
           <div class="position-absolute top-50 end-0 translate-middle-y me-3 opacity-10">
-            <i class="bi bi-cash-stack" style="font-size: 5rem;"></i>
+            <i class="bi bi-cash-stack" style="font-size: 3rem;"></i>
           </div>
           <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2"
             style="letter-spacing: 0.05em; color: #a0aec0 !important;">Venta Bruta</h6>
-          <h2 class="fw-extrabold mb-1" style="font-size: 2rem;">{{ reportData.resumen.bruto | currency }}</h2>
-          <p class="mb-0 fs-8 text-success-light fw-semibold">
-            <i class="bi bi-info-circle me-1"></i>Ingreso bruto total cobrado
-          </p>
+          <h3 class="fw-extrabold mb-1" style="font-size: 2rem;">{{ reportData.resumen.bruto | currency }}</h3>
         </div>
       </div>
     </div>
 
     <!-- Comisiones Retenidas -->
     <div class="col-md-3">
-      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi bg-white text-dark">
-        <div class="card-body p-4 position-relative">
+      <div class="card border-0 rounded-4 shadow-sm card-kpi bg-white text-dark m-1 h-100">
+        <div class="card-body p-3 position-relative">
           <div class="position-absolute top-50 end-0 translate-middle-y me-3 text-danger opacity-10">
-            <i class="bi bi-percent" style="font-size: 5rem;"></i>
+            <i class="bi bi-percent" style="font-size: 3rem;"></i>
           </div>
           <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Comisión Terceros</h6>
-          <h2 class="fw-extrabold text-danger mb-1" style="font-size: 2rem;">{{ reportData.resumen.comisiones_terceros | currency }}</h2>
-          <p class="mb-0 fs-8 text-muted fw-semibold">
-            <i class="bi bi-arrow-right-short me-1"></i>Retenciones (Uber/McQueen)
-          </p>
+          <h3 class="fw-extrabold text-danger mb-1" style="font-size: 2rem;">{{ reportData.resumen.comisiones_terceros | currency }}</h3>
         </div>
       </div>
     </div>
 
     <!-- Ingreso Neto Real -->
     <div class="col-md-3">
-      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi text-white bg-gradient"
+      <div class="card border-0 rounded-4 shadow-sm card-kpi text-white bg-gradient m-1 h-100"
         style="background: rgb(112, 187, 112);">
-        <div class="card-body p-4 position-relative">
+        <div class="card-body p-3 position-relative">
           <div class="position-absolute top-50 end-0 translate-middle-y me-3 opacity-15">
-            <i class="bi bi-wallet2" style="font-size: 5rem;"></i>
+            <i class="bi bi-wallet2" style="font-size: 3rem;"></i>
           </div>
           <h6 class="text-uppercase text-white-50 fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Ingreso Neto Real</h6>
-          <h2 class="fw-extrabold mb-1" style="font-size: 2.2rem;">{{ reportData.resumen.neto_real | currency }}</h2>
-          <p class="mb-0 fs-8 text-white-50 fw-semibold">
-            <i class="bi bi-shield-check me-1"></i>Recaudado neto real
-          </p>
+          <h3 class="fw-extrabold mb-1" style="font-size: 2.2rem;">{{ reportData.resumen.neto_real | currency }}</h3>
         </div>
       </div>
     </div>
 
     <!-- Pedidos y Piezas -->
     <div class="col-md-3">
-      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi bg-white text-dark">
-        <div class="card-body p-4">
+      <div class="card border-0 rounded-4 shadow-sm card-kpi bg-white text-dark m-1 h-100">
+        <div class="card-body p-2 text-center">
           <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Pedidos / Productos</h6>
           <div class="d-flex justify-content-between align-items-center mt-2">
-            <div>
+            <div class="w-50 p-2">
               <h3 class="fw-bold mb-0 text-primary">{{ reportData.resumen.pedidos_count }}</h3>
-              <small class="text-muted fs-8">Pedidos</small>
             </div>
-            <div class="border-start ps-3 me-auto ms-4">
+            <div class="w-50 border-start p-2 me-auto">
               <h3 class="fw-bold mb-0 text-success">{{ reportData.resumen.piezas_count }}</h3>
-              <small class="text-muted fs-8">Piezas Vendidas</small>
             </div>
           </div>
         </div>
