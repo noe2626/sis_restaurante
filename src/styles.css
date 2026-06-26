@@ -100,7 +100,12 @@ body {
     font-size: 11px !important;
   }
 
-  /* Ocultar elementos innecesarios */
+  /* Mostrar la cabecera de impresión limpia */
+  .show-on-print-only {
+    display: block !important;
+  }
+
+  /* Ocultar elementos innecesarios de navegación, filtros y botones */
   .hide-on-print,
   nav,
   app-nav-bar,
@@ -115,8 +120,19 @@ body {
   .spinner-border,
   .text-center.py-5,
   .toggle-header,
-  app-nav-bar,
-  .d-flex.align-items-center.justify-content-between.mb-3 {
+  app-nav-bar {
+    display: none !important;
+  }
+
+  /* Ocultar títulos de cabecera redundantes y botones dentro de los reportes hijos */
+  app-reporte-general .card h5,
+  app-reporte-cajas .card .d-flex.justify-content-between,
+  app-reporte-ventas-analisis .card .d-flex.justify-content-between,
+  app-reporte-compras-detallado .card .d-flex.justify-content-between,
+  app-reporte-ventas-detallado .card .d-flex.justify-content-between,
+  app-reporte-inventario .card .d-flex.justify-content-between,
+  app-reporte-historico-inventario .card-header,
+  app-reporte-ajustes-inventario .card-header {
     display: none !important;
   }
 
@@ -133,6 +149,13 @@ body {
     overflow: visible !important;
     overflow-y: visible !important;
     padding-right: 0 !important;
+  }
+
+  /* Asegurar que la tabla de detalle diario tome todo el ancho de página */
+  app-reporte-ventas-analisis .col-12.col-xl-4 {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
   }
 
   /* Evitar saltos de página a mitad de una tarjeta o sección */

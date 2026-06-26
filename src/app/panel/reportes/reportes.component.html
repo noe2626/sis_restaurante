@@ -78,14 +78,53 @@
 
     <!-- Contenido reportes -->
     <div class="flex-fill" style="padding: 10px;">
-        <!-- Fila de Encabezado y Filtros -->
-      <div class="row">
+
+      <!-- Cabecera de Impresión Limpia (Visible solo al imprimir) -->
+      <div class="print-header show-on-print-only mb-4" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3" style="border-bottom: 2px solid #dc3545 !important;">
+          <div>
+            <h2 class="fw-bold text-dark m-0">{{ getFriendlyTabName() }}</h2>
+            <p class="text-secondary m-0 small">Generado desde el Sistema de Administración</p>
+          </div>
+          <div class="text-end">
+            <h4 class="m-0 fw-bold text-danger" style="letter-spacing: 0.05em;">ROJO VIVO</h4>
+            <p class="m-0 text-muted small">{{ fechaHoy | date: 'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+        </div>
+        
+        <div class="card border-0 bg-light p-3 mb-4 rounded-3" style="background-color: #f8fafc !important; border: 1px solid #cbd5e1 !important; margin-bottom: 20px !important;">
+          <h6 class="text-uppercase text-secondary fw-bold mb-2 fs-8" style="letter-spacing: 0.05em; color: #475569 !important;">Filtros Aplicados</h6>
+          <div class="d-flex flex-wrap gap-3 fs-7 text-dark">
+            <div style="min-width: 45%; margin-bottom: 5px;" *ngIf="activeTab !== 'inventario'">
+              <strong>Rango de Fechas:</strong> {{ fechaInicio | date:'dd/MM/yyyy' }} al {{ fechaFin | date:'dd/MM/yyyy' }}
+            </div>
+            <div style="min-width: 45%; margin-bottom: 5px;">
+              <strong>Sucursal:</strong> {{ getSucursalName() }}
+            </div>
+            <div style="min-width: 45%; margin-bottom: 5px;" *ngIf="activeTab === 'compras-detallado' || activeTab === 'ventas-detallado' || activeTab === 'historico-inventario' || activeTab === 'ajustes-inventario'">
+              <strong>Producto / Insumo:</strong> {{ getProductoName() }}
+            </div>
+            <div style="min-width: 45%; margin-bottom: 5px;" *ngIf="activeTab === 'compras-detallado'">
+              <strong>Proveedor:</strong> {{ getProveedorName() }}
+            </div>
+            <div style="min-width: 45%; margin-bottom: 5px;" *ngIf="activeTab === 'ventas-detallado'">
+              <strong>Cliente:</strong> {{ getClientName() }}
+            </div>
+            <div style="min-width: 45%; margin-bottom: 5px;" *ngIf="activeTab === 'compras-detallado' || activeTab === 'ventas-detallado'">
+              <strong>Tipo de Pago:</strong> {{ tipoPagoSelected === 'todos' ? 'Todos' : (tipoPagoSelected === 'contado' ? 'Solo Contado' : 'Solo Crédito') }}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Fila de Encabezado y Filtros -->
+      <div class="row hide-on-print">
         <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
           <i class="bi bi-graph-up-arrow text-danger me-3" style="font-size: 2rem;"></i>
           Reportes y Estadísticas Financieras
         </h3>
       </div>
-      <div class="card border-0">
+      <div class="card border-0 hide-on-print">
         <div class="row align-items-center bg-white m-2">
           
           <!-- Fecha Inicio (Solo si no es pestaña Inventario) -->

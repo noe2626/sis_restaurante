@@ -140,6 +140,56 @@ export class ReportesComponent implements OnInit {
     // Al ser inputs vinculados por ngModel, el cambio se propagará a los componentes hijos automáticamente
   }
 
+  getSucursalName(): string {
+    if (this.idSucursalSelected === 0) {
+      return 'Todas las Sucursales';
+    }
+    const suc = this.sucursales.find(s => (s.idSucursal || s.id) === this.idSucursalSelected);
+    return suc ? (suc.sucursal || suc.nombre) : 'Todas las Sucursales';
+  }
+
+  getProductoName(): string {
+    if (this.idProductoSelected === 0) {
+      return 'Todos los Productos';
+    }
+    const prod = this.productos.find(p => p.id === this.idProductoSelected);
+    return prod ? prod.nombre : 'Todos los Productos';
+  }
+
+  getProveedorName(): string {
+    if (this.idProveedorSelected === 0) {
+      return 'Todos los Proveedores';
+    }
+    const prov = this.proveedores.find(p => p.id === this.idProveedorSelected);
+    return prov ? prov.nombre : 'Todos los Proveedores';
+  }
+
+  getClientName(): string {
+    if (this.idClienteSelected === 0) {
+      return 'Todos los Clientes';
+    }
+    const cli = this.clientes.find(c => c.id === this.idClienteSelected);
+    return cli ? cli.nombre : 'Todos los Clientes';
+  }
+
+  getFriendlyTabName(): string {
+    switch (this.activeTab) {
+      case 'general': return 'Reporte de Resumen General';
+      case 'cajas': return 'Reporte de Auditoría de Cajas (Arqueos)';
+      case 'ventas-analisis': return 'Reporte de Análisis de Ventas Diarias';
+      case 'compras-detallado': return 'Reporte Detallado de Compras';
+      case 'ventas-detallado': return 'Reporte Detallado de Ventas';
+      case 'inventario': return 'Reporte de Inventario Actual';
+      case 'historico-inventario': return 'Historial de Existencias Diarias';
+      case 'ajustes-inventario': return 'Bitácora de Ajustes Manuales de Inventario';
+      default: return 'Reporte del Sistema';
+    }
+  }
+
+  get fechaHoy(): Date {
+    return new Date();
+  }
+
   imprimirReporte(): void {
     window.print();
   }
