@@ -274,17 +274,46 @@ body {
     border-collapse: collapse !important;
   }
 
-  th, td {
+  th, td,
+  .mat-mdc-header-cell,
+  .mat-mdc-cell,
+  .mat-header-cell,
+  .mat-cell {
     padding: 2px 4px !important;
+    height: auto !important;
+    min-height: 0 !important;
     border: 1px solid #94a3b8 !important;
     font-size: 9px !important;
     color: #1e293b !important;
   }
 
-  th {
+  th,
+  .mat-mdc-header-cell,
+  .mat-header-cell {
     background-color: #f1f5f9 !important;
     font-weight: bold !important;
     color: #0f172a !important;
+  }
+
+  /* Forzar que los paddings laterales de Bootstrap en las celdas se anulen al imprimir */
+  th.ps-4, td.ps-4,
+  th.pe-4, td.pe-4,
+  .mat-mdc-header-cell.ps-4, .mat-mdc-cell.ps-4,
+  .mat-mdc-header-cell.pe-4, .mat-mdc-cell.pe-4,
+  .mat-header-cell.ps-4, .mat-cell.ps-4,
+  .mat-header-cell.pe-4, .mat-cell.pe-4 {
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  /* Resetear alturas de filas de Angular Material en impresión */
+  tr,
+  tr.mat-mdc-header-row,
+  tr.mat-mdc-row,
+  tr.mat-header-row,
+  tr.mat-row {
+    height: auto !important;
+    min-height: 0 !important;
   }
 
   /* Badges Dinámicos de Contado / Crédito en Impresión */
