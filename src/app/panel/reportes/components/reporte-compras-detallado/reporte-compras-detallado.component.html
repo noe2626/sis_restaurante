@@ -1,0 +1,84 @@
+<div class="text-center py-5" *ngIf="loading">
+  <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="text-muted mt-2 fw-semibold">Consultando base de datos...</p>
+</div>
+
+<div *ngIf="!loading">
+  <!-- KPIs Rápidos de Compras -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+        <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Partidas Encontradas</h6>
+        <h3 class="fw-extrabold text-primary mb-0">{{ comprasDetalladasData.length }}</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+        <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Cantidad Total Comprada</h6>
+        <h3 class="fw-extrabold text-success mb-0">{{ cantidadComprasDetallado | number:'1.0-3' }}</h3>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
+        <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Monto Total de Compra</h6>
+        <h3 class="fw-extrabold text-danger mb-0">{{ totalComprasDetallado | currency }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark mb-0"><i class="bi bi-cart-fill me-2 text-danger"></i> Reporte Detallado de Compras</h5>
+      <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" (click)="imprimirReporte()">
+        <i class="bi bi-printer me-1"></i> Imprimir
+      </button>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr class="fs-8 text-uppercase text-secondary fw-semibold">
+            <th>Producto / Insumo</th>
+            <th>Código</th>
+            <th>Proveedor</th>
+            <th>Sucursal</th>
+            <th class="text-end">Fecha</th>
+            <th class="text-center">Folio</th>
+            <th class="text-center">Pago</th>
+            <th class="text-end">Precio U.</th>
+            <th class="text-end">Cantidad</th>
+            <th class="text-end">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of comprasDetalladasData" class="fs-7">
+            <td><span class="fw-bold text-dark">{{ item.producto_nombre }}</span></td>
+            <td><span class="text-muted small">{{ item.producto_codigo || 'N/A' }}</span></td>
+            <td><span class="fw-semibold text-secondary">{{ item.proveedor_nombre }}</span></td>
+            <td><span class="text-muted">{{ item.sucursal_nombre }}</span></td>
+            <td class="text-end text-muted">{{ item.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="text-center">
+              <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 fs-8 fw-semibold">{{
+                item.folio }}</span>
+            </td>
+            <td class="text-center">
+              <span *ngIf="item.estatus === 3" class="badge bg-warning text-dark px-2.5 py-1.5 rounded-pill fs-8 fw-semibold">Crédito</span>
+              <span *ngIf="item.estatus !== 3" class="badge bg-success text-white px-2.5 py-1.5 rounded-pill fs-8 fw-semibold">Contado</span>
+            </td>
+            <td class="text-end fw-bold text-primary">{{ item.precio_compra | currency }}</td>
+            <td class="text-end fw-semibold">{{ item.cantidad_comprada | number:'1.0-3' }}</td>
+            <td class="text-end fw-semibold text-dark">{{ item.total_compra | currency }}</td>
+          </tr>
+          <tr *ngIf="comprasDetalladasData.length === 0">
+            <td colspan="10" class="text-center py-5 text-muted">
+              <i class="bi bi-cart-x fs-2 d-block mb-2 text-secondary"></i>
+              No se encontraron compras en el rango y filtros seleccionados.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

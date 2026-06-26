@@ -1,0 +1,273 @@
+<div class="text-center py-5" *ngIf="loading">
+  <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="text-muted mt-2 fw-semibold">Consultando base de datos...</p>
+</div>
+
+<div *ngIf="!loading && inventarioSummary">
+  <!-- Tarjetas de KPIs de Inventario -->
+  <div class="row g-3 mb-4 kpi-row">
+    <!-- Total SKUs -->
+    <div class="col-md-3 kpi-col">
+      <div class="card border-0 shadow-sm rounded-4 bg-white p-3 h-100 position-relative overflow-hidden card-hover">
+        <div class="d-flex align-items-center">
+          <div class="bg-primary-subtle p-3 rounded-4 me-3 text-primary">
+            <i class="bi bi-box-seam fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-uppercase text-secondary small mb-1 fw-semibold tracking-wider">Total Productos</h6>
+            <h3 class="fw-bold mb-0 text-dark">{{ inventarioSummary.total }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Críticos (Sin Stock) -->
+    <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'critico' ? 'todos' : 'critico')" style="cursor: pointer;">
+      <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
+        [ngClass]="filtroEstatus === 'critico' ? 'bg-danger text-white' : 'bg-white text-dark'">
+        <div class="d-flex align-items-center">
+          <div class="p-3 rounded-4 me-3"
+            [ngClass]="filtroEstatus === 'critico' ? 'bg-white-subtle text-white' : 'bg-danger-subtle text-danger'">
+            <i class="bi bi-x-circle-fill fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
+              [ngClass]="filtroEstatus === 'critico' ? 'text-white-50' : 'text-secondary'">Agotados (Sin Stock)</h6>
+            <h3 class="fw-bold mb-0">{{ inventarioSummary.critico }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bajos (Alerta Bajo Stock) -->
+    <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'bajo' ? 'todos' : 'bajo')" style="cursor: pointer;">
+      <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
+        [ngClass]="filtroEstatus === 'bajo' ? 'bg-warning text-dark' : 'bg-white text-dark'">
+        <div class="d-flex align-items-center">
+          <div class="p-3 rounded-4 me-3"
+            [ngClass]="filtroEstatus === 'bajo' ? 'bg-white-subtle text-dark' : 'bg-warning-subtle text-warning'">
+            <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
+              [ngClass]="filtroEstatus === 'bajo' ? 'text-dark-50' : 'text-secondary'">Inventario Bajo</h6>
+            <h3 class="fw-bold mb-0">{{ inventarioSummary.bajo }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Saludables (OK) -->
+    <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'ok' ? 'todos' : 'ok')" style="cursor: pointer;">
+      <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
+        [ngClass]="filtroEstatus === 'ok' ? 'bg-success text-white' : 'bg-white text-dark'">
+        <div class="d-flex align-items-center">
+          <div class="p-3 rounded-4 me-3"
+            [ngClass]="filtroEstatus === 'ok' ? 'bg-white-subtle text-white' : 'bg-success-subtle text-success'">
+            <i class="bi bi-check-circle-fill fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
+              [ngClass]="filtroEstatus === 'ok' ? 'text-white-50' : 'text-secondary'">Stock Saludable</h6>
+            <h3 class="fw-bold mb-0">{{ inventarioSummary.ok }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles de Filtros y Búsqueda -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4 hide-on-print">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-center justify-content-between">
+        <div class="col-md-6 d-flex gap-2 align-items-center flex-wrap">
+          <span class="text-secondary small fw-bold"><i class="bi bi-funnel-fill"></i> Filtrar Estado:</span>
+          <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
+            [ngClass]="filtroEstatus === 'todos' ? 'btn-danger text-white border-0' : 'btn-light text-secondary'"
+            (click)="cambiarFiltroEstatus('todos')">
+            Todos
+          </button>
+          <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
+            [ngClass]="filtroEstatus === 'critico' ? 'btn-danger text-white border-0' : 'btn-light text-secondary'"
+            (click)="cambiarFiltroEstatus('critico')">
+            Agotado ({{ inventarioSummary.critico }})
+          </button>
+          <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
+            [ngClass]="filtroEstatus === 'bajo' ? 'btn-warning text-dark border-0' : 'btn-light text-secondary'"
+            (click)="cambiarFiltroEstatus('bajo')">
+            Inventario Bajo ({{ inventarioSummary.bajo }})
+          </button>
+          <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
+            [ngClass]="filtroEstatus === 'ok' ? 'btn-success text-white border-0' : 'btn-light text-secondary'"
+            (click)="cambiarFiltroEstatus('ok')">
+            Saludable ({{ inventarioSummary.ok }})
+          </button>
+        </div>
+
+        <div class="col-md-4 d-flex gap-2">
+          <div class="input-group search-container w-100 rounded-pill bg-light border-0 shadow-none">
+            <span class="input-group-text bg-transparent border-0"><i class="bi bi-search text-muted"></i></span>
+            <input class="form-control bg-transparent border-0 py-2 fs-7 ps-0 text-dark" type="text"
+              placeholder="Buscar por nombre, código..." [(ngModel)]="searchTextInventario" (keyup)="actualizarInventarioDataSource()" />
+          </div>
+          <button class="btn btn-outline-secondary rounded-pill px-3 fs-7 border-secondary-subtle d-inline-flex align-items-center gap-1 bg-white"
+            (click)="imprimirReporte()">
+            <i class="bi bi-printer"></i> <span class="d-none d-md-inline">Imprimir</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de Reporte de Inventarios -->
+  <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-boxes text-danger me-2"></i> Estado de Existencias
+      </h6>
+      <span class="badge bg-light text-secondary border rounded-pill px-3 py-1 fs-8 fw-semibold" *ngIf="idSucursal === 0">
+        Todas las sucursales consolidadas
+      </span>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="inventarioDataSource" matSort #inventarioSort="matSort" class="table table-hover align-middle mb-0">
+          <!-- Producto Column -->
+          <ng-container matColumnDef="producto">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary ps-4"> Producto </th>
+            <td mat-cell *matCellDef="let element" class="ps-4 fw-bold text-dark">
+              {{ element.producto }}
+              <span class="text-secondary small fw-normal ms-1">({{ element.unidad_medida }})</span>
+            </td>
+          </ng-container>
+
+          <!-- Código Column -->
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary"> Código </th>
+            <td mat-cell *matCellDef="let element">
+              <code class="text-secondary fw-semibold px-2 py-1 bg-light rounded">{{ element.codigo || 'N/A' }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Sucursal Column -->
+          <ng-container matColumnDef="sucursal">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary"> Sucursal </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="fw-semibold text-secondary">{{ element.sucursal }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Inventariable Column -->
+          <ng-container matColumnDef="inventariar">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-center"> Inventariable </th>
+            <td mat-cell *matCellDef="let element" class="text-center">
+              <span class="badge rounded-pill px-2.5 py-1 fs-8 fw-semibold"
+                [ngClass]="element.inventariar ? 'bg-primary-subtle text-primary' : 'bg-light text-muted'">
+                {{ element.inventariar ? 'Sí' : 'No' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Stock Mínimo Column -->
+          <ng-container matColumnDef="stock_minimo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end"> Stock Mínimo </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-semibold">
+              {{ element.inventariar ? (element.stock_minimo | number: '1.2-2') : '—' }}
+              <small class="text-muted" *ngIf="element.inventariar">{{ element.unidad_medida }}</small>
+            </td>
+          </ng-container>
+
+          <!-- Existencia Actual Column -->
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end"> Existencia Actual </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-bold">
+              <span [ngClass]="{
+                'text-danger': element.inventariar && element.cantidad <= 0,
+                'text-warning': element.inventariar && element.cantidad > 0 && element.cantidad < element.stock_minimo,
+                'text-success': !element.inventariar || element.cantidad >= element.stock_minimo
+              }">
+                {{ element.cantidad | number: '1.2-2' }}
+                <small class="text-muted" *ngIf="element.inventariar">{{ element.unidad_medida }}</small>
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Estado Column -->
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-center pe-4"> Estado </th>
+            <td mat-cell *matCellDef="let element" class="text-center pe-4">
+              <span class="badge rounded-pill px-3 py-1.5 fs-8 fw-bold" [ngClass]="{
+                'bg-danger text-white': element.inventariar && element.cantidad <= 0,
+                'bg-warning text-dark': element.inventariar && element.cantidad > 0 && element.cantidad < element.stock_minimo,
+                'bg-success text-white': !element.inventariar || element.cantidad >= element.stock_minimo
+              }">
+                <span *ngIf="element.inventariar && element.cantidad <= 0"><i class="bi bi-x-circle me-1"></i> Agotado</span>
+                <span *ngIf="element.inventariar && element.cantidad > 0 && element.cantidad < element.stock_minimo"><i class="bi bi-exclamation-triangle me-1"></i> Stock Bajo</span>
+                <span *ngIf="!element.inventariar || element.cantidad >= element.stock_minimo"><i class="bi bi-check-circle me-1"></i> Saludable</span>
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Columnas de Filtro -->
+          <ng-container matColumnDef="filter-producto">
+            <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilter('producto', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-codigo">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilter('codigo', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-sucursal">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilter('sucursal', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-inventariar">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-center">
+              <input class="form-control form-control-sm text-center w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilter('inventariar', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-stock_minimo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilter('stock_minimo', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-cantidad">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilter('cantidad', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-estado">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-center pe-4">
+              <input class="form-control form-control-sm text-center w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilter('estado', $any($event.target).value)">
+            </th>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsInventario"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsFiltersInventario" class="filter-header-row hide-on-print"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsInventario;"></tr>
+        </table>
+
+        <div *ngIf="totalItemsInventario === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-boxes fs-1 d-block mb-2 text-secondary"></i>
+          No se encontraron existencias de inventario.
+        </div>
+      </div>
+
+      <mat-paginator #inventarioPaginator [pageSize]="50" [pageSizeOptions]="[10, 50, 100]" aria-label="Seleccionar página" class="border-top hide-on-print">
+      </mat-paginator>
+    </div>
+  </div>
+</div>

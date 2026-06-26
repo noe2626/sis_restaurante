@@ -1,0 +1,209 @@
+<div class="text-center py-5" *ngIf="loading">
+  <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="text-muted mt-2 fw-semibold">Consultando base de datos...</p>
+</div>
+
+<div *ngIf="!loading">
+  <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+      <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
+        <i class="bi bi-pencil-square text-danger me-2"></i> Auditoría de Ajustes Manuales de Inventario
+      </h6>
+      <button class="btn btn-outline-secondary rounded-pill px-3 fs-7 border-secondary-subtle d-inline-flex align-items-center gap-1 bg-white hide-on-print"
+        (click)="imprimirReporte()">
+        <i class="bi bi-printer"></i> <span>Imprimir</span>
+      </button>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table mat-table [dataSource]="ajustesDataSource" matSort #ajustesSort="matSort" class="table table-hover align-middle mb-0">
+          <!-- Fecha Column -->
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 12%;"> Fecha </th>
+            <td mat-cell *matCellDef="let element" class="ps-4 text-dark fs-8">
+              {{ element.fecha | date: 'dd/MM/yyyy HH:mm' }}
+            </td>
+          </ng-container>
+
+          <!-- Sucursal Column -->
+          <ng-container matColumnDef="sucursal_nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 12%;"> Sucursal </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="fw-semibold text-secondary fs-8">{{ element.sucursal_nombre }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Usuario Column -->
+          <ng-container matColumnDef="usuario_nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 12%;"> Autor </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="badge bg-secondary-subtle text-secondary rounded px-2.5 py-1 fs-8 fw-semibold">{{
+                element.usuario_nombre }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Producto Column -->
+          <ng-container matColumnDef="producto_nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Producto </th>
+            <td mat-cell *matCellDef="let element" class="fw-bold text-dark">
+              {{ element.producto_nombre }}
+            </td>
+          </ng-container>
+
+          <!-- Código Column -->
+          <ng-container matColumnDef="producto_codigo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary" style="width: 8%;"> Código </th>
+            <td mat-cell *matCellDef="let element">
+              <code class="text-secondary fw-semibold px-2 py-1 bg-light rounded">{{ element.producto_codigo || 'N/A' }}</code>
+            </td>
+          </ng-container>
+
+          <!-- Unidad Column -->
+          <ng-container matColumnDef="unidad_medida">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 6%;"> UM </th>
+            <td mat-cell *matCellDef="let element" class="text-center text-muted fs-8">
+              {{ element.unidad_medida || '—' }}
+            </td>
+          </ng-container>
+
+          <!-- Stock Anterior Column -->
+          <ng-container matColumnDef="stock_anterior">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Exist. Ant. </th>
+            <td mat-cell *matCellDef="let element" class="text-end text-secondary fw-semibold">
+              {{ element.stock_anterior | number: '1.2-2' }}
+            </td>
+          </ng-container>
+
+          <!-- Stock Nuevo Column -->
+          <ng-container matColumnDef="stock_nuevo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Exist. Nueva </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-bold" [ngClass]="element.stock_nuevo > element.stock_anterior ? 'text-success' : 'text-danger'">
+              {{ element.stock_nuevo | number: '1.2-2' }}
+            </td>
+          </ng-container>
+
+          <!-- Stock Mínimo Anterior Column -->
+          <ng-container matColumnDef="stock_minimo_anterior">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Mín. Ant. </th>
+            <td mat-cell *matCellDef="let element" class="text-end text-muted">
+              {{ element.stock_minimo_anterior !== null ? (element.stock_minimo_anterior | number: '1.2-2') : '—' }}
+            </td>
+          </ng-container>
+
+          <!-- Stock Mínimo Nuevo Column -->
+          <ng-container matColumnDef="stock_minimo_nuevo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Mín. Nuevo </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-semibold text-dark">
+              {{ element.stock_minimo_nuevo !== null ? (element.stock_minimo_nuevo | number: '1.2-2') : '—' }}
+            </td>
+          </ng-container>
+
+          <!-- Precio Anterior Column -->
+          <ng-container matColumnDef="precio_anterior">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Precio Ant. </th>
+            <td mat-cell *matCellDef="let element" class="text-end text-muted">
+              {{ element.precio_anterior !== null ? (element.precio_anterior | currency) : '—' }}
+            </td>
+          </ng-container>
+
+          <!-- Precio Nuevo Column -->
+          <ng-container matColumnDef="precio_nuevo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="table-light text-uppercase fs-7 text-secondary text-end pe-4" style="width: 8%;"> Precio Nuevo </th>
+            <td mat-cell *matCellDef="let element" class="text-end fw-semibold pe-4 text-dark">
+              {{ element.precio_nuevo !== null ? (element.precio_nuevo | currency) : '—' }}
+            </td>
+          </ng-container>
+
+          <!-- Filtros de Columna -->
+          <ng-container matColumnDef="filter-fecha">
+            <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('fecha', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-sucursal_nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('sucursal_nombre', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-usuario_nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('usuario_nombre', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-producto_nombre">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('producto_nombre', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-producto_codigo">
+            <th mat-header-cell *matHeaderCellDef class="table-light">
+              <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('producto_codigo', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-unidad_medida">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-center">
+              <input class="form-control form-control-sm text-center w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('unidad_medida', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-stock_anterior">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('stock_anterior', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-stock_nuevo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('stock_nuevo', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-stock_minimo_anterior">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('stock_minimo_anterior', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-stock_minimo_nuevo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('stock_minimo_nuevo', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-precio_anterior">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('precio_anterior', $any($event.target).value)">
+            </th>
+          </ng-container>
+          <ng-container matColumnDef="filter-precio_nuevo">
+            <th mat-header-cell *matHeaderCellDef class="table-light text-end pe-4">
+              <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
+                (keyup)="applyColumnFilterAjustes('precio_nuevo', $any($event.target).value)">
+            </th>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsAjustes"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsFiltersAjustes" class="filter-header-row hide-on-print"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsAjustes;"></tr>
+        </table>
+
+        <div *ngIf="ajustesDataSource.filteredData.length === 0" class="text-center py-5 text-muted">
+          <i class="bi bi-pencil-square fs-1 d-block mb-2 text-secondary"></i>
+          No se encontraron modificaciones manuales de inventario para este rango y sucursal.
+        </div>
+      </div>
+
+      <mat-paginator #ajustesPaginator [pageSize]="50" [pageSizeOptions]="[10, 50, 100]" aria-label="Seleccionar página" class="border-top hide-on-print">
+      </mat-paginator>
+    </div>
+  </div>
+</div>

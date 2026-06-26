@@ -1,0 +1,205 @@
+<div class="text-center py-5" *ngIf="loading">
+  <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="text-muted mt-2 fw-semibold">Consultando base de datos...</p>
+</div>
+
+<div *ngIf="!loading && reportData">
+  
+  <!-- Tarjetas de Resumen Financiero (KPIs) -->
+  <div class="row g-3 mb-4">
+    
+    <!-- Ventas Brutas -->
+    <div class="col-md-3">
+      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi"
+        style="background: linear-gradient(135deg, #122957 0%, #1c1f24 100%); color: white;">
+        <div class="card-body p-4 position-relative">
+          <div class="position-absolute top-50 end-0 translate-middle-y me-3 opacity-10">
+            <i class="bi bi-cash-stack" style="font-size: 5rem;"></i>
+          </div>
+          <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2"
+            style="letter-spacing: 0.05em; color: #a0aec0 !important;">Venta Bruta</h6>
+          <h2 class="fw-extrabold mb-1" style="font-size: 2rem;">{{ reportData.resumen.bruto | currency }}</h2>
+          <p class="mb-0 fs-8 text-success-light fw-semibold">
+            <i class="bi bi-info-circle me-1"></i>Ingreso bruto total cobrado
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comisiones Retenidas -->
+    <div class="col-md-3">
+      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi bg-white text-dark">
+        <div class="card-body p-4 position-relative">
+          <div class="position-absolute top-50 end-0 translate-middle-y me-3 text-danger opacity-10">
+            <i class="bi bi-percent" style="font-size: 5rem;"></i>
+          </div>
+          <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Comisión Terceros</h6>
+          <h2 class="fw-extrabold text-danger mb-1" style="font-size: 2rem;">{{ reportData.resumen.comisiones_terceros | currency }}</h2>
+          <p class="mb-0 fs-8 text-muted fw-semibold">
+            <i class="bi bi-arrow-right-short me-1"></i>Retenciones (Uber/McQueen)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ingreso Neto Real -->
+    <div class="col-md-3">
+      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi text-white bg-gradient"
+        style="background: rgb(112, 187, 112);">
+        <div class="card-body p-4 position-relative">
+          <div class="position-absolute top-50 end-0 translate-middle-y me-3 opacity-15">
+            <i class="bi bi-wallet2" style="font-size: 5rem;"></i>
+          </div>
+          <h6 class="text-uppercase text-white-50 fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Ingreso Neto Real</h6>
+          <h2 class="fw-extrabold mb-1" style="font-size: 2.2rem;">{{ reportData.resumen.neto_real | currency }}</h2>
+          <p class="mb-0 fs-8 text-white-50 fw-semibold">
+            <i class="bi bi-shield-check me-1"></i>Recaudado neto real
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pedidos y Piezas -->
+    <div class="col-md-3">
+      <div class="card border-0 rounded-4 shadow-sm h-100 card-kpi bg-white text-dark">
+        <div class="card-body p-4">
+          <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Pedidos / Productos</h6>
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <div>
+              <h3 class="fw-bold mb-0 text-primary">{{ reportData.resumen.pedidos_count }}</h3>
+              <small class="text-muted fs-8">Pedidos</small>
+            </div>
+            <div class="border-start ps-3 me-auto ms-4">
+              <h3 class="fw-bold mb-0 text-success">{{ reportData.resumen.piezas_count }}</h3>
+              <small class="text-muted fs-8">Piezas Vendidas</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sección Intermedia: Desglose Métodos de Pago y Canales de Venta -->
+  <div class="row g-4 mb-4">
+
+    <!-- Métodos de Pago -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-4 d-flex align-items-center">
+          <i class="bi bi-credit-card-2-front text-danger me-2"></i> Participación de Métodos de Pago
+        </h5>
+
+        <div class="mb-4" *ngFor="let item of reportData.por_metodo_pago">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-capitalize fw-semibold text-dark">{{ item.metodo }}</span>
+            <span class="text-muted fs-7">{{ item.total | currency }} ({{ item.porcentaje }}%)</span>
+          </div>
+          <div class="progress rounded-pill bg-light" style="height: 10px;">
+            <div class="progress-bar rounded-pill" role="progressbar" [ngClass]="{
+              'bg-success': item.metodo === 'efectodo',
+              'bg-primary': item.metodo === 'tarjeta',
+              'bg-success-subtle': item.metodo === 'efectivo',
+              'bg-warning text-dark': item.metodo === 'transferencia'
+            }" [style.width.%]="item.porcentaje" [attr.aria-valuenow]="item.porcentaje" aria-valuemin="0"
+              aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canales de Venta Participación -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-4 d-flex align-items-center">
+          <i class="bi bi-sliders text-danger me-2"></i> Rendimiento por Canales de Venta
+        </h5>
+
+        <div class="mb-4" *ngFor="let item of reportData.por_canal_venta">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-semibold text-dark">{{ item.nombre }}</span>
+            <span class="text-muted fs-7">{{ item.bruto | currency }} ({{ item.porcentaje }}%)</span>
+          </div>
+          <div class="progress rounded-pill bg-light" style="height: 10px;">
+            <div class="progress-bar bg-danger rounded-pill" role="progressbar"
+              [style.width.%]="item.porcentaje" [attr.aria-valuenow]="item.porcentaje" aria-valuemin="0"
+              aria-valuemax="100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sección de Detalle: Canales y Productos Más Vendidos -->
+  <div class="row g-4">
+
+    <!-- Detalle de Canales de Venta -->
+    <div class="col-md-7">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-3">Desglose Financiero de Canales</h5>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr class="fs-7 text-uppercase text-secondary fw-semibold">
+                <th>Canal</th>
+                <th class="text-center">Cant</th>
+                <th class="text-end">Ingreso Bruto</th>
+                <th class="text-end">Comisiones</th>
+                <th class="text-end">Neto Recibido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of reportData.por_canal_venta" class="fs-7">
+                <td><span class="fw-bold text-dark">{{ item.nombre }}</span></td>
+                <td class="text-center fw-semibold">{{ item.cantidad }}</td>
+                <td class="text-end fw-semibold text-dark">{{ item.bruto | currency }}</td>
+                <td class="text-end fw-semibold text-danger">{{ item.comisiones | currency }}</td>
+                <td class="text-end fw-bold text-success">{{ item.neto | currency }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Productos Más Vendidos -->
+    <div class="col-md-5">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-3">Ranking de Ventas (Top 10)</h5>
+        <div class="table-responsive" style="max-height: 290px; overflow-y: auto;">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light sticky-top">
+              <tr class="fs-8 text-uppercase text-secondary fw-semibold">
+                <th>Producto</th>
+                <th class="text-center">Cant</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of reportData.productos_mas_vendidos; let idx = index" class="fs-7">
+                <td>
+                  <span
+                    class="badge bg-danger text-white me-2 rounded-circle d-inline-flex align-items-center justify-content-center"
+                    style="width: 20px; height: 20px; font-size: 0.65rem;">
+                    {{ idx + 1 }}
+                  </span>
+                  <span class="fw-semibold text-dark">{{ item.nombre }}</span>
+                </td>
+                <td class="text-center fw-bold text-secondary">{{ item.cantidad_total }} {{ item.unidad_medida }}</td>
+                <td class="text-end fw-bold text-dark">{{ item.monto_total | currency }}</td>
+              </tr>
+              <tr *ngIf="!reportData.productos_mas_vendidos || reportData.productos_mas_vendidos.length === 0">
+                <td colspan="3" class="text-center py-4 text-muted">No hay registros para este rango.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

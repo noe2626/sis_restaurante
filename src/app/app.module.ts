@@ -35,6 +35,14 @@ import { SesionesCajaComponent } from './panel/sesiones-caja/sesiones-caja.compo
 import { PreciosClienteComponent } from './panel/precios-cliente/precios-cliente.component';
 import { CanalesVentaComponent } from './panel/canales-venta/canales-venta.component';
 import { ReportesComponent } from './panel/reportes/reportes.component';
+import { ReporteGeneralComponent } from './panel/reportes/components/reporte-general/reporte-general.component';
+import { ReporteCajasComponent } from './panel/reportes/components/reporte-cajas/reporte-cajas.component';
+import { ReporteVentasAnalisisComponent } from './panel/reportes/components/reporte-ventas-analisis/reporte-ventas-analisis.component';
+import { ReporteComprasDetalladoComponent } from './panel/reportes/components/reporte-compras-detallado/reporte-compras-detallado.component';
+import { ReporteVentasDetalladoComponent } from './panel/reportes/components/reporte-ventas-detallado/reporte-ventas-detallado.component';
+import { ReporteInventarioComponent } from './panel/reportes/components/reporte-inventario/reporte-inventario.component';
+import { ReporteHistoricoInventarioComponent } from './panel/reportes/components/reporte-historico-inventario/reporte-historico-inventario.component';
+import { ReporteAjustesInventarioComponent } from './panel/reportes/components/reporte-ajustes-inventario/reporte-ajustes-inventario.component';
 import { MermasComponent } from './panel/inventarios/mermas/mermas.component';
 import { FabricacionesComponent } from './panel/inventarios/fabricaciones/fabricaciones.component';
 import { A11yModule } from "@angular/cdk/a11y";
@@ -66,6 +74,14 @@ import { A11yModule } from "@angular/cdk/a11y";
     PreciosClienteComponent,
     CanalesVentaComponent,
     ReportesComponent,
+    ReporteGeneralComponent,
+    ReporteCajasComponent,
+    ReporteVentasAnalisisComponent,
+    ReporteComprasDetalladoComponent,
+    ReporteVentasDetalladoComponent,
+    ReporteInventarioComponent,
+    ReporteHistoricoInventarioComponent,
+    ReporteAjustesInventarioComponent,
     MermasComponent,
     FabricacionesComponent,
   ],

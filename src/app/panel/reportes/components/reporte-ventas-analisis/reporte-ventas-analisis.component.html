@@ -1,0 +1,97 @@
+<div class="text-center py-5" *ngIf="loading">
+  <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="text-muted mt-2 fw-semibold">Consultando base de datos...</p>
+</div>
+
+<div *ngIf="!loading">
+  <!-- Fila 1: Ventas por Día (Gráfica Lineal + Tabla) -->
+  <div class="row g-4 mb-4">
+    
+    <!-- Gráfica Lineal Principal -->
+    <div class="col-12 col-xl-8">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-3">
+          <i class="bi bi-graph-up text-danger me-2"></i>
+          Tendencia de Ventas por Día
+        </h5>
+        <p class="text-muted fs-7 mb-4">Comportamiento del monto facturado y cantidad de pedidos diarios en el periodo seleccionado.</p>
+        <div style="height: 380px; position: relative;">
+          <canvas id="salesLineChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Datos Resumida -->
+    <div class="col-12 col-xl-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-dark mb-0">Detalle Diario</h5>
+          <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 fs-8" (click)="imprimirReporte()">
+            <i class="bi bi-printer me-1"></i> Imprimir
+          </button>
+        </div>
+        
+        <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light sticky-top">
+              <tr class="fs-8 text-uppercase text-secondary fw-semibold">
+                <th>Fecha</th>
+                <th class="text-center">Pedidos</th>
+                <th class="text-end">Monto</th>
+                <th class="text-end">Ticket Prom.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of ventasDiaData" class="fs-7">
+                <td class="fw-bold text-secondary">
+                  {{ item.fecha | date:'dd/MM/yyyy' }}
+                </td>
+                <td class="text-center">{{ item.pedidos }}</td>
+                <td class="text-end text-dark fw-semibold">{{ item.monto | currency }}</td>
+                <td class="text-end text-muted">{{ item.ticket_promedio | currency }}</td>
+              </tr>
+              <tr *ngIf="ventasDiaData.length === 0">
+                <td colspan="4" class="text-center py-5 text-muted">
+                  <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                  Sin datos en el rango seleccionado.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Fila 2: Distribución por Hora (Barras Horizontales) -->
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <h5 class="fw-bold text-dark mb-4">
+          <i class="bi bi-clock me-2 text-danger"></i> Distribución de Ventas por Hora
+        </h5>
+        
+        <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+          <div class="mb-3 d-flex align-items-center" *ngFor="let item of horasData">
+            <span class="fw-bold text-dark me-3 text-center" style="width: 60px;">{{ item.hora }}</span>
+            <div class="flex-grow-1">
+              <div class="progress rounded-pill bg-light" style="height: 18px;">
+                <div class="progress-bar rounded-pill bg-gradient bg-danger" role="progressbar"
+                  [style.width.%]="(item.pedidos / maxHourlySales) * 100"
+                  [attr.aria-valuenow]="item.pedidos" 
+                  aria-valuemin="0" 
+                  aria-valuemax="100">
+                  <span class="fs-9 fw-bold ps-2 text-white" *ngIf="item.pedidos > 0">{{ item.pedidos }} pedidos</span>
+                </div>
+              </div>
+            </div>
+            <span class="fw-semibold text-secondary ms-3 text-end" style="width: 120px;">{{ item.monto | currency }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

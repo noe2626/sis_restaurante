@@ -79,7 +79,7 @@ export class ReportesService {
     return this.http.get(`${this.apiUrl}reportes/ventas-dia`, { ...header, params });
   }
 
-  obtenerReporteComprasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number, idProveedor?: number) {
+  obtenerReporteComprasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number, idProveedor?: number, tipoPago?: string) {
     const token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
@@ -98,11 +98,14 @@ export class ReportesService {
     if (idProveedor) {
       params = params.set('idProveedor', idProveedor.toString());
     }
+    if (tipoPago) {
+      params = params.set('tipo_pago', tipoPago);
+    }
 
     return this.http.get(`${this.apiUrl}reportes/compras-detallado`, { ...header, params });
   }
 
-  obtenerReporteVentasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number, idCliente?: number) {
+  obtenerReporteVentasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number, idCliente?: number, tipoPago?: string) {
     const token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
@@ -120,6 +123,9 @@ export class ReportesService {
     }
     if (idCliente) {
       params = params.set('idCliente', idCliente.toString());
+    }
+    if (tipoPago) {
+      params = params.set('tipo_pago', tipoPago);
     }
 
     return this.http.get(`${this.apiUrl}reportes/ventas-detallado`, { ...header, params });

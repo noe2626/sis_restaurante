@@ -1,0 +1,89 @@
+<div class="text-center py-5" *ngIf="loading">
+  <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+  <p class="text-muted mt-2 fw-semibold">Consultando base de datos...</p>
+</div>
+
+<div *ngIf="!loading">
+  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold text-dark mb-0"><i class="bi bi-wallet2 me-2 text-danger"></i> Arqueos y Auditoría de Cajas</h5>
+      <span class="badge bg-light text-secondary border fw-semibold">Sesiones registradas: {{ cajasData.length }}</span>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr class="fs-8 text-uppercase text-secondary fw-semibold">
+            <th>Caja</th>
+            <th>Sucursal</th>
+            <th>Cajero</th>
+            <th class="text-end">F. Apertura</th>
+            <th class="text-end">F. Cierre</th>
+            <th class="text-end">Apertura ($)</th>
+            <th class="text-end">Teórico ($)</th>
+            <th class="text-end">Cierre Real ($)</th>
+            <th class="text-end">Diferencia ($)</th>
+            <th class="text-end">Retiros ($)</th>
+            <th class="text-center">Estado</th>
+            <th style="width: 15%;">Notas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of cajasData" class="fs-7">
+            <td><span class="fw-bold text-dark">{{ item.caja_nombre }}</span></td>
+            <td><span class="text-muted">{{ item.sucursal_nombre }}</span></td>
+            <td><span class="fw-semibold text-dark">{{ item.usuario_nombre }}</span></td>
+            <td class="text-end text-muted">{{ item.fecha_apertura | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td class="text-end text-muted">
+              {{ item.fecha_cierre ? (item.fecha_cierre | date: 'dd/MM/yyyy HH:mm') : '---' }}
+            </td>
+            <td class="text-end fw-semibold">{{ item.cantidad_apertura | currency }}</td>
+            <td class="text-end fw-semibold text-secondary">
+              {{ item.efectivo_sistema !== null ? (item.efectivo_sistema | currency) : '---' }}
+            </td>
+            <td class="text-end fw-bold text-dark">
+              {{ item.cantidad_cierre !== null ? (item.cantidad_cierre | currency) : '---' }}
+            </td>
+            <td class="text-end">
+              <span *ngIf="item.idStatus === 1" class="text-muted">---</span>
+              <span *ngIf="item.idStatus !== 1 && item.diferencia > 0" class="text-success fw-bold">
+                +{{ item.diferencia | currency }}
+              </span>
+              <span *ngIf="item.idStatus !== 1 && item.diferencia < 0" class="text-danger fw-bold">
+                {{ item.diferencia | currency }}
+              </span>
+              <span *ngIf="item.idStatus !== 1 && item.diferencia == 0" class="text-muted fw-semibold">
+                $0.00
+              </span>
+            </td>
+            <td class="text-end">
+              <span *ngIf="item.total_retiros > 0" class="text-danger fw-bold cursor-pointer text-decoration-underline" (click)="verRetiros(item)" title="Ver detalle de retiros">
+                {{ item.total_retiros | currency }}
+              </span>
+              <span *ngIf="!(item.total_retiros > 0)" class="text-muted">
+                $0.00
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="badge rounded-pill px-2 py-1 fs-9 fw-semibold"
+                [ngClass]="item.idStatus === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+                {{ item.idStatus === 1 ? 'Abierta' : 'Cerrada' }}
+              </span>
+            </td>
+            <td class="text-truncate text-muted fs-8" style="max-width: 150px;" [title]="item.notes || item.notas || ''">
+              {{ item.notes || item.notas || 'Sin observaciones.' }}
+            </td>
+          </tr>
+          <tr *ngIf="cajasData.length === 0">
+            <td colspan="12" class="text-center py-5 text-muted">
+              <i class="bi bi-wallet2 fs-2 d-block mb-2 text-secondary"></i>
+              No se encontraron registros de caja en el rango de fechas seleccionado.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

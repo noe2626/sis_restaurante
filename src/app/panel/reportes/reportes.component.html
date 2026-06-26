@@ -1,1411 +1,300 @@
-<div class="container-fluid bg-light" style="margin-top: -10px; padding-left: 0; height: calc(100vh - 60px);">
-  <div class="d-flex" style="height: 100%;">
-    <div class=" border-0 shadow-sm p-3 bg-white sticky-top p-0">
-      <!-- Botón de Colapso -->
-      <div class="nav flex-column gap-1">
-        <button
-          class="nav-link text-start text-danger rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Resumen General' : ''">
-          <i class="bi bi-list-task fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">REPORTES</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'general'" [class.inactive-report]="activeTab !== 'general'"
-          (click)="cambiarTab('general')" [title]="sidebarCollapsed ? 'Resumen General' : ''">
-          <i class="bi bi-pie-chart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Resumen General</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'cajas'" [class.inactive-report]="activeTab !== 'cajas'"
-          (click)="cambiarTab('cajas')" [title]="sidebarCollapsed ? 'Auditoría de Cajas' : ''">
-          <i class="bi bi-wallet2 fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Auditoría de Cajas</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'ventas-analisis'"
-          [class.inactive-report]="activeTab !== 'ventas-analisis'" (click)="cambiarTab('ventas-analisis')"
-          [title]="sidebarCollapsed ? 'Análisis de Ventas' : ''">
-          <i class="bi bi-graph-up fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Análisis de Ventas</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'compras-detallado'"
-          [class.inactive-report]="activeTab !== 'compras-detallado'" (click)="cambiarTab('compras-detallado')"
-          [title]="sidebarCollapsed ? 'Compras Detalladas' : ''">
-          <i class="bi bi-cart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Compras Detalladas</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'ventas-detallado'"
-          [class.inactive-report]="activeTab !== 'ventas-detallado'" (click)="cambiarTab('ventas-detallado')"
-          [title]="sidebarCollapsed ? 'Ventas Detalladas' : ''">
-          <i class="bi bi-receipt fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ventas Detalladas</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'inventario'" [class.inactive-report]="activeTab !== 'inventario'"
-          (click)="cambiarTab('inventario')" [title]="sidebarCollapsed ? 'Reporte de Inventario' : ''">
-          <i class="bi bi-boxes fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Reporte de Inventario</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'historico-inventario'"
-          [class.inactive-report]="activeTab !== 'historico-inventario'" (click)="cambiarTab('historico-inventario')"
-          [title]="sidebarCollapsed ? 'Historial Inventario' : ''">
-          <i class="bi bi-calendar-check fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Historial Inventario</span>
-        </button>
-        <button
-          class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-          [class.active-report]="activeTab === 'ajustes-inventario'"
-          [class.inactive-report]="activeTab !== 'ajustes-inventario'" (click)="cambiarTab('ajustes-inventario')"
-          [title]="sidebarCollapsed ? 'Ajustes Inventario' : ''">
-          <i class="bi bi-pencil-square fs-5" [class.me-2]="!sidebarCollapsed"></i>
-          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ajustes Inventario</span>
-        </button>
+<div class="container-fluid py-4 bg-light min-vh-100">
+  
+  <div class="row">
+    <!-- Sidebar de Navegación de Reportes -->
+    <div class="sidebar-wrapper mb-4 hide-on-print" [class.collapsed]="sidebarCollapsed">
+      <div class="card border-0 shadow-sm rounded-4 p-3 bg-white sticky-top" style="top: 20px;">
+        <!-- Botón de Colapso -->
+        <div class="d-flex align-items-center justify-content-between mb-3 px-2 toggle-header">
+          <h6 class="text-uppercase text-secondary fw-bold mb-0 small tracking-wider sidebar-title" *ngIf="!sidebarCollapsed">
+            <i class="bi bi-list-task me-1 text-danger"></i> Reportes
+          </h6>
+          <button class="btn btn-link text-secondary p-1 border-0 shadow-none ms-auto d-flex align-items-center justify-content-center collapse-toggle-btn"
+                  (click)="toggleSidebar()"
+                  [title]="sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'">
+            <i class="bi" [class.bi-chevron-left]="!sidebarCollapsed" [class.bi-chevron-right]="sidebarCollapsed" style="font-size: 1.1rem;"></i>
+          </button>
+        </div>
+        <div class="nav flex-column gap-1">
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'general'"
+                  [class.inactive-report]="activeTab !== 'general'"
+                  (click)="cambiarTab('general')"
+                  [title]="sidebarCollapsed ? 'Resumen General' : ''">
+            <i class="bi bi-pie-chart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Resumen General</span>
+          </button>
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'cajas'"
+                  [class.inactive-report]="activeTab !== 'cajas'"
+                  (click)="cambiarTab('cajas')"
+                  [title]="sidebarCollapsed ? 'Auditoría de Cajas' : ''">
+            <i class="bi bi-wallet2 fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Auditoría de Cajas</span>
+          </button>
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'ventas-analisis'"
+                  [class.inactive-report]="activeTab !== 'ventas-analisis'"
+                  (click)="cambiarTab('ventas-analisis')"
+                  [title]="sidebarCollapsed ? 'Análisis de Ventas' : ''">
+            <i class="bi bi-graph-up fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Análisis de Ventas</span>
+          </button>
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'compras-detallado'"
+                  [class.inactive-report]="activeTab !== 'compras-detallado'"
+                  (click)="cambiarTab('compras-detallado')"
+                  [title]="sidebarCollapsed ? 'Compras Detalladas' : ''">
+            <i class="bi bi-cart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Compras Detalladas</span>
+          </button>
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'ventas-detallado'"
+                  [class.inactive-report]="activeTab !== 'ventas-detallado'"
+                  (click)="cambiarTab('ventas-detallado')"
+                  [title]="sidebarCollapsed ? 'Ventas Detalladas' : ''">
+            <i class="bi bi-receipt fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ventas Detalladas</span>
+          </button>
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'inventario'"
+                  [class.inactive-report]="activeTab !== 'inventario'"
+                  (click)="cambiarTab('inventario')"
+                  [title]="sidebarCollapsed ? 'Reporte de Inventario' : ''">
+            <i class="bi bi-boxes fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Reporte de Inventario</span>
+          </button>
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'historico-inventario'"
+                  [class.inactive-report]="activeTab !== 'historico-inventario'"
+                  (click)="cambiarTab('historico-inventario')"
+                  [title]="sidebarCollapsed ? 'Historial Inventario' : ''">
+            <i class="bi bi-calendar-check fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Historial Inventario</span>
+          </button>
+          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                  [class.active-report]="activeTab === 'ajustes-inventario'"
+                  [class.inactive-report]="activeTab !== 'ajustes-inventario'"
+                  (click)="cambiarTab('ajustes-inventario')"
+                  [title]="sidebarCollapsed ? 'Ajustes Inventario' : ''">
+            <i class="bi bi-pencil-square fs-5" [class.me-2]="!sidebarCollapsed"></i>
+            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ajustes Inventario</span>
+          </button>
+        </div>
       </div>
     </div>
-    <!-- Contenido reportes -->
-    <div class="flex-fill" style="padding: 10px;">
-      <div class="row">
-        <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
-          <i class="bi bi-graph-up-arrow text-danger me-3" style="font-size: 2rem;"></i>
-          Reportes y Estadísticas Financieras
-        </h3>
-      </div>
-      <div class="card border-0">
-        <div class="row align-items-center bg-white m-2">
-          <div class="col-2" *ngIf="activeTab !== 'inventario'">
-            <div>
-              <label for="fechaInicio" class="fs-7 text-secondary">Fecha Inicio</label>
-              <input type="date" class="form-control border-0 bg-light rounded-3 py-2" id="fechaInicio"
-                [(ngModel)]="fechaInicio" (change)="onFilterChange()">
-            </div>
-          </div>
-          <div class="col-2" *ngIf="activeTab !== 'inventario'">
-            <div>
-              <label for="fechaFin" class="fs-7 text-secondary">Fecha Fin</label>
-              <input type="date" class="form-control border-0 bg-light rounded-3 py-2" id="fechaFin"
-                [(ngModel)]="fechaFin" (change)="onFilterChange()">
-            </div>
-          </div>
-          <div [ngClass]="activeTab === 'inventario' ? 'col-2' : 'col-2'">
-            <div>
-              <label for="idSucursal" class="fs-8 text-secondary fw-semibold mb-1 d-block">Sucursal</label>
-              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idSucursalSelected"
-                (change)="onFilterChange()" [clearable]="false" id="idSucursal">
-                <ng-option [value]="0" *ngIf="roleId === 1">Todas las Sucursales</ng-option>
-                <ng-option *ngFor="let suc of sucursales" [value]="suc.idSucursal || suc.id">
-                  {{ suc.sucursal || suc.nombre }}
-                </ng-option>
-              </ng-select>
-            </div>
-          </div>
 
-          <!-- Filtros Adicionales para Reportes Detallados -->
-          <div class="col-3" *ngIf="activeTab === 'compras-detallado'">
-            <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Insumo</label>
-            <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-              (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
-              <ng-option [value]="0">Todos los Productos</ng-option>
-              <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                {{ prod.nombre }}
-              </ng-option>
-            </ng-select>
-          </div>
-          <div class="col-3" *ngIf="activeTab === 'compras-detallado'">
-            <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Proveedor</label>
-            <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProveedorSelected"
-              (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Proveedores">
-              <ng-option [value]="0">Todos los Proveedores</ng-option>
-              <ng-option *ngFor="let prov of proveedores" [value]="prov.id">
-                {{ prov.nombre }}
-              </ng-option>
-            </ng-select>
-          </div>
+    <!-- Contenido Principal -->
+    <div class="content-wrapper flex-fill" [class.expanded]="sidebarCollapsed" style="padding: 10px;">
+      
+      <!-- Fila de Encabezado y Filtros -->
+      <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+          <h3 class="fw-bold text-dark d-flex align-items-center mb-1">
+            <i class="bi bi-graph-up-arrow text-danger me-3" style="font-size: 2rem;"></i>
+            Reportes y Estadísticas Financieras
+          </h3>
+          <p class="text-muted mb-0">Visualiza el rendimiento de tus ventas, compras e inventarios.</p>
+        </div>
+        
+        <!-- Filtros Compartidos -->
+        <div class="col-md-6 mt-3 mt-md-0">
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+            <div class="row g-2 align-items-center">
+              
+              <!-- Fecha Inicio (Solo si no es pestaña Inventario) -->
+              <div class="col-md-2" *ngIf="activeTab !== 'inventario'">
+                <div class="form-floating">
+                  <input type="date" class="form-control border-0 bg-light rounded-3 py-2 fs-7" id="fechaInicio" [(ngModel)]="fechaInicio" (change)="onFilterChange()">
+                  <label for="fechaInicio" class="fs-8 text-secondary">Fecha Inicio</label>
+                </div>
+              </div>
+              
+              <!-- Fecha Fin (Solo si no es pestaña Inventario) -->
+              <div class="col-md-2" *ngIf="activeTab !== 'inventario'">
+                <div class="form-floating">
+                  <input type="date" class="form-control border-0 bg-light rounded-3 py-2 fs-7" id="fechaFin" [(ngModel)]="fechaFin" (change)="onFilterChange()">
+                  <label for="fechaFin" class="fs-8 text-secondary">Fecha Fin</label>
+                </div>
+              </div>
+              
+              <!-- Sucursal -->
+              <div [ngClass]="activeTab === 'inventario' ? 'col-md-12' : 'col-md-2'">
+                <div>
+                  <label for="idSucursal" class="fs-8 text-secondary fw-semibold mb-1 d-block">Sucursal</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" 
+                             [(ngModel)]="idSucursalSelected" 
+                             (change)="onFilterChange()"
+                             [clearable]="false"
+                             id="idSucursal">
+                    <ng-option [value]="0" *ngIf="roleId === 1">Todas las Sucursales</ng-option>
+                    <ng-option *ngFor="let suc of sucursales" [value]="suc.idSucursal || suc.id">
+                      {{ suc.sucursal || suc.nombre }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              
+              <!-- Filtros de Compras Detalladas -->
+              <div class="col-md-2" *ngIf="activeTab === 'compras-detallado'">
+                <div>
+                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
+                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
+                    <ng-option [value]="0">Todos</ng-option>
+                    <ng-option *ngFor="let prod of productos" [value]="prod.id">
+                      {{ prod.nombre }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              
+              <div class="col-md-2" *ngIf="activeTab === 'compras-detallado'">
+                <div>
+                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Proveedor</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProveedorSelected"
+                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
+                    <ng-option [value]="0">Todos</ng-option>
+                    <ng-option *ngFor="let prov of proveedores" [value]="prov.id">
+                      {{ prov.nombre }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              
+              <div class="col-md-2" *ngIf="activeTab === 'compras-detallado'">
+                <div>
+                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Tipo de Pago</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="tipoPagoSelected"
+                    (change)="onFilterChange()" [clearable]="false">
+                    <ng-option value="todos">Todos</ng-option>
+                    <ng-option value="contado">Solo Contado</ng-option>
+                    <ng-option value="credito">Solo Crédito</ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              
+              <!-- Filtros de Ventas Detalladas -->
+              <div class="col-md-2" *ngIf="activeTab === 'ventas-detallado'">
+                <div>
+                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
+                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
+                    <ng-option [value]="0">Todos</ng-option>
+                    <ng-option *ngFor="let prod of productos" [value]="prod.id">
+                      {{ prod.nombre }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              
+              <div class="col-md-2" *ngIf="activeTab === 'ventas-detallado'">
+                <div>
+                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Cliente</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idClienteSelected"
+                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos">
+                    <ng-option [value]="0">Todos</ng-option>
+                    <ng-option *ngFor="let cli of clientes" [value]="cli.id">
+                      {{ cli.nombre }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              
+              <div class="col-md-2" *ngIf="activeTab === 'ventas-detallado'">
+                <div>
+                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Tipo de Pago</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="tipoPagoSelected"
+                    (change)="onFilterChange()" [clearable]="false">
+                    <ng-option value="todos">Todos</ng-option>
+                    <ng-option value="contado">Solo Contado</ng-option>
+                    <ng-option value="credito">Solo Crédito</ng-option>
+                  </ng-select>
+                </div>
+              </div>
+              
+              <!-- Filtros de Histórico / Ajustes de Inventario -->
+              <div class="col-md-6" *ngIf="activeTab === 'historico-inventario' || activeTab === 'ajustes-inventario'">
+                <div>
+                  <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Insumo</label>
+                  <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
+                    (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
+                    <ng-option [value]="0">Todos los Productos</ng-option>
+                    <ng-option *ngFor="let prod of productos" [value]="prod.id">
+                      {{ prod.nombre }}
+                    </ng-option>
+                  </ng-select>
+                </div>
+              </div>
 
-          <div class="col-3" *ngIf="activeTab === 'ventas-detallado'">
-            <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Platillo</label>
-            <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-              (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
-              <ng-option [value]="0">Todos los Productos</ng-option>
-              <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                {{ prod.nombre }}
-              </ng-option>
-            </ng-select>
-          </div>
-          <div class="col-3" *ngIf="activeTab === 'ventas-detallado'">
-            <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Cliente</label>
-            <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idClienteSelected"
-              (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Clientes">
-              <ng-option [value]="0">Todos los Clientes</ng-option>
-              <ng-option *ngFor="let cli of clientes" [value]="cli.id">
-                {{ cli.nombre }}
-              </ng-option>
-            </ng-select>
-          </div>
-
-          <div class="col-3" *ngIf="activeTab === 'historico-inventario' || activeTab === 'ajustes-inventario'">
-            <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Insumo</label>
-            <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-              (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
-              <ng-option [value]="0">Todos los Productos</ng-option>
-              <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                {{ prod.nombre }}
-              </ng-option>
-            </ng-select>
+            </div>
           </div>
         </div>
       </div>
-      <!-- Reportes -->
-      <div class="row mt-2" style="height: calc(100vh - 200px); overflow-y: auto;">
-        <div class="w-100" [class.expanded]="sidebarCollapsed">
-
-          <!-- Indicador de Carga -->
-          <div class="text-center py-5" *ngIf="loading">
-            <div class="spinner-border text-danger" role="status" style="width: 3rem; height: 3rem;">
-              <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="text-muted mt-2 fw-semibold">Consultando base de datos...</p>
-          </div>
-
-          <!-- Contenido de Reporte: Resumen General -->
-          <div *ngIf="!loading && activeTab === 'general' && reportData">
-
-            <!-- Tarjetas de Resumen Financiero (KPIs) -->
-            <div class="row g-3 mb-4">
-
-              <!-- Ventas Brutas -->
-              <div class="col-md-3">
-                <div class="card border-0 rounded-4 shadow-sm h-100  card-kpi"
-                  style="background: linear-gradient(135deg, #122957 0%, #1c1f24 100%); color: white;">
-                  <div class="card-body p-4 position-relative">
-                    <div class="position-absolute top-50 end-0 translate-middle-y me-3 opacity-10">
-                      <i class="bi bi-cash-stack" style="font-size: 5rem;"></i>
-                    </div>
-                    <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2"
-                      style="letter-spacing: 0.05em; color: #a0aec0 !important;">Venta Bruta</h6>
-                    <h2 class="fw-extrabold mb-1" style="font-size: 2rem;">{{ reportData.resumen.bruto | currency }}
-                    </h2>
-                    <p class="mb-0 fs-8 text-success-light fw-semibold">
-                      <i class="bi bi-info-circle me-1"></i>Ingreso bruto total cobrado
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Comisiones Retenidas -->
-              <div class="col-md-3">
-                <div class="card border-0 rounded-4 shadow-sm h-100  card-kpi bg-white text-dark">
-                  <div class="card-body p-4 position-relative">
-                    <div class="position-absolute top-50 end-0 translate-middle-y me-3 text-danger opacity-10">
-                      <i class="bi bi-percent" style="font-size: 5rem;"></i>
-                    </div>
-                    <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Comisión
-                      Terceros</h6>
-                    <h2 class="fw-extrabold text-danger mb-1" style="font-size: 2rem;">{{
-                      reportData.resumen.comisiones_terceros | currency }}</h2>
-                    <p class="mb-0 fs-8 text-muted fw-semibold">
-                      <i class="bi bi-arrow-right-short me-1"></i>Retenciones (Uber/McQueen)
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Ingreso Neto Real -->
-              <div class="col-md-3">
-                <div class="card border-0 rounded-4 shadow-sm h-100  card-kpi text-white bg-gradient"
-                  style="background: rgb(112, 187, 112);">
-                  <div class="card-body p-4 position-relative">
-                    <div class="position-absolute top-50 end-0 translate-middle-y me-3 opacity-15">
-                      <i class="bi bi-wallet2" style="font-size: 5rem;"></i>
-                    </div>
-                    <h6 class="text-uppercase text-white-50 fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Ingreso
-                      Neto Real</h6>
-                    <h2 class="fw-extrabold mb-1" style="font-size: 2.2rem;">{{ reportData.resumen.neto_real | currency
-                      }}
-                    </h2>
-                    <p class="mb-0 fs-8 text-white-50 fw-semibold">
-                      <i class="bi bi-shield-check me-1"></i>Recaudado neto real
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pedidos y Piezas -->
-              <div class="col-md-3">
-                <div class="card border-0 rounded-4 shadow-sm h-100  card-kpi bg-white text-dark">
-                  <div class="card-body p-4">
-                    <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2" style="letter-spacing: 0.05em;">Pedidos
-                      /
-                      Productos</h6>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                      <div>
-                        <h3 class="fw-bold mb-0 text-primary">{{ reportData.resumen.pedidos_count }}</h3>
-                        <small class="text-muted fs-8">Pedidos</small>
-                      </div>
-                      <div class="border-start ps-3 me-auto ms-4">
-                        <h3 class="fw-bold mb-0 text-success">{{ reportData.resumen.piezas_count }}</h3>
-                        <small class="text-muted fs-8">Piezas Vendidas</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Sección Intermedia: Desglose Métodos de Pago y Canales de Venta -->
-            <div class="row g-4 mb-4">
-
-              <!-- Métodos de Pago -->
-              <div class="col-md-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
-                  <h5 class="fw-bold text-dark mb-4 d-flex align-items-center">
-                    <i class="bi bi-credit-card-2-front text-danger me-2"></i> Participación de Métodos de Pago
-                  </h5>
-
-                  <div class="mb-4" *ngFor="let item of reportData.por_metodo_pago">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span class="text-capitalize fw-semibold text-dark">{{ item.metodo }}</span>
-                      <span class="text-muted fs-7">{{ item.total | currency }} ({{ item.porcentaje }}%)</span>
-                    </div>
-                    <div class="progress rounded-pill bg-light" style="height: 10px;">
-                      <div class="progress-bar rounded-pill" role="progressbar" [ngClass]="{
-                  'bg-success': item.metodo === 'efectodo',
-                  'bg-primary': item.metodo === 'tarjeta',
-                  'bg-success-subtle': item.metodo === 'efectivo',
-                  'bg-warning text-dark': item.metodo === 'transferencia'
-                }" [style.width.%]="item.porcentaje" [attr.aria-valuenow]="item.porcentaje" aria-valuemin="0"
-                        aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Canales de Venta Participación -->
-              <div class="col-md-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
-                  <h5 class="fw-bold text-dark mb-4 d-flex align-items-center">
-                    <i class="bi bi-sliders text-danger me-2"></i> Rendimiento por Canales de Venta
-                  </h5>
-
-                  <div class="mb-4" *ngFor="let item of reportData.por_canal_venta">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                      <span class="fw-semibold text-dark">{{ item.nombre }}</span>
-                      <span class="text-muted fs-7">{{ item.bruto | currency }} ({{ item.porcentaje }}%)</span>
-                    </div>
-                    <div class="progress rounded-pill bg-light" style="height: 10px;">
-                      <div class="progress-bar bg-danger rounded-pill" role="progressbar"
-                        [style.width.%]="item.porcentaje" [attr.aria-valuenow]="item.porcentaje" aria-valuemin="0"
-                        aria-valuemax="100"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Sección de Detalle: Canales y Productos Más Vendidos -->
-            <div class="row g-4">
-
-              <!-- Detalle de Canales de Venta -->
-              <div class="col-md-7">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                  <h5 class="fw-bold text-dark mb-3">Desglose Financiero de Canales</h5>
-                  <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                      <thead class="table-light">
-                        <tr class="fs-7 text-uppercase text-secondary fw-semibold">
-                          <th>Canal</th>
-                          <th class="text-center">Cant</th>
-                          <th class="text-end">Ingreso Bruto</th>
-                          <th class="text-end">Comisiones</th>
-                          <th class="text-end">Neto Recibido</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr *ngFor="let item of reportData.por_canal_venta" class="fs-7">
-                          <td><span class="fw-bold text-dark">{{ item.nombre }}</span></td>
-                          <td class="text-center fw-semibold">{{ item.cantidad }}</td>
-                          <td class="text-end fw-semibold text-dark">{{ item.bruto | currency }}</td>
-                          <td class="text-end fw-semibold text-danger">{{ item.comisiones | currency }}</td>
-                          <td class="text-end fw-bold text-success">{{ item.neto | currency }}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Productos Más Vendidos -->
-              <div class="col-md-5">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                  <h5 class="fw-bold text-dark mb-3">Ranking de Ventas (Top 10)</h5>
-                  <div class="table-responsive" style="max-height: 290px; overflow-y: auto;">
-                    <table class="table table-hover align-middle mb-0">
-                      <thead class="table-light sticky-top">
-                        <tr class="fs-8 text-uppercase text-secondary fw-semibold">
-                          <th>Producto</th>
-                          <th class="text-center">Cant</th>
-                          <th class="text-end">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr *ngFor="let item of reportData.productos_mas_vendidos; let idx = index" class="fs-7">
-                          <td>
-                            <span
-                              class="badge bg-danger text-white me-2 rounded-circle d-inline-flex align-items-center justify-content-center"
-                              style="width: 20px; height: 20px; font-size: 0.65rem;">
-                              {{ idx + 1 }}
-                            </span>
-                            <span class="fw-semibold text-dark">{{ item.nombre }}</span>
-                          </td>
-                          <td class="text-center fw-bold text-secondary">{{ item.cantidad_total }} {{ item.unidad_medida
-                            }}</td>
-                          <td class="text-end fw-bold text-dark">{{ item.monto_total | currency }}</td>
-                        </tr>
-                        <tr
-                          *ngIf="!reportData.productos_mas_vendidos || reportData.productos_mas_vendidos.length === 0">
-                          <td colspan="3" class="text-center py-4 text-muted">No hay registros para este rango.</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-
-          <!-- Contenido de Reporte: Auditoría de Cajas (Arqueos) -->
-          <div *ngIf="!loading && activeTab === 'cajas'">
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-wallet2 me-2 text-danger"></i> Arqueos y Auditoría de
-                  Cajas</h5>
-                <span class="badge bg-light text-secondary border fw-semibold">Sesiones registradas: {{ cajasData.length
-                  }}</span>
-              </div>
-
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead class="table-light">
-                    <tr class="fs-8 text-uppercase text-secondary fw-semibold">
-                      <th>Caja</th>
-                      <th>Sucursal</th>
-                      <th>Cajero</th>
-                      <th class="text-end">F. Apertura</th>
-                      <th class="text-end">F. Cierre</th>
-                      <th class="text-end">Apertura ($)</th>
-                      <th class="text-end">Teórico ($)</th>
-                      <th class="text-end">Cierre Real ($)</th>
-                      <th class="text-end">Diferencia ($)</th>
-                      <th class="text-end">Retiros ($)</th>
-                      <th class="text-center">Estado</th>
-                      <th style="width: 15%;">Notas</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let item of cajasData" class="fs-7">
-                      <td><span class="fw-bold text-dark">{{ item.caja_nombre }}</span></td>
-                      <td><span class="text-muted">{{ item.sucursal_nombre }}</span></td>
-                      <td><span class="fw-semibold text-dark">{{ item.usuario_nombre }}</span></td>
-                      <td class="text-end text-muted">{{ item.fecha_apertura | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      <td class="text-end text-muted">
-                        {{ item.fecha_cierre ? (item.fecha_cierre | date: 'dd/MM/yyyy HH:mm') : '---' }}
-                      </td>
-                      <td class="text-end fw-semibold">{{ item.cantidad_apertura | currency }}</td>
-                      <td class="text-end fw-semibold text-secondary">
-                        {{ item.efectivo_sistema !== null ? (item.efectivo_sistema | currency) : '---' }}
-                      </td>
-                      <td class="text-end fw-bold text-dark">
-                        {{ item.cantidad_cierre !== null ? (item.cantidad_cierre | currency) : '---' }}
-                      </td>
-                      <td class="text-end">
-                        <span *ngIf="item.idStatus === 1" class="text-muted">---</span>
-                        <span *ngIf="item.idStatus !== 1 && item.diferencia > 0" class="text-success fw-bold">
-                          +{{ item.diferencia | currency }}
-                        </span>
-                        <span *ngIf="item.idStatus !== 1 && item.diferencia < 0" class="text-danger fw-bold">
-                          {{ item.diferencia | currency }}
-                        </span>
-                        <span *ngIf="item.idStatus !== 1 && item.diferencia == 0" class="text-muted fw-semibold">
-                          $0.00
-                        </span>
-                      </td>
-                      <td class="text-end">
-                        <span *ngIf="item.total_retiros > 0"
-                          class="text-danger fw-bold cursor-pointer text-decoration-underline"
-                          (click)="verRetiros(item)" title="Ver detalle de retiros">
-                          {{ item.total_retiros | currency }}
-                        </span>
-                        <span *ngIf="!(item.total_retiros > 0)" class="text-muted">
-                          $0.00
-                        </span>
-                      </td>
-                      <td class="text-center">
-                        <span class="badge rounded-pill px-2 py-1 fs-9 fw-semibold"
-                          [ngClass]="item.idStatus === 1 ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
-                          {{ item.idStatus === 1 ? 'Abierta' : 'Cerrada' }}
-                        </span>
-                      </td>
-                      <td class="text-truncate text-muted fs-8" style="max-width: 150px;"
-                        [title]="item.notes || item.notas || ''">
-                        {{ item.notes || item.notas || 'Sin observaciones.' }}
-                      </td>
-                    </tr>
-                    <tr *ngIf="cajasData.length === 0">
-                      <td colspan="12" class="text-center py-5 text-muted">
-                        <i class="bi bi-wallet2 fs-2 d-block mb-2 text-secondary"></i>
-                        No se encontraron registros de caja en el rango de fechas seleccionado.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contenido de Reporte: Análisis de Ventas (Día y Hora) -->
-          <div *ngIf="!loading && activeTab === 'ventas-analisis'">
-            <!-- Fila 1: Ventas por Día (Gráfica Lineal + Tabla) -->
-            <div class="row g-4 mb-4">
-
-              <!-- Gráfica Lineal Principal -->
-              <div class="col-12 col-xl-8">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                  <h5 class="fw-bold text-dark mb-3">
-                    <i class="bi bi-graph-up text-danger me-2"></i>
-                    Tendencia de Ventas por Día
-                  </h5>
-                  <p class="text-muted fs-7 mb-4">Comportamiento del monto facturado y cantidad de pedidos diarios en el
-                    periodo seleccionado.</p>
-                  <div style="height: 380px; position: relative;">
-                    <canvas id="salesLineChart"></canvas>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Tabla de Datos Resumida -->
-              <div class="col-12 col-xl-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold text-dark mb-0">Detalle Diario</h5>
-                    <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 fs-8" (click)="imprimirReporte()">
-                      <i class="bi bi-printer me-1"></i> Imprimir
-                    </button>
-                  </div>
-
-                  <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
-                    <table class="table table-hover align-middle mb-0">
-                      <thead class="table-light sticky-top">
-                        <tr class="fs-8 text-uppercase text-secondary fw-semibold">
-                          <th>Fecha</th>
-                          <th class="text-center">Pedidos</th>
-                          <th class="text-end">Monto</th>
-                          <th class="text-end">Ticket Prom.</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr *ngFor="let item of ventasDiaData" class="fs-7">
-                          <td class="fw-bold text-secondary">
-                            {{ item.fecha | date:'dd/MM/yyyy' }}
-                          </td>
-                          <td class="text-center">{{ item.pedidos }}</td>
-                          <td class="text-end text-dark fw-semibold">{{ item.monto | currency }}</td>
-                          <td class="text-end text-muted">{{ item.ticket_promedio | currency }}</td>
-                        </tr>
-                        <tr *ngIf="ventasDiaData.length === 0">
-                          <td colspan="4" class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                            Sin datos en el rango seleccionado.
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Fila 2: Distribución por Hora (Barras Horizontales) -->
-            <div class="row g-4">
-              <div class="col-12">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-                  <h5 class="fw-bold text-dark mb-4">
-                    <i class="bi bi-clock me-2 text-danger"></i> Distribución de Ventas por Hora
-                  </h5>
-
-                  <div style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
-                    <div class="mb-3 d-flex align-items-center" *ngFor="let item of horasData">
-                      <span class="fw-bold text-dark me-3 text-center" style="width: 60px;">{{ item.hora }}</span>
-                      <div class="flex-grow-1">
-                        <div class="progress rounded-pill bg-light" style="height: 18px;">
-                          <div class="progress-bar rounded-pill bg-gradient bg-danger" role="progressbar"
-                            [style.width.%]="(item.pedidos / maxHourlySales) * 100" [attr.aria-valuenow]="item.pedidos"
-                            aria-valuemin="0" aria-valuemax="100">
-                            <span class="fs-9 fw-bold ps-2 text-white" *ngIf="item.pedidos > 0">{{ item.pedidos }}
-                              pedidos</span>
-                          </div>
-                        </div>
-                      </div>
-                      <span class="fw-semibold text-secondary ms-3 text-end" style="width: 120px;">{{ item.monto |
-                        currency }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contenido de Reporte: Reporte Detallado de Compras -->
-          <div *ngIf="!loading && activeTab === 'compras-detallado'">
-            <!-- KPIs Rápidos de Compras -->
-            <div class="row g-3 mb-4">
-              <div class="col-md-4">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
-                  <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Partidas Encontradas</h6>
-                  <h3 class="fw-extrabold text-primary mb-0">{{ comprasDetalladasData.length }}</h3>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
-                  <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Cantidad Total Comprada</h6>
-                  <h3 class="fw-extrabold text-success mb-0">{{ cantidadComprasDetallado | number:'1.0-3' }}</h3>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
-                  <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Monto Total de Compra</h6>
-                  <h3 class="fw-extrabold text-danger mb-0">{{ totalComprasDetallado | currency }}</h3>
-                </div>
-              </div>
-            </div>
-
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-cart-fill me-2 text-danger"></i> Reporte Detallado de
-                  Compras</h5>
-                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" (click)="imprimirReporte()">
-                  <i class="bi bi-printer me-1"></i> Imprimir
-                </button>
-              </div>
-
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead class="table-light">
-                    <tr class="fs-8 text-uppercase text-secondary fw-semibold">
-                      <th>Producto / Insumo</th>
-                      <th>Código</th>
-                      <th>Proveedor</th>
-                      <th>Sucursal</th>
-                      <th class="text-end">Fecha</th>
-                      <th class="text-center">Folio</th>
-                      <th class="text-end">Precio U.</th>
-                      <th class="text-end">Cantidad</th>
-                      <th class="text-end">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let item of comprasDetalladasData" class="fs-7">
-                      <td><span class="fw-bold text-dark">{{ item.producto_nombre }}</span></td>
-                      <td><span class="text-muted small">{{ item.producto_codigo || 'N/A' }}</span></td>
-                      <td><span class="fw-semibold text-secondary">{{ item.proveedor_nombre }}</span></td>
-                      <td><span class="text-muted">{{ item.sucursal_nombre }}</span></td>
-                      <td class="text-end text-muted">{{ item.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      <td class="text-center">
-                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 fs-8 fw-semibold">{{
-                          item.folio }}</span>
-                      </td>
-                      <td class="text-end fw-bold text-primary">{{ item.precio_compra | currency }}</td>
-                      <td class="text-end fw-semibold">{{ item.cantidad_comprada | number:'1.0-3' }}</td>
-                      <td class="text-end fw-semibold text-dark">{{ item.total_compra | currency }}</td>
-                    </tr>
-                    <tr *ngIf="comprasDetalladasData.length === 0">
-                      <td colspan="9" class="text-center py-5 text-muted">
-                        <i class="bi bi-cart-x fs-2 d-block mb-2 text-secondary"></i>
-                        No se encontraron compras en el rango y filtros seleccionados.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contenido de Reporte: Reporte Detallado de Ventas -->
-          <div *ngIf="!loading && activeTab === 'ventas-detallado'">
-            <!-- KPIs Rápidos de Ventas -->
-            <div class="row g-3 mb-4">
-              <div class="col-md-4">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
-                  <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Partidas Encontradas</h6>
-                  <h3 class="fw-extrabold text-primary mb-0">{{ ventasDetalladasData.length }}</h3>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
-                  <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Cantidad Total Vendida</h6>
-                  <h3 class="fw-extrabold text-success mb-0">{{ cantidadVentasDetallado | number:'1.0-3' }}</h3>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="card border-0 rounded-4 shadow-sm p-4 bg-white">
-                  <h6 class="text-uppercase text-secondary fw-bold fs-7 mb-2">Monto Total de Venta</h6>
-                  <h3 class="fw-extrabold text-danger mb-0">{{ totalVentasDetallado | currency }}</h3>
-                </div>
-              </div>
-            </div>
-
-            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-dark mb-0"><i class="bi bi-receipt me-2 text-danger"></i> Reporte Detallado de
-                  Ventas</h5>
-                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3" (click)="imprimirReporte()">
-                  <i class="bi bi-printer me-1"></i> Imprimir
-                </button>
-              </div>
-
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead class="table-light">
-                    <tr class="fs-8 text-uppercase text-secondary fw-semibold">
-                      <th>Producto / Platillo</th>
-                      <th>Código</th>
-                      <th>Cliente</th>
-                      <th>Sucursal</th>
-                      <th class="text-end">Fecha</th>
-                      <th class="text-center">Folio</th>
-                      <th class="text-end">Precio Venta</th>
-                      <th class="text-end">Cantidad</th>
-                      <th class="text-end">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let item of ventasDetalladasData" class="fs-7">
-                      <td><span class="fw-bold text-dark">{{ item.producto_nombre }}</span></td>
-                      <td><span class="text-muted small">{{ item.producto_codigo || 'N/A' }}</span></td>
-                      <td><span class="fw-semibold text-secondary">{{ item.cliente_nombre }}</span></td>
-                      <td><span class="text-muted">{{ item.sucursal_nombre }}</span></td>
-                      <td class="text-end text-muted">{{ item.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      <td class="text-center">
-                        <span class="badge bg-light text-dark border rounded-pill px-2.5 py-1.5 fs-8 fw-semibold">{{
-                          item.folio }}</span>
-                      </td>
-                      <td class="text-end fw-bold text-primary">{{ item.precio_venta | currency }}</td>
-                      <td class="text-end fw-semibold">{{ item.cantidad_vendida | number:'1.0-3' }}</td>
-                      <td class="text-end fw-semibold text-dark">{{ item.total_venta | currency }}</td>
-                    </tr>
-                    <tr *ngIf="ventasDetalladasData.length === 0">
-                      <td colspan="9" class="text-center py-5 text-muted">
-                        <i class="bi bi-receipt fs-2 d-block mb-2 text-secondary"></i>
-                        No se encontraron ventas en el rango y filtros seleccionados.
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contenido de Reporte: Reporte de Inventarios -->
-          <div *ngIf="!loading && activeTab === 'inventario' && inventarioSummary">
-
-            <!-- Tarjetas de KPIs de Inventario -->
-            <div class="row g-3 mb-4 kpi-row">
-
-              <!-- Total SKUs -->
-              <div class="col-md-3 kpi-col">
-                <div
-                  class="card border-0 shadow-sm rounded-4 bg-white p-3 h-100 position-relative overflow-hidden card-hover">
-                  <div class="d-flex align-items-center">
-                    <div class="bg-primary-subtle p-3 rounded-4 me-3 text-primary">
-                      <i class="bi bi-box-seam fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-uppercase text-secondary small mb-1 fw-semibold tracking-wider">Total Productos
-                      </h6>
-                      <h3 class="fw-bold mb-0 text-dark">{{ inventarioSummary.total }}</h3>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Críticos (Sin Stock) -->
-              <div class="col-md-3 kpi-col"
-                (click)="cambiarFiltroEstatus(filtroEstatus === 'critico' ? 'todos' : 'critico')"
-                style="cursor: pointer;">
-                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
-                  [ngClass]="filtroEstatus === 'critico' ? 'bg-danger text-white' : 'bg-white text-dark'">
-                  <div class="d-flex align-items-center">
-                    <div class="p-3 rounded-4 me-3"
-                      [ngClass]="filtroEstatus === 'critico' ? 'bg-white-subtle text-white' : 'bg-danger-subtle text-danger'">
-                      <i class="bi bi-x-circle-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
-                        [ngClass]="filtroEstatus === 'critico' ? 'text-white-50' : 'text-secondary'">Agotados (Sin
-                        Stock)
-                      </h6>
-                      <h3 class="fw-bold mb-0">{{ inventarioSummary.critico }}</h3>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Bajos (Alerta Bajo Stock) -->
-              <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'bajo' ? 'todos' : 'bajo')"
-                style="cursor: pointer;">
-                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
-                  [ngClass]="filtroEstatus === 'bajo' ? 'bg-warning text-dark' : 'bg-white text-dark'">
-                  <div class="d-flex align-items-center">
-                    <div class="p-3 rounded-4 me-3"
-                      [ngClass]="filtroEstatus === 'bajo' ? 'bg-white-subtle text-dark' : 'bg-warning-subtle text-warning'">
-                      <i class="bi bi-exclamation-triangle-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
-                        [ngClass]="filtroEstatus === 'bajo' ? 'text-dark-50' : 'text-secondary'">Inventario Bajo</h6>
-                      <h3 class="fw-bold mb-0">{{ inventarioSummary.bajo }}</h3>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Saludables (OK) -->
-              <div class="col-md-3 kpi-col" (click)="cambiarFiltroEstatus(filtroEstatus === 'ok' ? 'todos' : 'ok')"
-                style="cursor: pointer;">
-                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 position-relative overflow-hidden card-hover"
-                  [ngClass]="filtroEstatus === 'ok' ? 'bg-success text-white' : 'bg-white text-dark'">
-                  <div class="d-flex align-items-center">
-                    <div class="p-3 rounded-4 me-3"
-                      [ngClass]="filtroEstatus === 'ok' ? 'bg-white-subtle text-white' : 'bg-success-subtle text-success'">
-                      <i class="bi bi-check-circle-fill fs-4"></i>
-                    </div>
-                    <div>
-                      <h6 class="text-uppercase small mb-1 fw-semibold tracking-wider"
-                        [ngClass]="filtroEstatus === 'ok' ? 'text-white-50' : 'text-secondary'">Stock Saludable</h6>
-                      <h3 class="fw-bold mb-0">{{ inventarioSummary.ok }}</h3>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Controles de Filtros y Búsqueda -->
-            <div class="card border-0 shadow-sm rounded-4 mb-4 hide-on-print">
-              <div class="card-body py-3">
-                <div class="row g-2 align-items-center justify-content-between">
-                  <div class="col-md-6 d-flex gap-2 align-items-center flex-wrap">
-                    <span class="text-secondary small fw-bold"><i class="bi bi-funnel-fill"></i> Filtrar Estado:</span>
-                    <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
-                      [ngClass]="filtroEstatus === 'todos' ? 'btn-danger text-white border-0' : 'btn-light text-secondary'"
-                      (click)="cambiarFiltroEstatus('todos')">
-                      Todos
-                    </button>
-                    <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
-                      [ngClass]="filtroEstatus === 'critico' ? 'btn-danger text-white border-0' : 'btn-light text-secondary'"
-                      (click)="cambiarFiltroEstatus('critico')">
-                      Agotado ({{ inventarioSummary.critico }})
-                    </button>
-                    <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
-                      [ngClass]="filtroEstatus === 'bajo' ? 'btn-warning text-dark border-0' : 'btn-light text-secondary'"
-                      (click)="cambiarFiltroEstatus('bajo')">
-                      Inventario Bajo ({{ inventarioSummary.bajo }})
-                    </button>
-                    <button class="btn btn-sm rounded-pill px-3 py-1 fw-semibold border"
-                      [ngClass]="filtroEstatus === 'ok' ? 'btn-success text-white border-0' : 'btn-light text-secondary'"
-                      (click)="cambiarFiltroEstatus('ok')">
-                      Saludable ({{ inventarioSummary.ok }})
-                    </button>
-                  </div>
-
-                  <div class="col-md-4 d-flex gap-2">
-                    <div class="input-group search-container w-100 rounded-pill bg-light border-0 shadow-none">
-                      <span class="input-group-text bg-transparent border-0"><i
-                          class="bi bi-search text-muted"></i></span>
-                      <input class="form-control bg-transparent border-0 py-2 fs-7 ps-0 text-dark" type="text"
-                        placeholder="Buscar por nombre, código..." [(ngModel)]="searchTextInventario" />
-                    </div>
-                    <button
-                      class="btn btn-outline-secondary rounded-pill px-3 fs-7 border-secondary-subtle d-inline-flex align-items-center gap-1 bg-white"
-                      (click)="imprimirReporte()">
-                      <i class="bi bi-printer"></i> <span class="d-none d-md-inline">Imprimir</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tabla de Reporte de Inventarios -->
-            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
-              <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
-                  <i class="bi bi-boxes text-danger me-2"></i> Estado de Existencias
-                </h6>
-                <span class="badge bg-light text-secondary border rounded-pill px-3 py-1 fs-8 fw-semibold"
-                  *ngIf="idSucursalSelected === 0">
-                  Todas las sucursales consolidadas
-                </span>
-              </div>
-
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table mat-table [dataSource]="inventarioDataSource" matSort #inventarioSort="matSort"
-                    class="table table-hover align-middle mb-0">
-
-                    <!-- Producto Column -->
-                    <ng-container matColumnDef="producto">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary ps-4"> Producto </th>
-                      <td mat-cell *matCellDef="let element" class="ps-4 fw-bold text-dark">
-                        {{ element.producto }}
-                        <span class="text-secondary small fw-normal ms-1">({{ element.unidad_medida }})</span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Código Column -->
-                    <ng-container matColumnDef="codigo">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary"> Código </th>
-                      <td mat-cell *matCellDef="let element">
-                        <code
-                          class="text-secondary fw-semibold px-2 py-1 bg-light rounded">{{ element.codigo || 'N/A' }}</code>
-                      </td>
-                    </ng-container>
-
-                    <!-- Sucursal Column -->
-                    <ng-container matColumnDef="sucursal">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary"> Sucursal </th>
-                      <td mat-cell *matCellDef="let element">
-                        <span class="fw-semibold text-secondary">{{ element.sucursal }}</span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Inventariable Column -->
-                    <ng-container matColumnDef="inventariar">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-center"> Inventariable </th>
-                      <td mat-cell *matCellDef="let element" class="text-center">
-                        <span class="badge rounded-pill px-2.5 py-1 fs-8 fw-semibold"
-                          [ngClass]="element.inventariar ? 'bg-primary-subtle text-primary' : 'bg-light text-muted'">
-                          {{ element.inventariar ? 'Sí' : 'No' }}
-                        </span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Stock Mínimo Column -->
-                    <ng-container matColumnDef="stock_minimo">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end"> Stock Mínimo </th>
-                      <td mat-cell *matCellDef="let element" class="text-end fw-semibold">
-                        {{ element.inventariar ? (element.stock_minimo | number: '1.2-2') : '—' }}
-                        <small class="text-muted" *ngIf="element.inventariar">{{ element.unidad_medida }}</small>
-                      </td>
-                    </ng-container>
-
-                    <!-- Existencia Actual Column -->
-                    <ng-container matColumnDef="cantidad">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end"> Existencia Actual </th>
-                      <td mat-cell *matCellDef="let element" class="text-end fw-bold">
-                        <span [ngClass]="{
-                  'text-danger': element.inventariar && element.cantidad <= 0,
-                  'text-warning': element.inventariar && element.cantidad > 0 && element.cantidad < element.stock_minimo,
-                  'text-success': !element.inventariar || element.cantidad >= element.stock_minimo
-                }">
-                          {{ element.cantidad | number: '1.2-2' }}
-                          <small class="text-muted" *ngIf="element.inventariar">{{ element.unidad_medida }}</small>
-                        </span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Estado Column -->
-                    <ng-container matColumnDef="estado">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-center pe-4"> Estado </th>
-                      <td mat-cell *matCellDef="let element" class="text-center pe-4">
-                        <span class="badge rounded-pill px-3 py-1.5 fs-8 fw-bold" [ngClass]="{
-                        'bg-danger text-white': element.inventariar && element.cantidad <= 0,
-                        'bg-warning text-dark': element.inventariar && element.cantidad > 0 && element.cantidad < element.stock_minimo,
-                        'bg-success text-white': !element.inventariar || element.cantidad >= element.stock_minimo
-                      }">
-                          <span *ngIf="element.inventariar && element.cantidad <= 0"><i class="bi bi-x-circle me-1"></i>
-                            Agotado</span>
-                          <span
-                            *ngIf="element.inventariar && element.cantidad > 0 && element.cantidad < element.stock_minimo"><i
-                              class="bi bi-exclamation-triangle me-1"></i> Stock Bajo</span>
-                          <span *ngIf="!element.inventariar || element.cantidad >= element.stock_minimo"><i
-                              class="bi bi-check-circle me-1"></i> Saludable</span>
-                        </span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Filter columns definition -->
-                    <ng-container matColumnDef="filter-producto">
-                      <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilter('producto', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-codigo">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilter('codigo', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-sucursal">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilter('sucursal', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-inventariar">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-center">
-                        <input class="form-control form-control-sm text-center w-100" type="text"
-                          placeholder="Filtrar..."
-                          (keyup)="applyColumnFilter('inventariar', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-stock_minimo">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilter('stock_minimo', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-cantidad">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilter('cantidad', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-estado">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-center pe-4">
-                        <input class="form-control form-control-sm text-center w-100" type="text"
-                          placeholder="Filtrar..." (keyup)="applyColumnFilter('estado', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsInventario"></tr>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsFiltersInventario"
-                      class="filter-header-row hide-on-print"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumnsInventario;"></tr>
-                  </table>
-
-                  <div *ngIf="totalItemsInventario === 0" class="text-center py-5 text-muted">
-                    <i class="bi bi-boxes fs-1 d-block mb-2 text-secondary"></i>
-                    No se encontraron existencias de inventario.
-                  </div>
-                </div>
-
-                <mat-paginator #inventarioPaginator [pageSize]="50" [pageSizeOptions]="[10, 50, 100]"
-                  aria-label="Seleccionar página" class="border-top hide-on-print">
-                </mat-paginator>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contenido de Reporte: Historial de Inventarios (Snapshot Diario) -->
-          <div *ngIf="!loading && activeTab === 'historico-inventario'">
-            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
-              <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
-                  <i class="bi bi-calendar-check text-danger me-2"></i> Historial Diario de Existencias
-                </h6>
-                <button
-                  class="btn btn-outline-secondary rounded-pill px-3 fs-7 border-secondary-subtle d-inline-flex align-items-center gap-1 bg-white hide-on-print"
-                  (click)="imprimirReporte()">
-                  <i class="bi bi-printer"></i> <span>Imprimir</span>
-                </button>
-              </div>
-
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table mat-table [dataSource]="historicoDataSource" matSort #historicoSort="matSort"
-                    class="table table-hover align-middle mb-0">
-
-                    <!-- Fecha Column -->
-                    <ng-container matColumnDef="fecha">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary ps-4"> Fecha </th>
-                      <td mat-cell *matCellDef="let element" class="ps-4 text-dark">
-                        {{ element.fecha | date: 'dd/MM/yyyy HH:mm' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Sucursal Column -->
-                    <ng-container matColumnDef="sucursal_nombre">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary"> Sucursal </th>
-                      <td mat-cell *matCellDef="let element">
-                        <span class="fw-semibold text-secondary">{{ element.sucursal_nombre }}</span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Producto Column -->
-                    <ng-container matColumnDef="producto_nombre">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary"> Producto </th>
-                      <td mat-cell *matCellDef="let element" class="fw-bold text-dark">
-                        {{ element.producto_nombre }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Código Column -->
-                    <ng-container matColumnDef="producto_codigo">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary"> Código </th>
-                      <td mat-cell *matCellDef="let element">
-                        <code
-                          class="text-secondary fw-semibold px-2 py-1 bg-light rounded">{{ element.producto_codigo || 'N/A' }}</code>
-                      </td>
-                    </ng-container>
-
-                    <!-- Unidad de Medida Column -->
-                    <ng-container matColumnDef="unidad_medida">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-center"> Unidad </th>
-                      <td mat-cell *matCellDef="let element" class="text-center text-muted">
-                        {{ element.unidad_medida || '—' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Cantidad Stock Column -->
-                    <ng-container matColumnDef="cantidad_stock">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end"> Stock Guardado </th>
-                      <td mat-cell *matCellDef="let element" class="text-end fw-bold text-dark">
-                        {{ element.cantidad_stock | number: '1.2-2' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Momento Column -->
-                    <ng-container matColumnDef="momento">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-center pe-4"> Momento </th>
-                      <td mat-cell *matCellDef="let element" class="text-center pe-4">
-                        <span
-                          class="badge bg-secondary-subtle text-secondary border rounded-pill px-2.5 py-1 fs-8 fw-semibold text-uppercase">
-                          {{ element.momento }}
-                        </span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Column Filters -->
-                    <ng-container matColumnDef="filter-fecha">
-                      <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterHistorico('fecha', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-sucursal_nombre">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterHistorico('sucursal_nombre', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-producto_nombre">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterHistorico('producto_nombre', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-producto_codigo">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterHistorico('producto_codigo', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-unidad_medida">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-center">
-                        <input class="form-control form-control-sm text-center w-100" type="text"
-                          placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterHistorico('unidad_medida', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-cantidad_stock">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterHistorico('cantidad_stock', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-momento">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-center pe-4">
-                        <input class="form-control form-control-sm text-center w-100" type="text"
-                          placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterHistorico('momento', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsHistorico"></tr>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsFiltersHistorico"
-                      class="filter-header-row hide-on-print"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumnsHistorico;"></tr>
-                  </table>
-
-                  <div *ngIf="historicoDataSource.filteredData.length === 0" class="text-center py-5 text-muted">
-                    <i class="bi bi-calendar-x fs-1 d-block mb-2 text-secondary"></i>
-                    No se encontraron registros de histórico de inventario para este rango y sucursal.
-                  </div>
-                </div>
-
-                <mat-paginator #historicoPaginator [pageSize]="50" [pageSizeOptions]="[10, 50, 100]"
-                  aria-label="Seleccionar página" class="border-top hide-on-print">
-                </mat-paginator>
-              </div>
-            </div>
-          </div>
-
-          <!-- Contenido de Reporte: Auditoría de Ajustes de Inventario -->
-          <div *ngIf="!loading && activeTab === 'ajustes-inventario'">
-            <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
-              <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                <h6 class="text-uppercase text-muted fw-bold mb-0 small tracking-wider">
-                  <i class="bi bi-pencil-square text-danger me-2"></i> Auditoría de Ajustes Manuales de Inventario
-                </h6>
-                <button
-                  class="btn btn-outline-secondary rounded-pill px-3 fs-7 border-secondary-subtle d-inline-flex align-items-center gap-1 bg-white hide-on-print"
-                  (click)="imprimirReporte()">
-                  <i class="bi bi-printer"></i> <span>Imprimir</span>
-                </button>
-              </div>
-
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table mat-table [dataSource]="ajustesDataSource" matSort #ajustesSort="matSort"
-                    class="table table-hover align-middle mb-0">
-
-                    <!-- Fecha Column -->
-                    <ng-container matColumnDef="fecha">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary ps-4" style="width: 12%;"> Fecha </th>
-                      <td mat-cell *matCellDef="let element" class="ps-4 text-dark fs-8">
-                        {{ element.fecha | date: 'dd/MM/yyyy HH:mm' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Sucursal Column -->
-                    <ng-container matColumnDef="sucursal_nombre">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary" style="width: 12%;"> Sucursal </th>
-                      <td mat-cell *matCellDef="let element">
-                        <span class="fw-semibold text-secondary fs-8">{{ element.sucursal_nombre }}</span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Usuario Column -->
-                    <ng-container matColumnDef="usuario_nombre">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary" style="width: 12%;"> Autor </th>
-                      <td mat-cell *matCellDef="let element">
-                        <span class="badge bg-secondary-subtle text-secondary rounded px-2.5 py-1 fs-8 fw-semibold">{{
-                          element.usuario_nombre }}</span>
-                      </td>
-                    </ng-container>
-
-                    <!-- Producto Column -->
-                    <ng-container matColumnDef="producto_nombre">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary" style="width: 20%;"> Producto </th>
-                      <td mat-cell *matCellDef="let element" class="fw-bold text-dark">
-                        {{ element.producto_nombre }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Código Column -->
-                    <ng-container matColumnDef="producto_codigo">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary" style="width: 8%;"> Código </th>
-                      <td mat-cell *matCellDef="let element">
-                        <code
-                          class="text-secondary fw-semibold px-2 py-1 bg-light rounded">{{ element.producto_codigo || 'N/A' }}</code>
-                      </td>
-                    </ng-container>
-
-                    <!-- Unidad Column -->
-                    <ng-container matColumnDef="unidad_medida">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-center" style="width: 6%;"> UM </th>
-                      <td mat-cell *matCellDef="let element" class="text-center text-muted fs-8">
-                        {{ element.unidad_medida || '—' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Stock Anterior Column -->
-                    <ng-container matColumnDef="stock_anterior">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Exist. Ant.
-                      </th>
-                      <td mat-cell *matCellDef="let element" class="text-end text-secondary fw-semibold">
-                        {{ element.stock_anterior | number: '1.2-2' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Stock Nuevo Column -->
-                    <ng-container matColumnDef="stock_nuevo">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Exist. Nueva
-                      </th>
-                      <td mat-cell *matCellDef="let element" class="text-end fw-bold"
-                        [ngClass]="element.stock_nuevo > element.stock_anterior ? 'text-success' : 'text-danger'">
-                        {{ element.stock_nuevo | number: '1.2-2' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Stock Mínimo Anterior Column -->
-                    <ng-container matColumnDef="stock_minimo_anterior">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Mín. Ant.
-                      </th>
-                      <td mat-cell *matCellDef="let element" class="text-end text-muted">
-                        {{ element.stock_minimo_anterior !== null ? (element.stock_minimo_anterior | number: '1.2-2') :
-                        '—' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Stock Mínimo Nuevo Column -->
-                    <ng-container matColumnDef="stock_minimo_nuevo">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Mín. Nuevo
-                      </th>
-                      <td mat-cell *matCellDef="let element" class="text-end fw-semibold text-dark">
-                        {{ element.stock_minimo_nuevo !== null ? (element.stock_minimo_nuevo | number: '1.2-2') : '—' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Precio Anterior Column -->
-                    <ng-container matColumnDef="precio_anterior">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end" style="width: 8%;"> Precio Ant.
-                      </th>
-                      <td mat-cell *matCellDef="let element" class="text-end text-muted">
-                        {{ element.precio_anterior !== null ? (element.precio_anterior | currency) : '—' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Precio Nuevo Column -->
-                    <ng-container matColumnDef="precio_nuevo">
-                      <th mat-header-cell *matHeaderCellDef mat-sort-header
-                        class="table-light text-uppercase fs-7 text-secondary text-end pe-4" style="width: 8%;"> Precio
-                        Nuevo </th>
-                      <td mat-cell *matCellDef="let element" class="text-end fw-semibold pe-4 text-dark">
-                        {{ element.precio_nuevo !== null ? (element.precio_nuevo | currency) : '—' }}
-                      </td>
-                    </ng-container>
-
-                    <!-- Column Filters -->
-                    <ng-container matColumnDef="filter-fecha">
-                      <th mat-header-cell *matHeaderCellDef class="table-light ps-4">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('fecha', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-sucursal_nombre">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('sucursal_nombre', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-usuario_nombre">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('usuario_nombre', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-producto_nombre">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('producto_nombre', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-producto_codigo">
-                      <th mat-header-cell *matHeaderCellDef class="table-light">
-                        <input class="form-control form-control-sm w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('producto_codigo', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-unidad_medida">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-center">
-                        <input class="form-control form-control-sm text-center w-100" type="text"
-                          placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('unidad_medida', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-stock_anterior">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('stock_anterior', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-stock_nuevo">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('stock_nuevo', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-stock_minimo_anterior">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('stock_minimo_anterior', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-stock_minimo_nuevo">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('stock_minimo_nuevo', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-precio_anterior">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('precio_anterior', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-                    <ng-container matColumnDef="filter-precio_nuevo">
-                      <th mat-header-cell *matHeaderCellDef class="table-light text-end pe-4">
-                        <input class="form-control form-control-sm text-end w-100" type="text" placeholder="Filtrar..."
-                          (keyup)="applyColumnFilterAjustes('precio_nuevo', $any($event.target).value)">
-                      </th>
-                    </ng-container>
-
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsAjustes"></tr>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumnsFiltersAjustes"
-                      class="filter-header-row hide-on-print"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumnsAjustes;"></tr>
-                  </table>
-
-                  <div *ngIf="ajustesDataSource.filteredData.length === 0" class="text-center py-5 text-muted">
-                    <i class="bi bi-pencil-square fs-1 d-block mb-2 text-secondary"></i>
-                    No se encontraron modificaciones manuales de inventario para este rango y sucursal.
-                  </div>
-                </div>
-
-                <mat-paginator #ajustesPaginator [pageSize]="50" [pageSizeOptions]="[10, 50, 100]"
-                  aria-label="Seleccionar página" class="border-top hide-on-print">
-                </mat-paginator>
-              </div>
-            </div>
-          </div>
-
+      
+      <!-- Contenedor Dinámico de Componentes Hijos -->
+      <div class="row mt-2" style="height: calc(100vh - 200px); overflow-y: auto; padding-right: 5px;">
+        <div class="w-100">
+          <app-reporte-general *ngIf="activeTab === 'general'" 
+            [fechaInicio]="fechaInicio" 
+            [fechaFin]="fechaFin" 
+            [idSucursal]="idSucursalSelected">
+          </app-reporte-general>
+          
+          <app-reporte-cajas *ngIf="activeTab === 'cajas'" 
+            [fechaInicio]="fechaInicio" 
+            [fechaFin]="fechaFin" 
+            [idSucursal]="idSucursalSelected">
+          </app-reporte-cajas>
+          
+          <app-reporte-ventas-analisis *ngIf="activeTab === 'ventas-analisis'" 
+            [fechaInicio]="fechaInicio" 
+            [fechaFin]="fechaFin" 
+            [idSucursal]="idSucursalSelected"
+            [sidebarCollapsed]="sidebarCollapsed">
+          </app-reporte-ventas-analisis>
+          
+          <app-reporte-compras-detallado *ngIf="activeTab === 'compras-detallado'" 
+            [fechaInicio]="fechaInicio" 
+            [fechaFin]="fechaFin" 
+            [idSucursal]="idSucursalSelected" 
+            [idProducto]="idProductoSelected" 
+            [idProveedor]="idProveedorSelected"
+            [tipoPago]="tipoPagoSelected">
+          </app-reporte-compras-detallado>
+          
+          <app-reporte-ventas-detallado *ngIf="activeTab === 'ventas-detallado'" 
+            [fechaInicio]="fechaInicio" 
+            [fechaFin]="fechaFin" 
+            [idSucursal]="idSucursalSelected" 
+            [idProducto]="idProductoSelected" 
+            [idCliente]="idClienteSelected"
+            [tipoPago]="tipoPagoSelected">
+          </app-reporte-ventas-detallado>
+          
+          <app-reporte-inventario *ngIf="activeTab === 'inventario'" 
+            [idSucursal]="idSucursalSelected" 
+            [roleId]="roleId">
+          </app-reporte-inventario>
+          
+          <app-reporte-historico-inventario *ngIf="activeTab === 'historico-inventario'" 
+            [fechaInicio]="fechaInicio" 
+            [fechaFin]="fechaFin" 
+            [idSucursal]="idSucursalSelected" 
+            [idProducto]="idProductoSelected"
+            [roleId]="roleId">
+          </app-reporte-historico-inventario>
+          
+          <app-reporte-ajustes-inventario *ngIf="activeTab === 'ajustes-inventario'" 
+            [fechaInicio]="fechaInicio" 
+            [fechaFin]="fechaFin" 
+            [idSucursal]="idSucursalSelected" 
+            [idProducto]="idProductoSelected"
+            [roleId]="roleId">
+          </app-reporte-ajustes-inventario>
         </div>
-
       </div>
-
+      
     </div>
-
   </div>
-
-
 </div>
