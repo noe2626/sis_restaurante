@@ -1,91 +1,83 @@
-<div class="container-fluid py-4 bg-light min-vh-100">
-  
-  <div class="row">
-    <!-- Sidebar de Navegación de Reportes -->
-    <div class="sidebar-wrapper mb-4 hide-on-print" [class.collapsed]="sidebarCollapsed">
-      <div class="card border-0 shadow-sm rounded-4 p-3 bg-white sticky-top" style="top: 20px;">
-        <!-- Botón de Colapso -->
-        <div class="d-flex align-items-center justify-content-between mb-3 px-2 toggle-header">
-          <h6 class="text-uppercase text-secondary fw-bold mb-0 small tracking-wider sidebar-title" *ngIf="!sidebarCollapsed">
-            <i class="bi bi-list-task me-1 text-danger"></i> Reportes
-          </h6>
-          <button class="btn btn-link text-secondary p-1 border-0 shadow-none ms-auto d-flex align-items-center justify-content-center collapse-toggle-btn"
-                  (click)="toggleSidebar()"
-                  [title]="sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'">
-            <i class="bi" [class.bi-chevron-left]="!sidebarCollapsed" [class.bi-chevron-right]="sidebarCollapsed" style="font-size: 1.1rem;"></i>
-          </button>
-        </div>
-        <div class="nav flex-column gap-1">
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'general'"
-                  [class.inactive-report]="activeTab !== 'general'"
-                  (click)="cambiarTab('general')"
-                  [title]="sidebarCollapsed ? 'Resumen General' : ''">
-            <i class="bi bi-pie-chart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Resumen General</span>
-          </button>
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'cajas'"
-                  [class.inactive-report]="activeTab !== 'cajas'"
-                  (click)="cambiarTab('cajas')"
-                  [title]="sidebarCollapsed ? 'Auditoría de Cajas' : ''">
-            <i class="bi bi-wallet2 fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Auditoría de Cajas</span>
-          </button>
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'ventas-analisis'"
-                  [class.inactive-report]="activeTab !== 'ventas-analisis'"
-                  (click)="cambiarTab('ventas-analisis')"
-                  [title]="sidebarCollapsed ? 'Análisis de Ventas' : ''">
-            <i class="bi bi-graph-up fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Análisis de Ventas</span>
-          </button>
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'compras-detallado'"
-                  [class.inactive-report]="activeTab !== 'compras-detallado'"
-                  (click)="cambiarTab('compras-detallado')"
-                  [title]="sidebarCollapsed ? 'Compras Detalladas' : ''">
-            <i class="bi bi-cart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Compras Detalladas</span>
-          </button>
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'ventas-detallado'"
-                  [class.inactive-report]="activeTab !== 'ventas-detallado'"
-                  (click)="cambiarTab('ventas-detallado')"
-                  [title]="sidebarCollapsed ? 'Ventas Detalladas' : ''">
-            <i class="bi bi-receipt fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ventas Detalladas</span>
-          </button>
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'inventario'"
-                  [class.inactive-report]="activeTab !== 'inventario'"
-                  (click)="cambiarTab('inventario')"
-                  [title]="sidebarCollapsed ? 'Reporte de Inventario' : ''">
-            <i class="bi bi-boxes fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Reporte de Inventario</span>
-          </button>
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'historico-inventario'"
-                  [class.inactive-report]="activeTab !== 'historico-inventario'"
-                  (click)="cambiarTab('historico-inventario')"
-                  [title]="sidebarCollapsed ? 'Historial Inventario' : ''">
-            <i class="bi bi-calendar-check fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Historial Inventario</span>
-          </button>
-          <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
-                  [class.active-report]="activeTab === 'ajustes-inventario'"
-                  [class.inactive-report]="activeTab !== 'ajustes-inventario'"
-                  (click)="cambiarTab('ajustes-inventario')"
-                  [title]="sidebarCollapsed ? 'Ajustes Inventario' : ''">
-            <i class="bi bi-pencil-square fs-5" [class.me-2]="!sidebarCollapsed"></i>
-            <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ajustes Inventario</span>
-          </button>
-        </div>
+<div class="container-fluid bg-light" style="margin-top: -10px; padding-left: 0; height: calc(100vh - 60px);">
+  <div class="d-flex" style="height: 100%;">
+    <div class=" border-0 shadow-sm p-3 bg-white sticky-top p-0">
+      <!-- Botón de Colapso -->
+      <div class="nav flex-column gap-1">
+        <button
+          class="nav-link text-start text-danger rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+          (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Resumen General' : ''">
+          <i class="bi bi-list-task fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">REPORTES</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'general'"
+                [class.inactive-report]="activeTab !== 'general'"
+                (click)="cambiarTab('general')"
+                [title]="sidebarCollapsed ? 'Resumen General' : ''">
+          <i class="bi bi-pie-chart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Resumen General</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'cajas'"
+                [class.inactive-report]="activeTab !== 'cajas'"
+                (click)="cambiarTab('cajas')"
+                [title]="sidebarCollapsed ? 'Auditoría de Cajas' : ''">
+          <i class="bi bi-wallet2 fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Auditoría de Cajas</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'ventas-analisis'"
+                [class.inactive-report]="activeTab !== 'ventas-analisis'"
+                (click)="cambiarTab('ventas-analisis')"
+                [title]="sidebarCollapsed ? 'Análisis de Ventas' : ''">
+          <i class="bi bi-graph-up fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Análisis de Ventas</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'compras-detallado'"
+                [class.inactive-report]="activeTab !== 'compras-detallado'"
+                (click)="cambiarTab('compras-detallado')"
+                [title]="sidebarCollapsed ? 'Compras Detalladas' : ''">
+          <i class="bi bi-cart-fill fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Compras Detalladas</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'ventas-detallado'"
+                [class.inactive-report]="activeTab !== 'ventas-detallado'"
+                (click)="cambiarTab('ventas-detallado')"
+                [title]="sidebarCollapsed ? 'Ventas Detalladas' : ''">
+          <i class="bi bi-receipt fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ventas Detalladas</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'inventario'"
+                [class.inactive-report]="activeTab !== 'inventario'"
+                (click)="cambiarTab('inventario')"
+                [title]="sidebarCollapsed ? 'Reporte de Inventario' : ''">
+          <i class="bi bi-boxes fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Reporte de Inventario</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'historico-inventario'"
+                [class.inactive-report]="activeTab !== 'historico-inventario'"
+                (click)="cambiarTab('historico-inventario')"
+                [title]="sidebarCollapsed ? 'Historial Inventario' : ''">
+          <i class="bi bi-calendar-check fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Historial Inventario</span>
+        </button>
+        <button class="nav-link text-start rounded-3 px-3 py-2.5 fw-semibold transition-all border-0 w-100 d-flex align-items-center"
+                [class.active-report]="activeTab === 'ajustes-inventario'"
+                [class.inactive-report]="activeTab !== 'ajustes-inventario'"
+                (click)="cambiarTab('ajustes-inventario')"
+                [title]="sidebarCollapsed ? 'Ajustes Inventario' : ''">
+          <i class="bi bi-pencil-square fs-5" [class.me-2]="!sidebarCollapsed"></i>
+          <span class="sidebar-text" *ngIf="!sidebarCollapsed">Ajustes Inventario</span>
+        </button>
       </div>
     </div>
 
-    <!-- Contenido Principal -->
-    <div class="content-wrapper flex-fill" [class.expanded]="sidebarCollapsed" style="padding: 10px;">
+    <!-- Contenido reportes -->
+    <div class="flex-fill" style="padding: 10px;">
       
       <!-- Fila de Encabezado y Filtros -->
       <div class="row mb-4 align-items-center">
