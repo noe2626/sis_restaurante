@@ -86,46 +86,7 @@
   box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.1) !important;
 }
 
-@media print {
-  .hide-on-print,
-  .nav-pills,
-  app-nav-bar,
-  .search-container,
-  button {
-    display: none !important;
-  }
-  
-  .card {
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  .kpi-row {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 15px !important;
-    margin-bottom: 25px !important;
-  }
-
-  .kpi-col {
-    flex: 1 1 0% !important;
-    width: 25% !important;
-    max-width: 25% !important;
-  }
-
-  .kpi-col .card {
-    border: 1px solid #dee2e6 !important;
-    border-radius: 8px !important;
-    padding: 10px !important;
-    background-color: #fff !important;
-    color: #000 !important;
-  }
-  
-  .kpi-col .text-white-50 {
-    color: #6c757d !important;
-  }
-}
+/* Los estilos de impresión se gestionan de forma global en src/styles.css para dar soporte a los subcomponentes */
 
 .filter-header-row th {
   padding: 6px 12px !important;

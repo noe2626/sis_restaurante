@@ -84,3 +84,178 @@ body {
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+/* ==========================================================================
+   PRINT STYLES - DISEÑO DE IMPRESIÓN PROFESIONAL DE REPORTES
+   ========================================================================== */
+@media print {
+  /* Forzar impresión de colores de fondo, gráficos y degradados */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
+    font-size: 11px !important;
+  }
+
+  /* Ocultar elementos innecesarios */
+  .hide-on-print,
+  nav,
+  app-nav-bar,
+  .nav-pills,
+  .sidebar-wrapper,
+  .collapse-toggle-btn,
+  button,
+  .btn,
+  .mat-mdc-paginator,
+  mat-paginator,
+  .filter-header-row,
+  .spinner-border,
+  .text-center.py-5,
+  .toggle-header,
+  app-nav-bar,
+  .d-flex.align-items-center.justify-content-between.mb-3 {
+    display: none !important;
+  }
+
+  /* Quitar límites de scroll en contenedores principales de reportes */
+  .flex-fill,
+  .content-wrapper,
+  .row.mt-2,
+  .table-responsive,
+  div[style*="overflow-y: auto"],
+  div[style*="height: calc"],
+  div[style*="overflow-y"] {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    padding-right: 0 !important;
+  }
+
+  /* Evitar saltos de página a mitad de una tarjeta o sección */
+  .card,
+  .row,
+  tr,
+  canvas,
+  app-reporte-general,
+  app-reporte-cajas,
+  app-reporte-ventas-analisis,
+  app-reporte-compras-detallado,
+  app-reporte-ventas-detallado,
+  app-reporte-inventario,
+  app-reporte-historico-inventario,
+  app-reporte-ajustes-inventario {
+    page-break-inside: avoid !important;
+  }
+
+  /* Estilos específicos para tarjetas (KPIs) en impresión */
+  .card {
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    background-color: #ffffff !important;
+    margin-bottom: 15px !important;
+    padding: 15px !important;
+  }
+
+  /* Asegurar que las tarjetas de KPIs oscuras del dashboard impriman con alto contraste */
+  .card-kpi {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border: 1px solid #94a3b8 !important;
+  }
+  
+  .card-kpi h6, 
+  .card-kpi h2, 
+  .card-kpi p,
+  .card-kpi span {
+    color: #0f172a !important;
+  }
+
+  .text-white-50 {
+    color: #475569 !important;
+  }
+  
+  /* Ajustar cuadrículas para que se impriman en filas horizontales */
+  .kpi-row, .row.g-3 {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 15px !important;
+  }
+
+  .col-md-3, .col-md-4 {
+    flex: 1 1 0% !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+
+  /* Tablas de Reportes limpias y profesionales */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    padding: 8px 10px !important;
+    border: 1px solid #94a3b8 !important;
+    font-size: 11px !important;
+    color: #1e293b !important;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    font-weight: bold !important;
+    color: #0f172a !important;
+  }
+
+  /* Badges Dinámicos de Contado / Crédito en Impresión */
+  .badge {
+    border: 1px solid #cbd5e1 !important;
+    padding: 3px 8px !important;
+    font-size: 9px !important;
+    font-weight: bold !important;
+    border-radius: 4px !important;
+  }
+
+  .bg-success {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #bbf7d0 !important;
+  }
+
+  .bg-warning {
+    background-color: #fef9c3 !important;
+    color: #854d0e !important;
+    border-color: #fef08a !important;
+  }
+
+  .bg-danger {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+  }
+
+  .bg-primary-subtle {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+    border-color: #bae6fd !important;
+  }
+
+  /* Gráficas e Imágenes */
+  canvas, img {
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 350px !important;
+  }
+
+  /* Configuración de página de impresión */
+  @page {
+    size: letter portrait;
+    margin: 1.2cm;
+  }
+}
+
