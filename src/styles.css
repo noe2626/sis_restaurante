@@ -137,6 +137,44 @@ body {
   }
 
   /* Quitar límites de scroll en contenedores principales de reportes */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Forzar que los componentes de Angular se comporten como bloques al imprimir */
+  app-root,
+  app-inicio,
+  app-reportes,
+  app-reporte-general,
+  app-reporte-cajas,
+  app-reporte-ventas-analisis,
+  app-reporte-compras-detallado,
+  app-reporte-ventas-detallado,
+  app-reporte-inventario,
+  app-reporte-historico-inventario,
+  app-reporte-ajustes-inventario {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Desactivar flexbox/grid en contenedores estructurales principales al imprimir */
+  app-reportes .d-flex,
+  app-reportes .flex-fill,
+  app-reportes .row.mt-2,
+  app-reportes .w-100 {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
   .flex-fill,
   .content-wrapper,
   .row.mt-2,
@@ -148,6 +186,7 @@ body {
     max-height: none !important;
     overflow: visible !important;
     overflow-y: visible !important;
+    overflow-x: visible !important;
     padding-right: 0 !important;
   }
 
@@ -158,20 +197,18 @@ body {
     flex: 0 0 100% !important;
   }
 
-  /* Evitar saltos de página a mitad de una tarjeta o sección */
-  .card,
-  .row,
+  /* Evitar saltos de página a mitad de elementos individuales que no deben romperse */
+  .card-kpi,
   tr,
-  canvas,
-  app-reporte-general,
-  app-reporte-cajas,
-  app-reporte-ventas-analisis,
-  app-reporte-compras-detallado,
-  app-reporte-ventas-detallado,
-  app-reporte-inventario,
-  app-reporte-historico-inventario,
-  app-reporte-ajustes-inventario {
+  canvas {
     page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Asegurar que las tarjetas de tablas puedan dividirse entre páginas */
+  .card {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
 
   /* Estilos específicos para tarjetas (KPIs) en impresión */
