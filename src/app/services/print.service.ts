@@ -228,7 +228,7 @@ export class PrintService {
         
         ${ticketData.notas ? `
           <div class="divider"></div>
-          <div style="font-size: 10px; margin-top: 4px; padding: 4px; border: 1px dashed #000; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase;">
+          <div style="font-size: 10px; margin-top: 4px; padding: 4px; border: 1px dashed #000; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase; white-space: pre-line;">
             NOTAS: ${ticketData.notas}
           </div>
         ` : ''}
@@ -461,7 +461,7 @@ export class PrintService {
         
         ${ticketData.notas ? `
           <div class="divider"></div>
-          <div style="font-size: 10px; margin-top: 4px; padding: 4px; border: 1px dashed #000; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase;">
+          <div style="font-size: 10px; margin-top: 4px; padding: 4px; border: 1px dashed #000; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase; white-space: pre-line;">
             NOTAS: ${ticketData.notas}
           </div>
         ` : ''}
@@ -598,7 +598,7 @@ export class PrintService {
         <div class="divider"></div>
         
         ${ticketData.notas ? `
-          <div style="font-size: 12px; margin-top: 6px; border: 2px solid #000; padding: 6px; background-color: #fff; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase;">
+          <div style="font-size: 12px; margin-top: 6px; border: 2px solid #000; padding: 6px; background-color: #fff; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase; white-space: pre-line;">
             NOTAS: ${ticketData.notas}
           </div>
           <div class="divider"></div>
