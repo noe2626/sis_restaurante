@@ -689,8 +689,10 @@ export class VentasComponent implements OnInit{
             }))
           };
 
-          // 1. Siempre imprimir comanda
-          this.printService.imprimirComanda(printData);
+          // 1. Imprimir comanda solamente cuando la venta sea pendiente (Orden = 2)
+          if (this.estatusVenta === 2) {
+            this.printService.imprimirComanda(printData);
+          }
 
           // 2. Imprimir ticket de venta solo si es Completada (1) o Crédito (3)
           if (this.imprimeTicket && (this.estatusVenta === 1 || this.estatusVenta === 3)) {
