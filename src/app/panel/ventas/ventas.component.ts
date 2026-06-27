@@ -1061,6 +1061,7 @@ export class VentasComponent implements OnInit{
             total: this.ordenACobrar.total,
             pago: this.metodoPagoEntregaPos === 'efectivo' ? this.pago : this.ordenACobrar.total,
             cambio: this.metodoPagoEntregaPos === 'efectivo' ? this.pago-this.ordenACobrar.total : 0,
+            notas: this.ordenACobrar.notas,
             productos: (this.ordenACobrar.productos || []).map((prod: any) => ({
               nombre: prod.nombre,
               cantidad: prod.pivot.cantidad,
