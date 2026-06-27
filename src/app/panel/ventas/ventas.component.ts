@@ -520,6 +520,7 @@ export class VentasComponent implements OnInit{
     this.idVentaEditando = venta.id;
     this.folioEditando = venta.folio;
     this.estatusVenta = venta.estatus;
+    this.notasVenta = venta.notas || '';
   }
 
   iniciarEdicionOrden(id: number): void {
