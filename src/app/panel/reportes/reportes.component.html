@@ -1,6 +1,6 @@
 <div class="container-fluid bg-light" style="margin-top: -10px; padding-left: 0; height: calc(100vh - 60px);">
   <div class="d-flex" style="height: 100%;">
-    <div class=" border-0 shadow-sm p-3 bg-white sticky-top p-0 hide-on-print">
+    <div class="sidebar-wrapper border-0 shadow-sm p-3 bg-white sticky-top p-0 hide-on-print" [class.collapsed]="sidebarCollapsed">
       <!-- Botón de Colapso -->
       <div class="nav flex-column gap-1">
         <button
@@ -77,7 +77,7 @@
     </div>
 
     <!-- Contenido reportes -->
-    <div class="flex-fill" style="padding: 10px;">
+    <div class="content-wrapper flex-fill" [class.expanded]="sidebarCollapsed" style="padding: 10px;">
 
       <!-- Cabecera de Impresión Limpia (Visible solo al imprimir) -->
       <div class="print-header show-on-print-only mb-4" style="display: none;">
