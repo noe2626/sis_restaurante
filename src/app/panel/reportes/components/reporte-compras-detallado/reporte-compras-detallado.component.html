@@ -46,6 +46,7 @@
             <th>Sucursal</th>
             <th class="text-end">Fecha</th>
             <th class="text-center">Folio</th>
+            <th class="text-center">Folio Prov.</th>
             <th class="text-center">Pago</th>
             <th class="text-end">Precio U.</th>
             <th class="text-end">Cantidad</th>
@@ -64,6 +65,9 @@
                 item.folio }}</span>
             </td>
             <td class="text-center">
+              <span class="text-muted small fw-semibold">{{ item.folio_proveedor || '—' }}</span>
+            </td>
+            <td class="text-center">
               <span *ngIf="item.estatus === 3" class="badge bg-warning text-dark px-2.5 py-1.5 rounded-pill fs-8 fw-semibold">Crédito</span>
               <span *ngIf="item.estatus !== 3" class="badge bg-success text-white px-2.5 py-1.5 rounded-pill fs-8 fw-semibold">Contado</span>
             </td>
@@ -72,7 +76,7 @@
             <td class="text-end fw-semibold text-dark">{{ item.total_compra | currency }}</td>
           </tr>
           <tr *ngIf="comprasDetalladasData.length === 0">
-            <td colspan="10" class="text-center py-5 text-muted">
+            <td colspan="11" class="text-center py-5 text-muted">
               <i class="bi bi-cart-x fs-2 d-block mb-2 text-secondary"></i>
               No se encontraron compras en el rango y filtros seleccionados.
             </td>
