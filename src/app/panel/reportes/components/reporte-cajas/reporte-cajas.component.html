@@ -25,6 +25,7 @@
             <th class="text-end">Teórico ($)</th>
             <th class="text-end">Cierre Real ($)</th>
             <th class="text-end">Diferencia ($)</th>
+            <th class="text-end">Depósitos ($)</th>
             <th class="text-end">Retiros ($)</th>
             <th class="text-center">Estado</th>
             <th style="width: 15%;">Notas</th>
@@ -59,6 +60,14 @@
               </span>
             </td>
             <td class="text-end">
+              <span *ngIf="item.total_depositos > 0" class="text-success fw-bold cursor-pointer text-decoration-underline" (click)="verDepositos(item)" title="Ver detalle de depósitos">
+                {{ item.total_depositos | currency }}
+              </span>
+              <span *ngIf="!(item.total_depositos > 0)" class="text-muted">
+                $0.00
+              </span>
+            </td>
+            <td class="text-end">
               <span *ngIf="item.total_retiros > 0" class="text-danger fw-bold cursor-pointer text-decoration-underline" (click)="verRetiros(item)" title="Ver detalle de retiros">
                 {{ item.total_retiros | currency }}
               </span>
@@ -77,7 +86,7 @@
             </td>
           </tr>
           <tr *ngIf="cajasData.length === 0">
-            <td colspan="12" class="text-center py-5 text-muted">
+            <td colspan="13" class="text-center py-5 text-muted">
               <i class="bi bi-wallet2 fs-2 d-block mb-2 text-secondary"></i>
               No se encontraron registros de caja en el rango de fechas seleccionado.
             </td>

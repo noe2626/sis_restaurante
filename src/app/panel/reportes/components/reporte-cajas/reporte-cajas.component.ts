@@ -116,4 +116,68 @@ export class ReporteCajasComponent implements OnChanges {
       confirmButtonColor: '#3085d6'
     });
   }
+
+  verDepositos(item: any): void {
+    if (!item.depositos || item.depositos.length === 0) {
+      Swal.fire({
+        title: 'Sin depósitos',
+        text: 'No se encontraron depósitos en esta sesión de caja.',
+        icon: 'info'
+      });
+      return;
+    }
+
+    let htmlContent = `
+      <div class="table-responsive text-start fs-7">
+        <table class="table table-lg table-striped align-middle">
+          <thead>
+            <tr class="table-light fw-bold" style="font-size: 0.85rem;">
+              <th>Fecha</th>
+              <th class="text-end">Monto</th>
+              <th>Concepto</th>
+              <th>Autorizó</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    item.depositos.forEach((dep: any) => {
+      const dateFormatted = new Date(dep.fecha).toLocaleString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      const amountFormatted = new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN'
+      }).format(dep.cantidad);
+
+      htmlContent += `
+        <tr style="font-size: 0.85rem;">
+          <td>${dateFormatted}</td>
+          <td class="text-end text-success fw-bold">${amountFormatted}</td>
+          <td>${dep.concepto || 'Sin concepto'}</td>
+          <td><span class="badge bg-secondary">${dep.usuario_nombre || 'Desconocido'}</span></td>
+        </tr>
+      `;
+    });
+
+    htmlContent += `
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    Swal.fire({
+      title: `Depósitos de Caja - ${item.caja_nombre}`,
+      html: htmlContent,
+      width: '70%',
+      showConfirmButton: true,
+      confirmButtonText: 'Cerrar',
+      confirmButtonColor: '#3085d6'
+    });
+  }
 }
