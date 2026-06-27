@@ -226,6 +226,13 @@ export class PrintService {
           ` : ''}
         </div>
         
+        ${ticketData.notas ? `
+          <div class="divider"></div>
+          <div style="font-size: 10px; margin-top: 4px; padding: 4px; border: 1px dashed #000; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase;">
+            NOTAS: ${ticketData.notas}
+          </div>
+        ` : ''}
+        
         <div class="divider"></div>
         
         <div class="footer text-center">
@@ -451,6 +458,13 @@ export class PrintService {
             <div>${descuentaCajaText}</div>
           </div>
         </div>
+        
+        ${ticketData.notas ? `
+          <div class="divider"></div>
+          <div style="font-size: 10px; margin-top: 4px; padding: 4px; border: 1px dashed #000; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase;">
+            NOTAS: ${ticketData.notas}
+          </div>
+        ` : ''}
         
         <div class="divider"></div>
         
