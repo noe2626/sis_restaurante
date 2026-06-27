@@ -25,6 +25,7 @@ export interface TicketData {
   canal_costo_tercero?: number | null;
   canal_cargo_cliente?: number | null;
   descuenta_caja?: boolean | null;
+  notas?: string;
   productos: TicketItem[];
 }
 
@@ -581,6 +582,14 @@ export class PrintService {
         </div>
         
         <div class="divider"></div>
+        
+        ${ticketData.notas ? `
+          <div style="font-size: 12px; margin-top: 6px; border: 2px solid #000; padding: 6px; background-color: #fff; font-family: Arial, Helvetica, sans-serif; font-weight: bold; text-transform: uppercase;">
+            NOTAS: ${ticketData.notas}
+          </div>
+          <div class="divider"></div>
+        ` : ''}
+        
         <div style="font-size: 10px; text-align: center; font-weight: bold; margin-top: 6px;">
           *** FINAL DE COMANDA ***
         </div>

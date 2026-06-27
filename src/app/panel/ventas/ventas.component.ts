@@ -58,6 +58,7 @@ export class VentasComponent implements OnInit{
 
   estatusVenta: number = 1; // 1=Completada, 2=Orden, 3=Crédito
   estatusVentaPredeterminado: number = 1; // Para cargar el estatus predeterminado desde la caja
+  notasVenta: string = '';
   abonosModalVentas: any[] = [];
   ventaSeleccionadaAbono: any = null;
   montoAbonoInput: number = 0;
@@ -642,6 +643,7 @@ export class VentasComponent implements OnInit{
       metodo_pago: this.metodoPago,
       idCanalVenta: this.idCanalVenta,
       estatus: this.estatusVenta,
+      notas: this.notasVenta,
       productos: this.carrito.map(item => ({
         idProducto: item.id,
         cantidad: item.cantidad,
@@ -680,6 +682,7 @@ export class VentasComponent implements OnInit{
             total: this.total,
             pago: this.pago || this.total,
             cambio: this.cambio,
+            notas: this.notasVenta,
             productos: this.carrito.map(item => ({
               nombre: item.nombre,
               cantidad: item.cantidad,
@@ -747,6 +750,7 @@ export class VentasComponent implements OnInit{
     this.clienteSeleccionado = null;
     this.carrito = [];
     this.total = 0;
+    this.notasVenta = '';
     this.iva = 0;
     this.extras = 0;
     this.descuentos = 0;
