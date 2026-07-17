@@ -36,6 +36,10 @@ export class PrintService {
 
   constructor() { }
 
+  formatCantidad(cantidad: number): string {
+    return parseFloat(Number(cantidad).toFixed(2)).toString();
+  }
+
   imprimirTicket(ticketData: TicketData): void {
     // 1. Create or get the hidden iframe
     let iframe = document.getElementById('print-ticket-iframe') as HTMLIFrameElement;
@@ -69,7 +73,7 @@ export class PrintService {
         <div style="margin-bottom: 4px; font-size: 10px;">
           <div style="display: flex; justify-content: space-between;">
             <div style="flex: 1; padding-right: 6px; text-transform: uppercase;">
-              ${p.cantidad} x ${p.nombre}
+              ${this.formatCantidad(p.cantidad)} x ${p.nombre}
             </div>
             <div style="text-align: right; white-space: nowrap;">
               $${Number(p.total).toFixed(2)}
@@ -296,7 +300,7 @@ export class PrintService {
         <div style="margin-bottom: 4px; font-size: 10px; font-family: Arial, Helvetica, sans-serif;">
           <div style="display: flex; justify-content: space-between;">
             <div style="flex: 1; padding-right: 6px; text-transform: uppercase;">
-              ${p.cantidad} x ${p.nombre}
+              ${this.formatCantidad(p.cantidad)} x ${p.nombre}
             </div>
             <div style="text-align: right; white-space: nowrap;">
               $${Number(p.total).toFixed(2)}
@@ -524,7 +528,7 @@ export class PrintService {
     ticketData.productos.forEach(p => {
       itemsHtml += `
         <div style="margin-bottom: 6px; font-size: 14px; font-weight: bold; font-family: Arial, Helvetica, sans-serif; border-bottom: 1px dotted #ccc; padding-bottom: 4px;">
-          <span style="font-size: 18px; padding-right: 8px;">${p.cantidad}</span> x <span style="text-transform: uppercase;">${p.nombre}</span>
+          <span style="font-size: 18px; padding-right: 8px;">${this.formatCantidad(p.cantidad)}</span> x <span style="text-transform: uppercase;">${p.nombre}</span>
           ${p.promocion ? `<div style="font-size: 10px; font-weight: normal; margin-left: 28px; color: #555;">Promo: ${p.promocion}</div>` : ''}
         </div>
       `;
