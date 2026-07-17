@@ -37,6 +37,7 @@ export class SucursalesAdminComponent implements OnInit {
     this.sucursalForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(255)]],
       direccion: ['', [Validators.required, Validators.maxLength(255)]],
+      telefono: ['', [Validators.maxLength(20)]],
       maneja_iva: [false],
       imprime_ticket: [true],
       bloqueo_stock: ['estricto', Validators.required],
@@ -71,6 +72,7 @@ export class SucursalesAdminComponent implements OnInit {
     this.sucursalForm.reset({
       nombre: '',
       direccion: '',
+      telefono: '',
       maneja_iva: false,
       imprime_ticket: true,
       bloqueo_stock: 'estricto',
@@ -87,6 +89,7 @@ export class SucursalesAdminComponent implements OnInit {
     this.sucursalForm.patchValue({
       nombre: sucursal.nombre,
       direccion: sucursal.direccion,
+      telefono: sucursal.telefono || '',
       maneja_iva: sucursal.maneja_iva == 1 || sucursal.maneja_iva == true,
       imprime_ticket: sucursal.imprime_ticket == 1 || sucursal.imprime_ticket == true,
       bloqueo_stock: sucursal.bloqueo_stock || 'estricto',
@@ -106,6 +109,7 @@ export class SucursalesAdminComponent implements OnInit {
     const payload = {
       nombre: this.sucursalForm.value.nombre,
       direccion: this.sucursalForm.value.direccion,
+      telefono: this.sucursalForm.value.telefono || null,
       maneja_iva: this.sucursalForm.value.maneja_iva ? 1 : 0,
       imprime_ticket: this.sucursalForm.value.imprime_ticket ? 1 : 0,
       bloqueo_stock: this.sucursalForm.value.bloqueo_stock,
@@ -196,6 +200,7 @@ export class SucursalesAdminComponent implements OnInit {
           const payload = {
             nombre: sucursal.nombre,
             direccion: sucursal.direccion,
+            telefono: sucursal.telefono,
             maneja_iva: sucursal.maneja_iva,
             imprime_ticket: sucursal.imprime_ticket,
             estatus: 1

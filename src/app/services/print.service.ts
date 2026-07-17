@@ -60,6 +60,7 @@ export class PrintService {
     // 2. Build the HTML content
     const sucursalNombre = localStorage.getItem('sucursal') || 'ROJO VIVO';
     const sucursalDireccion = localStorage.getItem('direccionSucursal') || '';
+    const sucursalTelefono = localStorage.getItem('telefonoSucursal') || '';
 
     // Format items rows
     let itemsHtml = '';
@@ -160,6 +161,7 @@ export class PrintService {
           </div>
           <div class="sucursal">${sucursalNombre}</div>
           ${sucursalDireccion ? `<div class="direccion">${sucursalDireccion}</div>` : ''}
+          ${sucursalTelefono ? `<div class="direccion">Tel: ${sucursalTelefono}</div>` : ''}
         </div>
         
         <div class="divider"></div>

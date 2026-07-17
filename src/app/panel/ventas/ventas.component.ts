@@ -140,6 +140,7 @@ export class VentasComponent implements OnInit{
             if (activeSuc) {
               localStorage.setItem('sucursal', activeSuc.sucursal);
               localStorage.setItem('direccionSucursal', activeSuc.direccion || '');
+              localStorage.setItem('telefonoSucursal', activeSuc.telefono || '');
               localStorage.setItem('manejaIva', (activeSuc.manejaIva ?? 0).toString());
               localStorage.setItem('imprimeTicket', (activeSuc.imprimeTicket ?? 1).toString());
               localStorage.setItem('bloqueoStock', activeSuc.bloqueoStock || 'estricto');
