@@ -7,6 +7,7 @@ import { isPlatformBrowser } from '@angular/common';
 import CryptoJS from 'crypto-js';
 import { environment } from '../../../environments/environment';
 import Swal from 'sweetalert2';
+import { PrintService, TicketData } from '../../services/print.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -53,6 +54,7 @@ export class DashboardComponent implements OnInit {
     private cajasService: CajasService,
     private ventasService: VentasService,
     private router: Router,
+    private printService: PrintService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -290,5 +292,107 @@ export class DashboardComponent implements OnInit {
         Swal.fire('Error', 'Hubo un error al comunicarse con el servidor.', 'error');
       }
     });
+  }
+
+  imprimirTicket(venta: any): void {
+    if (!venta) return;
+    try {
+      const ticketData: TicketData = {
+        folio: venta.folio,
+        fecha: venta.fecha,
+        cliente: venta.cliente ? venta.cliente.nombre : 'Cliente General',
+        cajero: venta.user ? venta.user.name : 'N/A',
+        canal: venta.canal_venta ? venta.canal_venta.nombre : (venta.canalVenta ? venta.canalVenta.nombre : 'Comedor'),
+        metodo_pago: venta.metodo_pago || 'efectivo',
+        subtotal: venta.subtotal,
+        descuentos: venta.descuentos,
+        extras: venta.extras,
+        iva: venta.iva,
+        total: venta.total,
+        pago: null,
+        cambio: null,
+        notas: venta.notas || null,
+        productos: (venta.productos || []).map((prod: any) => ({
+          nombre: prod.nombre,
+          cantidad: prod.pivot.cantidad,
+          precio: prod.pivot.precio,
+          total: prod.pivot.total,
+          promocion: prod.pivot.promocion
+        }))
+      };
+      this.printService.imprimirTicket(ticketData);
+    } catch (e) {
+      console.error('Error al reimprimir ticket:', e);
+      Swal.fire('Error', 'No se pudo generar el ticket para impresión.', 'error');
+    }
+  }
+
+  imprimirComanda(venta: any): void {
+    if (!venta) return;
+    try {
+      const ticketData: TicketData = {
+        folio: venta.folio,
+        fecha: venta.fecha,
+        cliente: venta.cliente ? venta.cliente.nombre : 'Cliente General',
+        cajero: venta.user ? venta.user.name : 'N/A',
+        canal: venta.canal_venta ? venta.canal_venta.nombre : (venta.canalVenta ? venta.canalVenta.nombre : 'Comedor'),
+        metodo_pago: venta.metodo_pago || 'efectivo',
+        subtotal: venta.subtotal,
+        descuentos: venta.descuentos,
+        extras: venta.extras,
+        iva: venta.iva,
+        total: venta.total,
+        pago: null,
+        cambio: null,
+        notas: venta.notas || null,
+        productos: (venta.productos || []).map((prod: any) => ({
+          nombre: prod.nombre,
+          cantidad: prod.pivot.cantidad,
+          precio: prod.pivot.precio,
+          total: prod.pivot.total,
+          promocion: prod.pivot.promocion
+        }))
+      };
+      this.printService.imprimirComanda(ticketData);
+    } catch (e) {
+      console.error('Error al reimprimir comanda:', e);
+      Swal.fire('Error', 'No se pudo generar la comanda para impresión.', 'error');
+    }
+  }
+
+  imprimirTicketCanal(venta: any): void {
+    if (!venta) return;
+    try {
+      const ticketData: TicketData = {
+        folio: venta.folio,
+        fecha: venta.fecha,
+        cliente: venta.cliente ? venta.cliente.nombre : 'Cliente General',
+        cajero: venta.user ? venta.user.name : 'N/A',
+        canal: venta.canal_venta ? venta.canal_venta.nombre : (venta.canalVenta ? venta.canalVenta.nombre : 'Comedor'),
+        metodo_pago: venta.metodo_pago || 'efectivo',
+        subtotal: venta.subtotal,
+        descuentos: venta.descuentos,
+        extras: venta.extras,
+        iva: venta.iva,
+        total: venta.total,
+        pago: null,
+        cambio: null,
+        notas: venta.notas || null,
+        canal_costo_tercero: venta.canal_costo_tercero || 0,
+        canal_cargo_cliente: venta.canal_cargo_cliente || 0,
+        descuenta_caja: venta.canal_venta ? (venta.canal_venta.descuenta_caja == 1 || venta.canal_venta.descuenta_caja === true) : false,
+        productos: (venta.productos || []).map((prod: any) => ({
+          nombre: prod.nombre,
+          cantidad: prod.pivot.cantidad,
+          precio: prod.pivot.precio,
+          total: prod.pivot.total,
+          promocion: prod.pivot.promocion
+        }))
+      };
+      this.printService.imprimirTicketCanal(ticketData);
+    } catch (e) {
+      console.error('Error al reimprimir ticket de canal:', e);
+      Swal.fire('Error', 'No se pudo generar el ticket de canal para impresión.', 'error');
+    }
   }
 }

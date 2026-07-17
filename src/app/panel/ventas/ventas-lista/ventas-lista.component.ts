@@ -203,6 +203,7 @@ export class VentasListaComponent implements OnInit {
         total: venta.total,
         pago: null,
         cambio: null,
+        notas: venta.notas || null,
         productos: (venta.productos || []).map((prod: any) => ({
           nombre: prod.nombre,
           cantidad: prod.pivot.cantidad,
@@ -215,6 +216,39 @@ export class VentasListaComponent implements OnInit {
     } catch (e) {
       console.error('Error al reimprimir ticket:', e);
       Swal.fire('Error', 'No se pudo generar el ticket para impresión.', 'error');
+    }
+  }
+
+  imprimirComanda(venta: any): void {
+    if (!venta) return;
+    try {
+      const ticketData: TicketData = {
+        folio: venta.folio,
+        fecha: venta.fecha,
+        cliente: venta.cliente ? venta.cliente.nombre : 'Cliente General',
+        cajero: venta.user ? venta.user.name : 'N/A',
+        canal: venta.canal_venta ? venta.canal_venta.nombre : (venta.canalVenta ? venta.canalVenta.nombre : 'Comedor'),
+        metodo_pago: venta.metodo_pago || 'efectivo',
+        subtotal: venta.subtotal,
+        descuentos: venta.descuentos,
+        extras: venta.extras,
+        iva: venta.iva,
+        total: venta.total,
+        pago: null,
+        cambio: null,
+        notas: venta.notas || null,
+        productos: (venta.productos || []).map((prod: any) => ({
+          nombre: prod.nombre,
+          cantidad: prod.pivot.cantidad,
+          precio: prod.pivot.precio,
+          total: prod.pivot.total,
+          promocion: prod.pivot.promocion
+        }))
+      };
+      this.printService.imprimirComanda(ticketData);
+    } catch (e) {
+      console.error('Error al reimprimir comanda:', e);
+      Swal.fire('Error', 'No se pudo generar la comanda para impresión.', 'error');
     }
   }
 
@@ -235,6 +269,7 @@ export class VentasListaComponent implements OnInit {
         total: venta.total,
         pago: null,
         cambio: null,
+        notas: venta.notas || null,
         canal_costo_tercero: venta.canal_costo_tercero || 0,
         canal_cargo_cliente: venta.canal_cargo_cliente || 0,
         descuenta_caja: venta.canal_venta ? (venta.canal_venta.descuenta_caja == 1 || venta.canal_venta.descuenta_caja === true) : false,

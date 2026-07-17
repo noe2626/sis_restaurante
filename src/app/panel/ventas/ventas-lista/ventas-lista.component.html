@@ -305,6 +305,11 @@
                 (click)="imprimirTicket(ventaSeleccionada)">
           <i class="bi bi-printer me-1"></i> Imprimir Ticket
         </button>
+        <button type="button" class="btn btn-warning rounded-pill px-4 me-2 text-dark" 
+                *ngIf="ventaSeleccionada"
+                (click)="imprimirComanda(ventaSeleccionada)">
+          <i class="bi bi-fire me-1"></i> Imprimir Comanda
+        </button>
         <button type="button" class="btn btn-outline-secondary rounded-pill px-4 me-auto" 
                 *ngIf="ventaSeleccionada?.idCanalVenta && ventaSeleccionada?.idCanalVenta != 1" 
                 (click)="imprimirTicketCanal(ventaSeleccionada)">

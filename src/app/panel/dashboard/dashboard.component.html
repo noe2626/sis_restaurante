@@ -526,7 +526,22 @@
             </table>
           </div>
         </div>
-        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4 justify-content-end">
+        <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
+          <button type="button" class="btn btn-primary rounded-pill px-4 me-2" 
+                  *ngIf="ventaSeleccionada"
+                  (click)="imprimirTicket(ventaSeleccionada)">
+            <i class="bi bi-printer me-1"></i> Imprimir Ticket
+          </button>
+          <button type="button" class="btn btn-warning rounded-pill px-4 me-2 text-dark" 
+                  *ngIf="ventaSeleccionada"
+                  (click)="imprimirComanda(ventaSeleccionada)">
+            <i class="bi bi-fire me-1"></i> Imprimir Comanda
+          </button>
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 me-auto" 
+                  *ngIf="ventaSeleccionada?.idCanalVenta && ventaSeleccionada?.idCanalVenta != 1" 
+                  (click)="imprimirTicketCanal(ventaSeleccionada)">
+            <i class="bi bi-receipt me-1"></i> Imprimir Ticket Canal
+          </button>
           <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar Detalle</button>
         </div>
       </div>
