@@ -95,7 +95,7 @@ export class VentasComponent implements OnInit{
   ) {
     this.formProd = this.fb.group({
       idProducto: [null, Validators.required],
-      cantidad: [1, [Validators.required, Validators.min(1)]]
+      cantidad: [1, [Validators.required, Validators.min(0.001)]]
     });
     this.idSucursal=localStorage.getItem('idSucursal');
     this.manejaIva = localStorage.getItem('manejaIva') === '1';
@@ -503,7 +503,7 @@ export class VentasComponent implements OnInit{
           id: prod.id,
           nombre: prod.nombre,
           precio: parseFloat(prod.pivot.precio),
-          cantidad: parseInt(prod.pivot.cantidad),
+          cantidad: parseFloat(prod.pivot.cantidad),
           subtotal: parseFloat(prod.pivot.total),
           promocion: prod.pivot.promocion || null,
           unidad_medida: prod.unidad_medida

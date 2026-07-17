@@ -153,7 +153,7 @@ export class NuevaVentaComponent implements OnInit {
           if (venta.productos && Array.isArray(venta.productos)) {
             this.dataSource.data = venta.productos.map((prod: any) => {
               const precio = parseFloat(prod.pivot.precio) || 0;
-              const cantidad = parseInt(prod.pivot.cantidad) || 0;
+              const cantidad = parseFloat(prod.pivot.cantidad) || 0;
               const subtotal = cantidad * precio;
               const ivaVal = this.manejaIva ? 16 : 0;
               const total = subtotal + (subtotal * (ivaVal / 100));
