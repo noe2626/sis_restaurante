@@ -101,6 +101,11 @@
                   <i class="bi bi-cash-coin fs-8"></i>
                 </button>
 
+                <!-- Liquidar Crédito Completo Compra -->
+                <button class="btn btn-outline-success btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_id === 3" (click)="liquidarCreditoCompra(element)" title="Liquidar Crédito Completo" style="width: 32px; height: 32px;">
+                  <i class="bi bi-check2-all fs-8"></i>
+                </button>
+
                 <!-- Cancelar Compra -->
                 <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_id !== 0" (click)="cancelarCompra(element.id)" title="Cancelar Compra" style="width: 32px; height: 32px;">
                   <i class="bi bi-x-circle-fill fs-8"></i>
@@ -329,6 +334,11 @@
 
       </div>
       <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
+        <button type="button" class="btn btn-success rounded-pill px-4 me-auto"
+                *ngIf="compraSeleccionada && (compraSeleccionada.estatus === 3 || compraSeleccionada.estatus === 'Crédito Pendiente' || compraSeleccionada.estatus_id === 3)"
+                (click)="liquidarCreditoCompra(compraSeleccionada)">
+          <i class="bi bi-check2-all me-1"></i> Liquidar Crédito Completo
+        </button>
         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar Detalle</button>
       </div>
     </div>
@@ -424,6 +434,12 @@
               <div class="input-group">
                 <span class="input-group-text">$</span>
                 <input type="number" class="form-control" placeholder="0.00" [(ngModel)]="nuevoAbonoMonto" min="0.01" [max]="saldoRestante">
+              </div>
+              <div class="form-text small" style="font-size: 0.72rem;">
+                Presiona para liquidar: 
+                <a href="javascript:void(0)" (click)="nuevoAbonoMonto = saldoRestante" class="text-decoration-none fw-bold text-primary">
+                  {{ saldoRestante | currency }}
+                </a>
               </div>
             </div>
             <div class="col-md-4">

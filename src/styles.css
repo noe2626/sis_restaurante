@@ -30,7 +30,7 @@ body{
   border: none !important;
   box-shadow: none !important;
   min-height: 38px !important;
-  height: 38px !important;
+  height: auto !important;
   align-items: center;
 }
 

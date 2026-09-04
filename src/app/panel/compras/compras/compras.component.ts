@@ -382,4 +382,103 @@ export class ComprasComponent implements OnInit{
       }
     });
   }
+
+  liquidarCreditoCompra(compra: any): void {
+    if (!compra) return;
+
+    let saldoRestante = 0;
+    if (compra.saldo_restante !== undefined) {
+      saldoRestante = Number(compra.saldo_restante);
+    } else if (compra.saldoRestante !== undefined) {
+      saldoRestante = Number(compra.saldoRestante);
+    } else if (compra.abonos) {
+      const totalAbonado = compra.abonos.reduce((sum: number, item: any) => sum + parseFloat(item.monto), 0);
+      saldoRestante = Math.max(0, Number(compra.total) - totalAbonado);
+    } else {
+      saldoRestante = Number(compra.total);
+    }
+
+    if (saldoRestante <= 0) {
+      Swal.fire('Información', 'Esta compra ya no tiene saldo pendiente por pagar.', 'info');
+      return;
+    }
+
+    const formattedSaldo = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoRestante);
+    const proveedorNombre = compra.proveedor?.nombre || compra.proveedor || 'Proveedor General';
+
+    Swal.fire({
+      title: '¿Liquidar Crédito de Compra?',
+      html: `
+        <div class="text-start mb-3">
+          <p class="mb-1"><strong>Folio:</strong> ${compra.folio || ('#' + compra.id)}</p>
+          <p class="mb-1"><strong>Proveedor:</strong> ${proveedorNombre}</p>
+          <p class="mb-2"><strong>Saldo a Liquidar:</strong> <span class="text-danger fw-bold fs-5">${formattedSaldo}</span></p>
+          <label for="swal-metodo-pago-compra" class="form-label fw-semibold small mt-2">Seleccione el método de pago:</label>
+          <select id="swal-metodo-pago-compra" class="form-select">
+            <option value="efectivo" selected>Efectivo</option>
+            <option value="transferencia">Transferencia Bancaria</option>
+            <option value="tarjeta">Tarjeta (Débito/Crédito)</option>
+          </select>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '<i class="bi bi-check2-all me-1"></i> Sí, Liquidar Todo',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#6c757d',
+      focusConfirm: false,
+      preConfirm: () => {
+        const select = document.getElementById('swal-metodo-pago-compra') as HTMLSelectElement;
+        return select ? select.value : 'efectivo';
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const metodoPago = result.value;
+
+        let idUsuario = '1';
+        try {
+          const encryptedUser = localStorage.getItem('idUsuario');
+          if (encryptedUser) {
+            idUsuario = CryptoJS.AES.decrypt(encryptedUser, environment.secretKey).toString(CryptoJS.enc.Utf8);
+          }
+        } catch (e) {
+          console.error('Error decrypting user id', e);
+        }
+
+        const payload = {
+          idUser: parseInt(idUsuario) || 1,
+          monto: saldoRestante,
+          metodo_pago: metodoPago
+        };
+
+        this.comprasService.registrarAbono(compra.id, payload).subscribe({
+          next: (res: any) => {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Crédito Liquidado!',
+              text: `Se liquidó el total de ${formattedSaldo} exitosamente. La compra ahora está completada.`,
+              showConfirmButton: false,
+              timer: 2000
+            });
+
+            // Cerrar modal de detalle si estaba abierto
+            const closeBtn = document.getElementById('closeDetalleCompraModalBtn');
+            closeBtn?.click();
+
+            // Cerrar modal de abonos si estaba abierto
+            const closeAbonosBtn = document.getElementById('closeAbonosCompraModalBtn');
+            closeAbonosBtn?.click();
+
+            this.listarCompras();
+          },
+          error: (err) => {
+            console.error('Error al liquidar crédito de compra:', err);
+            const errMsg = err.error?.message || 'Error al liquidar el crédito.';
+            Swal.fire('Error', errMsg, 'error');
+          }
+        });
+      }
+    });
+  }
 }

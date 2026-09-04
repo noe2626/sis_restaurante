@@ -22,6 +22,7 @@ export interface TicketData {
   total: number;
   pago?: number | null;
   cambio?: number | null;
+  pagos?: Array<{ metodo_pago: string; monto: number; recibido?: number }>;
   canal_costo_tercero?: number | null;
   canal_cargo_cliente?: number | null;
   descuenta_caja?: boolean | null;
@@ -176,7 +177,7 @@ export class PrintService {
           <div><strong>Cliente:</strong> ${ticketData.cliente}</div>
           <div><strong>Cajero:</strong> ${ticketData.cajero}</div>
           <div><strong>Canal:</strong> ${ticketData.canal}</div>
-          <div><strong>Método Pago:</strong> ${ticketData.metodo_pago.toUpperCase()}</div>
+          <div><strong>Método Pago:</strong> ${(ticketData.pagos && ticketData.pagos.length > 1) ? 'MIXTO' : ticketData.metodo_pago.toUpperCase()}</div>
         </div>
         
         <div class="divider"></div>
@@ -219,7 +220,28 @@ export class PrintService {
             <div>TOTAL:</div>
             <div>$${total}</div>
           </div>
-          ${pago != null && Number(pago) > 0 ? `
+          ${(ticketData.pagos && ticketData.pagos.length > 1) ? `
+          <div class="divider" style="border-top: 1px dashed #000; margin: 4px 0;"></div>
+          <div style="font-size: 10px; font-weight: bold; margin-bottom: 2px;">DESGLOSE DE PAGO:</div>
+          ${ticketData.pagos.map(p => `
+            <div class="total-row">
+              <div style="text-transform: capitalize;">${p.metodo_pago}:</div>
+              <div>$${Number(p.monto).toFixed(2)}</div>
+            </div>
+            ${p.metodo_pago === 'efectivo' && p.recibido != null && Number(p.recibido) > Number(p.monto) ? `
+              <div class="total-row" style="color: #444; font-size: 9px; padding-left: 6px;">
+                <div>(Recibido: $${Number(p.recibido).toFixed(2)})</div>
+                <div>(Cambio: $${(Number(p.recibido) - Number(p.monto)).toFixed(2)})</div>
+              </div>
+            ` : ''}
+          `).join('')}
+          ${cambio != null && Number(cambio) > 0 ? `
+          <div class="total-row" style="font-weight: bold; margin-top: 2px;">
+            <div>Cambio:</div>
+            <div>$${cambio}</div>
+          </div>
+          ` : ''}
+          ` : (pago != null && Number(pago) > 0 ? `
           <div class="divider" style="border-top: none; margin: 4px 0;"></div>
           <div class="total-row">
             <div>Recibido:</div>
@@ -229,7 +251,7 @@ export class PrintService {
             <div>Cambio:</div>
             <div>$${cambio}</div>
           </div>
-          ` : ''}
+          ` : '')}
         </div>
         
         ${ticketData.notas ? `

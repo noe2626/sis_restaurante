@@ -79,7 +79,7 @@ export class ReportesService {
     return this.http.get(`${this.apiUrl}reportes/ventas-dia`, { ...header, params });
   }
 
-  obtenerReporteComprasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number, idProveedor?: number, tipoPago?: string) {
+  obtenerReporteComprasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number | number[] | string, idProveedor?: number, tipoPago?: string) {
     const token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
@@ -93,7 +93,13 @@ export class ReportesService {
       params = params.set('idSucursal', idSucursal.toString());
     }
     if (idProducto) {
-      params = params.set('idProducto', idProducto.toString());
+      if (Array.isArray(idProducto)) {
+        if (idProducto.length > 0) {
+          params = params.set('idProducto', idProducto.join(','));
+        }
+      } else {
+        params = params.set('idProducto', idProducto.toString());
+      }
     }
     if (idProveedor) {
       params = params.set('idProveedor', idProveedor.toString());
@@ -105,7 +111,7 @@ export class ReportesService {
     return this.http.get(`${this.apiUrl}reportes/compras-detallado`, { ...header, params });
   }
 
-  obtenerReporteVentasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number, idCliente?: number, tipoPago?: string) {
+  obtenerReporteVentasDetallado(fechaInicio: string, fechaFin: string, idSucursal?: number, idProducto?: number | number[] | string, idCliente?: number, tipoPago?: string) {
     const token = localStorage.getItem('userToken');
     const header = {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
@@ -119,7 +125,13 @@ export class ReportesService {
       params = params.set('idSucursal', idSucursal.toString());
     }
     if (idProducto) {
-      params = params.set('idProducto', idProducto.toString());
+      if (Array.isArray(idProducto)) {
+        if (idProducto.length > 0) {
+          params = params.set('idProducto', idProducto.join(','));
+        }
+      } else {
+        params = params.set('idProducto', idProducto.toString());
+      }
     }
     if (idCliente) {
       params = params.set('idCliente', idCliente.toString());

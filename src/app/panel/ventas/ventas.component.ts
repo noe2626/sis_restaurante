@@ -64,6 +64,11 @@ export class VentasComponent implements OnInit{
   montoAbonoInput: number = 0;
   metodoPagoAbono: string = 'efectivo';
 
+  // Pago Dividido / Mixto
+  esPagoDividido: boolean = false;
+  pagosDivididos: Array<{ metodo_pago: string; monto: number; recibido?: number }> = [];
+  pagosRegistradosFinalizados: Array<{ metodo_pago: string; monto: number; recibido?: number }> = [];
+
   // Pedidos Pendientes en POS
   ordenesPendientes: any[] = [];
   ordenACobrar: any = null;
@@ -376,6 +381,8 @@ export class VentasComponent implements OnInit{
   pagar(){
     this.pago = null;
     this.ventaDirectaSeleccionada = false;
+    this.esPagoDividido = false;
+    this.pagosDivididos = [];
     if (this.estatusVenta === 2) {
       this.metodoPago = 'efectivo';
       this.pago = 0;
@@ -390,13 +397,150 @@ export class VentasComponent implements OnInit{
 
   seleccionarVentaDirecta(): void {
     this.ventaDirectaSeleccionada = true;
+    this.esPagoDividido = false;
     this.estatusVenta = 1;
     this.metodoPago = 'efectivo';
     this.pago = null;
+    this.pagosDivididos = [];
     setTimeout(() => {
       var pagoInput = document.getElementById("pagoInput");
       pagoInput?.focus();
     }, 300);
+  }
+
+  cambiarModoPagoDirecto(modo: 'unico' | 'dividido'): void {
+    if (modo === 'dividido') {
+      this.esPagoDividido = true;
+      if (this.pagosDivididos.length === 0) {
+        this.pagosDivididos = [
+          { metodo_pago: 'efectivo', monto: this.total, recibido: this.total }
+        ];
+      }
+    } else {
+      this.esPagoDividido = false;
+      this.metodoPago = 'efectivo';
+      this.pago = null;
+      setTimeout(() => {
+        var pagoInput = document.getElementById("pagoInput");
+        pagoInput?.focus();
+      }, 200);
+    }
+  }
+
+  agregarMetodoPagoDividido(): void {
+    const restante = this.getSaldoRestanteDividido();
+    const nuevoMonto = restante > 0 ? restante : 0;
+    const tieneEfectivo = this.pagosDivididos.some(p => p.metodo_pago === 'efectivo');
+    const metodoSugerido = tieneEfectivo ? 'tarjeta' : 'efectivo';
+    this.pagosDivididos.push({
+      metodo_pago: metodoSugerido,
+      monto: nuevoMonto,
+      recibido: metodoSugerido === 'efectivo' ? nuevoMonto : undefined
+    });
+  }
+
+  agregarMetodoDirecto(metodo: 'efectivo' | 'tarjeta' | 'transferencia'): void {
+    const restante = Math.max(0, this.getSaldoRestanteDividido());
+    this.pagosDivididos.push({
+      metodo_pago: metodo,
+      monto: restante,
+      recibido: metodo === 'efectivo' ? restante : undefined
+    });
+  }
+
+  eliminarMetodoPagoDividido(index: number): void {
+    if (this.pagosDivididos.length > 1) {
+      this.pagosDivididos.splice(index, 1);
+    }
+  }
+
+  getTotalCubiertoDividido(): number {
+    return Math.round(this.pagosDivididos.reduce((acc, curr) => acc + (Number(curr.monto) || 0), 0) * 100) / 100;
+  }
+
+  getSaldoRestanteDividido(): number {
+    const restante = Math.round((this.total - this.getTotalCubiertoDividido()) * 100) / 100;
+    return restante;
+  }
+
+  getPorcentajeCubierto(): number {
+    if (!this.total || this.total === 0) return 100;
+    const cubierto = this.getTotalCubiertoDividido();
+    return Math.min(100, Math.max(0, Math.round((cubierto / this.total) * 100)));
+  }
+
+  asignarRestanteAPago(index: number): void {
+    const saldo = this.getSaldoRestanteDividido();
+    if (this.pagosDivididos[index]) {
+      const nuevo = Math.max(0, Math.round(((Number(this.pagosDivididos[index].monto) || 0) + saldo) * 100) / 100);
+      this.pagosDivididos[index].monto = nuevo;
+      if (this.pagosDivididos[index].metodo_pago === 'efectivo') {
+        this.pagosDivididos[index].recibido = nuevo;
+      }
+    }
+  }
+
+  dividirEnPartesIguales(partes: number): void {
+    if (partes <= 1 || !this.total) return;
+    const montoPorParte = Math.floor((this.total / partes) * 100) / 100;
+    const ajuste = Math.round((this.total - (montoPorParte * partes)) * 100) / 100;
+    
+    this.pagosDivididos = [];
+    for (let i = 0; i < partes; i++) {
+      const monto = i === 0 ? Number((montoPorParte + ajuste).toFixed(2)) : montoPorParte;
+      const metodo = i === 0 ? 'efectivo' : 'tarjeta';
+      this.pagosDivididos.push({
+        metodo_pago: metodo,
+        monto: monto,
+        recibido: metodo === 'efectivo' ? monto : undefined
+      });
+    }
+  }
+
+  setPagoRapido(monto: number): void {
+    this.pago = monto;
+  }
+
+  agregarEfectivoRapido(monto: number): void {
+    this.pago = (this.pago || 0) + monto;
+  }
+
+  setRecibidoRapido(pagoItem: any, monto: number): void {
+    pagoItem.recibido = monto;
+  }
+
+  agregarRecibidoRapido(pagoItem: any, monto: number): void {
+    pagoItem.recibido = (Number(pagoItem.recibido) || 0) + monto;
+  }
+
+  getCambioDividido(): number {
+    let cambioTotal = 0;
+    for (const p of this.pagosDivididos) {
+      if (p.metodo_pago === 'efectivo' && p.recibido && p.recibido > p.monto) {
+        cambioTotal += (Number(p.recibido) - Number(p.monto));
+      }
+    }
+    return Math.round(cambioTotal * 100) / 100;
+  }
+
+  onMetodoPagoDivididoChange(pagoItem: any): void {
+    if (pagoItem.metodo_pago !== 'efectivo') {
+      pagoItem.recibido = undefined;
+    } else if (pagoItem.recibido == null || pagoItem.recibido === 0) {
+      pagoItem.recibido = pagoItem.monto;
+    }
+  }
+
+  esValidoPagoDividido(): boolean {
+    if (!this.esPagoDividido) return true;
+    if (this.pagosDivididos.length === 0) return false;
+    const cubierto = this.getTotalCubiertoDividido();
+    if (Math.abs(this.total - cubierto) > 0.05) return false;
+    for (const p of this.pagosDivididos) {
+      if (!p.monto || p.monto <= 0) return false;
+      if (p.metodo_pago === 'efectivo' && p.recibido != null && Number(p.recibido) < Number(p.monto)) return false;
+    }
+    return true;
   }
 
   seleccionarOrdenVenta(): void {
@@ -630,9 +774,24 @@ export class VentasComponent implements OnInit{
       }
     }
 
-    const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja'), environment.secretKey).toString(CryptoJS.enc.Utf8);
-    let idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario'), environment.secretKey).toString(CryptoJS.enc.Utf8);
-    const venta = {
+    // Validar pago dividido
+    if (this.esPagoDividido) {
+      if (!this.esValidoPagoDividido()) {
+        const restante = this.getSaldoRestanteDividido();
+        if (restante > 0) {
+          Swal.fire('Pago Incompleto', `Falta cubrir $${restante.toFixed(2)} para completar el total de la venta.`, 'warning');
+        } else if (restante < 0) {
+          Swal.fire('Monto Excedido', `La suma de métodos de pago excede el total por $${Math.abs(restante).toFixed(2)}.`, 'warning');
+        } else {
+          Swal.fire('Atención', 'Revise los montos ingresados en los métodos de pago.', 'warning');
+        }
+        return;
+      }
+    }
+
+    const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    let idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+    const venta: any = {
       idUser: parseInt(idUsuario),
       idCliente: this.idCliente,
       total: this.total,
@@ -641,8 +800,8 @@ export class VentasComponent implements OnInit{
       iva: this.iva,
       subTotal: this.subTotal,
       idSucursal: this.idSucursal,
-      idCaja: decryptedIdCaja,
-      metodo_pago: this.metodoPago,
+      idCaja: decryptedIdCaja ? parseInt(decryptedIdCaja) : null,
+      metodo_pago: this.esPagoDividido ? (this.pagosDivididos.length > 1 ? 'mixto' : this.pagosDivididos[0].metodo_pago) : this.metodoPago,
       idCanalVenta: this.idCanalVenta,
       estatus: this.estatusVenta,
       notas: this.notasVenta,
@@ -654,6 +813,15 @@ export class VentasComponent implements OnInit{
         total: item.subtotal
       }))
     };
+
+    if (this.esPagoDividido) {
+      venta.pagos = this.pagosDivididos.map(p => ({
+        metodo_pago: p.metodo_pago,
+        monto: Number(p.monto),
+        idCaja: decryptedIdCaja ? parseInt(decryptedIdCaja) : null
+      }));
+    }
+
     const requestObservable = this.idVentaEditando
       ? this.ventasService.actualizarVenta(this.idVentaEditando, venta)
       : this.ventasService.registrarVenta(venta);
@@ -667,7 +835,14 @@ export class VentasComponent implements OnInit{
           showConfirmButton: false,
           timer: 1500
         });
-        this.cambio = (this.pago || this.total) - this.total;
+
+        if (this.esPagoDividido) {
+          this.cambio = this.getCambioDividido();
+          this.pagosRegistradosFinalizados = JSON.parse(JSON.stringify(this.pagosDivididos));
+        } else {
+          this.cambio = (this.pago || this.total) - this.total;
+          this.pagosRegistradosFinalizados = [];
+        }
         
         try {
           const printData: TicketData = {
@@ -676,14 +851,15 @@ export class VentasComponent implements OnInit{
             cliente: this.clientes.find(c => c.id == this.idCliente)?.nombre || 'Cliente General',
             cajero: localStorage.getItem('userName') || 'N/A',
             canal: this.canalesVenta.find(c => c.id == this.idCanalVenta)?.nombre || 'Comedor',
-            metodo_pago: this.metodoPago,
+            metodo_pago: this.esPagoDividido ? (this.pagosDivididos.length > 1 ? 'mixto' : this.pagosDivididos[0].metodo_pago) : this.metodoPago,
             subtotal: this.subTotal,
             descuentos: this.descuentos,
             extras: this.extras,
             iva: this.iva,
             total: this.total,
-            pago: this.pago || this.total,
+            pago: this.esPagoDividido ? this.total : (this.pago || this.total),
             cambio: this.cambio,
+            pagos: this.esPagoDividido ? this.pagosDivididos : undefined,
             notas: this.notasVenta,
             productos: this.carrito.map(item => ({
               nombre: item.nombre,
@@ -745,6 +921,9 @@ export class VentasComponent implements OnInit{
     this.iva = 0;
     this.pago = 0;
     this.metodoPago = 'efectivo';
+    this.esPagoDividido = false;
+    this.pagosDivididos = [];
+    this.pagosRegistradosFinalizados = [];
   }
 
   resetearFormulario(): void {
@@ -758,6 +937,9 @@ export class VentasComponent implements OnInit{
     this.descuentos = 0;
     this.idVentaEditando = null;
     this.folioEditando = null;
+    this.esPagoDividido = false;
+    this.pagosDivididos = [];
+    this.pagosRegistradosFinalizados = [];
     const comedor = this.canalesVenta.find((c: any) => c.id === 1);
     this.idCanalVenta = comedor ? comedor.id : null;
     this.formProd.reset({ idProducto: null, cantidad: 1 });

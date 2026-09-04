@@ -31,6 +31,8 @@ export class ReportesComponent implements OnInit {
   
   // Filtros Seleccionados
   idProductoSelected: number = 0;
+  idProductosSelected: number[] = [];
+  busquedaProductoFiltro: string = '';
   idProveedorSelected: number = 0;
   idClienteSelected: number = 0;
   tipoPagoSelected: string = 'todos';
@@ -127,6 +129,8 @@ export class ReportesComponent implements OnInit {
   cambiarTab(tabName: string): void {
     this.activeTab = tabName;
     this.idProductoSelected = 0;
+    this.idProductosSelected = [];
+    this.busquedaProductoFiltro = '';
     this.idProveedorSelected = 0;
     this.idClienteSelected = 0;
     this.tipoPagoSelected = 'todos';
@@ -140,6 +144,57 @@ export class ReportesComponent implements OnInit {
     // Al ser inputs vinculados por ngModel, el cambio se propagará a los componentes hijos automáticamente
   }
 
+  estaProductoSeleccionado(id: number): boolean {
+    return this.idProductosSelected.includes(id);
+  }
+
+  toggleProductoSeleccionado(id: number): void {
+    const index = this.idProductosSelected.indexOf(id);
+    if (index > -1) {
+      this.idProductosSelected = this.idProductosSelected.filter(item => item !== id);
+    } else {
+      this.idProductosSelected = [...this.idProductosSelected, id];
+    }
+    this.onFilterChange();
+  }
+
+  seleccionarTodosProductos(): void {
+    const filtrados = this.productosFiltradosDropdown();
+    const idsFiltrados = filtrados.map(p => p.id);
+    this.idProductosSelected = Array.from(new Set([...this.idProductosSelected, ...idsFiltrados]));
+    this.onFilterChange();
+  }
+
+  limpiarProductosSeleccionados(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.idProductosSelected = [];
+    this.onFilterChange();
+  }
+
+  productosFiltradosDropdown(): any[] {
+    if (!this.busquedaProductoFiltro || !this.busquedaProductoFiltro.trim()) {
+      return this.productos;
+    }
+    const term = this.busquedaProductoFiltro.toLowerCase().trim();
+    return this.productos.filter(p => 
+      (p.nombre && p.nombre.toLowerCase().includes(term)) ||
+      (p.codigo && p.codigo.toLowerCase().includes(term))
+    );
+  }
+
+  getTextoBotonProductos(): string {
+    if (!this.idProductosSelected || this.idProductosSelected.length === 0) {
+      return 'Todos los Productos';
+    }
+    if (this.idProductosSelected.length === 1) {
+      const prod = this.productos.find(p => p.id === this.idProductosSelected[0]);
+      return prod ? prod.nombre : '1 Producto';
+    }
+    return `${this.idProductosSelected.length} seleccionados`;
+  }
+
   getSucursalName(): string {
     if (this.idSucursalSelected === 0) {
       return 'Todas las Sucursales';
@@ -149,6 +204,16 @@ export class ReportesComponent implements OnInit {
   }
 
   getProductoName(): string {
+    if (this.activeTab === 'compras-detallado' || this.activeTab === 'ventas-detallado') {
+      if (!this.idProductosSelected || this.idProductosSelected.length === 0) {
+        return 'Todos los Productos';
+      }
+      if (this.idProductosSelected.length === 1) {
+        const prod = this.productos.find(p => p.id === this.idProductosSelected[0]);
+        return prod ? prod.nombre : '1 Producto Seleccionado';
+      }
+      return `${this.idProductosSelected.length} Productos Seleccionados`;
+    }
     if (this.idProductoSelected === 0) {
       return 'Todos los Productos';
     }

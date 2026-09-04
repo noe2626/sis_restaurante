@@ -408,4 +408,88 @@ export class VentasListaComponent implements OnInit {
     if (!abonos) return 0;
     return abonos.reduce((sum, a) => sum + parseFloat(a.monto), 0);
   }
+
+  liquidarCreditoVenta(venta: any): void {
+    if (!venta) return;
+
+    let saldoRestante = 0;
+    if (venta.saldo_restante !== undefined) {
+      saldoRestante = Number(venta.saldo_restante);
+    } else if (venta.abonos) {
+      saldoRestante = Math.max(0, Number(venta.total) - this.getMontoAbonado(venta.abonos));
+    } else {
+      saldoRestante = Number(venta.total);
+    }
+
+    if (saldoRestante <= 0) {
+      Swal.fire('Información', 'Esta venta ya no tiene saldo pendiente por pagar.', 'info');
+      return;
+    }
+
+    const formattedSaldo = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(saldoRestante);
+    const clienteNombre = venta.cliente?.nombre || venta.cliente || venta.cliente_nombre || 'Cliente General';
+
+    Swal.fire({
+      title: '¿Liquidar Crédito Completo?',
+      html: `
+        <div class="text-start mb-3">
+          <p class="mb-1"><strong>Folio:</strong> ${venta.folio || ('#' + venta.id)}</p>
+          <p class="mb-1"><strong>Cliente:</strong> ${clienteNombre}</p>
+          <p class="mb-2"><strong>Saldo a Liquidar:</strong> <span class="text-danger fw-bold fs-5">${formattedSaldo}</span></p>
+          <label for="swal-metodo-pago-venta" class="form-label fw-semibold small mt-2">Seleccione el método de pago:</label>
+          <select id="swal-metodo-pago-venta" class="form-select">
+            <option value="efectivo" selected>Efectivo</option>
+            <option value="tarjeta">Tarjeta (Débito/Crédito)</option>
+            <option value="transferencia">Transferencia Bancaria</option>
+          </select>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: '<i class="bi bi-check2-all me-1"></i> Sí, Liquidar Todo',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#198754',
+      cancelButtonColor: '#6c757d',
+      focusConfirm: false,
+      preConfirm: () => {
+        const select = document.getElementById('swal-metodo-pago-venta') as HTMLSelectElement;
+        return select ? select.value : 'efectivo';
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const metodoPago = result.value;
+        const decryptedIdCaja = CryptoJS.AES.decrypt(localStorage.getItem('idCaja') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+        const idUsuario = CryptoJS.AES.decrypt(localStorage.getItem('idUsuario') || '', environment.secretKey).toString(CryptoJS.enc.Utf8);
+
+        const payload = {
+          monto: saldoRestante,
+          metodo_pago: metodoPago,
+          idUser: parseInt(idUsuario) || 1,
+          idCaja: decryptedIdCaja ? parseInt(decryptedIdCaja) : null
+        };
+
+        this.ventasService.registrarAbono(venta.id, payload).subscribe({
+          next: (res: any) => {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Crédito Liquidado!',
+              text: `Se liquidó el total de ${formattedSaldo} exitosamente. La venta ahora está completada.`,
+              showConfirmButton: false,
+              timer: 2000
+            });
+
+            const closeBtn = document.getElementById('closeDetalleVentaModalBtn');
+            closeBtn?.click();
+
+            this.listarVentas();
+          },
+          error: (err) => {
+            console.error('Error al liquidar crédito:', err);
+            const errMsg = err.error?.message || 'Error al liquidar el crédito.';
+            Swal.fire('Error', errMsg, 'error');
+          }
+        });
+      }
+    });
+  }
 }

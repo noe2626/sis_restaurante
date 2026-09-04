@@ -18,6 +18,7 @@ export class AperturaComponent implements OnInit {
   idCaja: any = null;
   cajas: any = null;
   efectivoCaja = 0;
+  cargando: boolean = true;
 
   constructor(
     private cajaService: CajasService,
@@ -28,31 +29,52 @@ export class AperturaComponent implements OnInit {
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
+      this.cargando = true;
+      const idSucursal = parseInt(localStorage.getItem('idSucursal') || '0');
+      if (!idSucursal) {
+        this.redirigirAlPanel('No se encontró una sucursal seleccionada.');
+        return;
+      }
+
       let caja = localStorage.getItem('idCaja');
       if (caja) {
         try {
           const decryptedIdCaja = CryptoJS.AES.decrypt(caja, environment.secretKey).toString(CryptoJS.enc.Utf8);
           this.idCaja = parseInt(decryptedIdCaja);
+          if (!this.idCaja || isNaN(this.idCaja)) {
+            localStorage.removeItem('idCaja');
+            localStorage.removeItem('caja');
+            this.idCaja = 0;
+            this.recuperarOSeleccionarCaja();
+            return;
+          }
+
           this.cajaService.verificarCajas(this.idCaja).subscribe({
             next: (data: any) => {
-              if(data.success){
+              if (data && data.success) {
+                this.cargando = false;
                 Swal.fire({
                   icon: "success",
-                  title: "Sesión actual "+localStorage.getItem('caja'),
+                  title: "Sesión actual " + (localStorage.getItem('caja') || ''),
                   showConfirmButton: false,
                   timer: 1500
                 });
-              }else{
+              } else {
+                localStorage.removeItem('idCaja');
+                localStorage.removeItem('caja');
                 this.idCaja = 0;
                 this.recuperarOSeleccionarCaja();
               }
             },
-            error: () => {
-              this.idCaja = 0;
-              this.recuperarOSeleccionarCaja();
-            },
+            error: (err: any) => {
+              console.error('Error al verificar la sesión de caja:', err);
+              this.redirigirAlPanel('No se pudo verificar el estado de la sesión de caja con el servidor.');
+            }
           });
         } catch (e) {
+          console.error('Error al desencriptar sesión de caja:', e);
+          localStorage.removeItem('idCaja');
+          localStorage.removeItem('caja');
           this.idCaja = 0;
           this.recuperarOSeleccionarCaja();
         }
@@ -62,14 +84,40 @@ export class AperturaComponent implements OnInit {
     }
   }
 
+  redirigirAlPanel(mensaje: string = 'Ocurrió un error al leer la sesión de la caja.'): void {
+    this.cargando = false;
+    const modalElement = document.getElementById('aperturaModal');
+    if (modalElement) {
+      const modal = bootstrap.Modal.getInstance(modalElement);
+      modal?.hide();
+    }
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de Sesión de Caja',
+      text: mensaje,
+      confirmButtonText: 'Regresar al Panel de Inicio',
+      confirmButtonColor: '#0d6efd',
+      allowOutsideClick: false
+    }).then(() => {
+      this.router.navigate(['/panel/dashboard']);
+    });
+  }
+
   recuperarOSeleccionarCaja(): void {
     const idSucursal = parseInt(localStorage.getItem('idSucursal') || '0');
+    if (!idSucursal) {
+      this.redirigirAlPanel('No se encontró una sucursal seleccionada.');
+      return;
+    }
+
     this.cajaService.getActiveSession(idSucursal).subscribe({
       next: (res: any) => {
-        if (res && res.success) {
+        if (res && res.success && res.data) {
           const encryptedIdCaja = CryptoJS.AES.encrypt(res.data.idCaja.toString(), environment.secretKey).toString();
           localStorage.setItem("idCaja", encryptedIdCaja);
           localStorage.setItem("caja", res.data.caja);
+          this.cargando = false;
           Swal.fire({
             icon: "success",
             title: "Sesión recuperada: " + res.data.caja,
@@ -85,8 +133,9 @@ export class AperturaComponent implements OnInit {
           this.seleccionarCaja();
         }
       },
-      error: () => {
-        this.seleccionarCaja();
+      error: (err: any) => {
+        console.error('Error al recuperar sesión activa de caja:', err);
+        this.redirigirAlPanel('Error al consultar la sesión activa de caja en el servidor.');
       }
     });
   }
@@ -94,18 +143,21 @@ export class AperturaComponent implements OnInit {
   seleccionarCaja(){
       this.cajaService.getSucursalesByUsuario().subscribe({
         next: (data: any) => {
-          if (data.success) {
-            this.cajas = data.data
+          if (data && data.success && Array.isArray(data.data)) {
+            if (data.data.length === 0) {
+              this.redirigirAlPanel('No hay cajas registradas o asignadas para esta sucursal.');
+              return;
+            }
+            this.cajas = data.data;
+            this.cargando = false;
             document.getElementById('btnModalApCajas')?.click();
+          } else {
+            this.redirigirAlPanel(data?.message || 'Error al obtener la lista de cajas de la sucursal.');
           }
         },
-        error: () => {
-          Swal.fire({
-            icon: "error",
-            title: "Error al consutar cajas",
-            showConfirmButton: false,
-            timer: 1500
-          });
+        error: (err: any) => {
+          console.error('Error al consultar cajas:', err);
+          this.redirigirAlPanel('Error al consultar las cajas disponibles en el servidor.');
         },
       });
   }
@@ -120,8 +172,15 @@ export class AperturaComponent implements OnInit {
   }
 
   abrirCaja() {
+    if (!this.idCaja) {
+      Swal.fire('Atención', 'Por favor, selecciona una caja para abrir la sesión.', 'warning');
+      return;
+    }
+
+    this.cargando = true;
     this.cajaService.abrirCaja(this.efectivoCaja, this.idCaja).subscribe({
       next: (data: any) => {
+        this.cargando = false;
         if (data.success) {
           const encryptedIdCaja = CryptoJS.AES.encrypt(this.idCaja.toString(), environment.secretKey).toString();
           localStorage.setItem("idCaja", encryptedIdCaja);
@@ -138,18 +197,17 @@ export class AperturaComponent implements OnInit {
         }else{
           Swal.fire({
             icon: "error",
-            title: "Error al crear sesión",
-            showConfirmButton: false,
-            timer: 1500
+            title: data.message || "Error al crear sesión",
+            showConfirmButton: true
           });
         }
       },
-      error: () => {
+      error: (err: any) => {
+        this.cargando = false;
         Swal.fire({
           icon: "error",
-          title: "Error al crear sesión",
-          showConfirmButton: false,
-          timer: 1500
+          title: err.error?.message || "Error al crear sesión",
+          showConfirmButton: true
         });
       },
     });

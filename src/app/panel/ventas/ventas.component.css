@@ -203,3 +203,171 @@ button[type="button"] i {
     color: #d9383a;
 }
 
+.fs-7 { font-size: 0.85rem !important; }
+.fs-8 { font-size: 0.75rem !important; }
+.fs-9 { font-size: 0.65rem !important; }
+
+#pagoModal button {
+    font-size: 0.95rem;
+}
+#pagoModal button i {
+    font-size: 1.1rem;
+}
+#pagoModal .btn-close {
+    width: auto !important;
+    font-size: 0.8rem;
+}
+
+/* ======================================================== */
+/* ESTILOS MODERNOS PARA EL MODAL DE PAGO (POS CHECKOUT)    */
+/* ======================================================== */
+
+.payment-hero-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.payment-icon-badge {
+    width: 36px;
+    height: 36px;
+    background-color: #eff6ff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.quick-action-tile {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: #ffffff;
+}
+.quick-action-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.payment-mode-switcher .mode-tab-btn {
+    border: none;
+    font-size: 0.85rem !important;
+}
+
+.payment-method-tile {
+    position: relative;
+    cursor: pointer;
+    background-color: #f8fafc;
+    border: 2px solid #e2e8f0 !important;
+    transition: all 0.2s ease;
+}
+.payment-method-tile:hover {
+    background-color: #f1f5f9;
+    transform: translateY(-2px);
+}
+.payment-method-tile .check-indicator {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 0.85rem;
+}
+.payment-method-tile.active-efectivo {
+    background-color: #f0fdf4 !important;
+    border-color: #16a34a !important;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.15);
+}
+.payment-method-tile.active-efectivo .check-indicator {
+    color: #16a34a;
+}
+.payment-method-tile.active-tarjeta {
+    background-color: #eff6ff !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+.payment-method-tile.active-tarjeta .check-indicator {
+    color: #2563eb;
+}
+.payment-method-tile.active-transferencia {
+    background-color: #faf5ff !important;
+    border-color: #9333ea !important;
+    box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
+}
+.payment-method-tile.active-transferencia .check-indicator {
+    color: #9333ea;
+}
+
+.bill-chip {
+    transition: all 0.15s ease;
+}
+.bill-chip:hover {
+    border-color: #10b981 !important;
+    background-color: #ecfdf5 !important;
+    transform: translateY(-1px);
+}
+
+.split-item-row {
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.2s ease;
+}
+.split-item-row:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+.split-border-efectivo {
+    border-left: 4px solid #16a34a !important;
+}
+.split-border-tarjeta {
+    border-left: 4px solid #2563eb !important;
+}
+.split-border-transferencia {
+    border-left: 4px solid #9333ea !important;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+    border-width: 1.5px !important;
+}
+
+.btn-xs {
+    font-size: 0.72rem !important;
+    padding: 2px 6px !important;
+}
+
+.btn-submit-payment {
+    transition: all 0.2s ease;
+}
+.btn-submit-payment:not([disabled]):hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18) !important;
+}
+
+#pagoModal .pagos-divididos-container .btn-outline-danger {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+#pagoModal .pagos-divididos-container .btn-outline-danger i {
+    font-size: 0.85rem !important;
+}
+
+@media (min-width: 768px) {
+    .border-end-md {
+        border-right: 1px solid #e2e8f0 !important;
+    }
+}
+
+.pagos-divididos-container::-webkit-scrollbar {
+    width: 5px;
+}
+.pagos-divididos-container::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
+
+#finalizarModal button {
+    font-size: 1rem;
+}
+
+

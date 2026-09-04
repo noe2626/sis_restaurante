@@ -11,7 +11,7 @@ export class ReporteComprasDetalladoComponent implements OnChanges {
   @Input() fechaInicio!: string;
   @Input() fechaFin!: string;
   @Input() idSucursal!: number;
-  @Input() idProducto!: number;
+  @Input() idProducto!: number | number[];
   @Input() idProveedor!: number;
   @Input() tipoPago!: string;
 
@@ -42,7 +42,14 @@ export class ReporteComprasDetalladoComponent implements OnChanges {
 
     this.loading = true;
     const filterSucursal = this.idSucursal !== 0 ? this.idSucursal : undefined;
-    const prodFilter = this.idProducto !== 0 ? this.idProducto : undefined;
+    
+    let prodFilter: any = undefined;
+    if (Array.isArray(this.idProducto)) {
+      prodFilter = this.idProducto.length > 0 ? this.idProducto : undefined;
+    } else if (this.idProducto && this.idProducto !== 0) {
+      prodFilter = this.idProducto;
+    }
+
     const provFilter = this.idProveedor !== 0 ? this.idProveedor : undefined;
 
     this.reportesService.obtenerReporteComprasDetallado(

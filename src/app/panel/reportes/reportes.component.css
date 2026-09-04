@@ -204,4 +204,38 @@
   transform: scale(1.08);
 }
 
+/* Dropdown de Filtro de Productos con Checkboxes */
+.dropdown-toggle-no-caret::after {
+  display: none !important;
+}
+
+.hover-bg-light {
+  transition: background-color 0.15s ease;
+}
+
+.hover-bg-light:hover {
+  background-color: #f1f5f9 !important;
+}
+
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.hover-danger {
+  transition: color 0.15s ease;
+}
+
+.hover-danger:hover {
+  color: #dc3545 !important;
+}
+
+.product-filter-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.product-filter-list::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
 

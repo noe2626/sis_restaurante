@@ -92,6 +92,9 @@
                 <button class="btn btn-outline-warning btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 3" (click)="abrirAbonoModal(element)" title="Registrar Abono" style="width: 32px; height: 32px;">
                   <i class="bi bi-wallet2 fs-8"></i>
                 </button>
+                <button class="btn btn-outline-success btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 3" (click)="liquidarCreditoVenta(element)" title="Liquidar Crédito Completo" style="width: 32px; height: 32px;">
+                  <i class="bi bi-check2-all fs-8"></i>
+                </button>
                 <button class="btn btn-outline-danger btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" *ngIf="element.estatus_raw == 1 || element.estatus_raw == 2 || element.estatus_raw == 3" (click)="cancelarVenta(element.id)" title="Cancelar Venta" style="width: 32px; height: 32px;">
                   <i class="bi bi-x-circle-fill fs-8"></i>
                 </button>
@@ -239,7 +242,7 @@
         <!-- Totales Layout -->
         <div class="row mt-4 justify-content-between align-items-start">
           <div class="col-md-6 col-sm-12">
-            <!-- Desglose de Abonos (Historial de Pagos) -->
+            <!-- Desglose de Abonos (Historial de Pagos para Créditos) -->
             <div class="card border-0 shadow-sm p-4 rounded-4 bg-white h-100 animate__animated animate__fadeIn" *ngIf="ventaSeleccionada.abonos && ventaSeleccionada.abonos.length > 0">
               <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-wallet2 me-2"></i> Historial de Abonos</h6>
               <div class="table-responsive" style="max-height: 150px; overflow-y: auto;">
@@ -258,6 +261,27 @@
                       <td>{{ abono.user ? abono.user.name : 'N/A' }}</td>
                       <td class="text-capitalize">{{ abono.metodo_pago }}</td>
                       <td class="text-end fw-bold text-success">{{ abono.monto | currency }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Desglose de Pagos (Venta Directa / Pagos Divididos) -->
+            <div class="card border-0 shadow-sm p-4 rounded-4 bg-white h-100 animate__animated animate__fadeIn" *ngIf="ventaSeleccionada.pagos && ventaSeleccionada.pagos.length > 0 && (!ventaSeleccionada.abonos || ventaSeleccionada.abonos.length === 0)">
+              <h6 class="fw-bold text-secondary mb-3"><i class="bi bi-wallet2 me-2"></i> Métodos de Pago</h6>
+              <div class="table-responsive" style="max-height: 150px; overflow-y: auto;">
+                <table class="table align-middle table-hover mb-0 small">
+                  <thead class="table-light text-uppercase fs-9 text-secondary">
+                    <tr>
+                      <th>Método</th>
+                      <th class="text-end">Monto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let p of ventaSeleccionada.pagos">
+                      <td class="text-capitalize"><i class="bi bi-check2 text-success me-1"></i>{{ p.metodo_pago }}</td>
+                      <td class="text-end fw-bold text-success">{{ p.monto | currency }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -300,6 +324,11 @@
 
       </div>
       <div class="modal-footer border-top-0 bg-white py-3 rounded-bottom-4">
+        <button type="button" class="btn btn-success rounded-pill px-4 me-2" 
+                *ngIf="ventaSeleccionada && (ventaSeleccionada.estatus == 3 || ventaSeleccionada.estatus == 'Crédito' || ventaSeleccionada.estatus == '3')"
+                (click)="liquidarCreditoVenta(ventaSeleccionada)">
+          <i class="bi bi-check2-all me-1"></i> Liquidar Crédito Completo
+        </button>
         <button type="button" class="btn btn-primary rounded-pill px-4 me-2" 
                 *ngIf="ventaSeleccionada"
                 (click)="imprimirTicket(ventaSeleccionada)">

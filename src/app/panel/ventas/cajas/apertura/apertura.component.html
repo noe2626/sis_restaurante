@@ -1,3 +1,14 @@
+<!-- Loader bloqueador de pantalla mientras se consulta la sesión de caja -->
+<div *ngIf="cargando" class="caja-loader-overlay">
+    <div class="caja-loader-card">
+        <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+        <h5 class="fw-bold text-dark mb-1">Verificando sesión de caja</h5>
+        <p class="text-muted small mb-0">Consultando información del turno con el servidor...</p>
+    </div>
+</div>
+
 <input type="hidden" id="btnModalApCajas" data-bs-toggle="modal" data-bs-target="#aperturaModal">
 
 <div class="modal fade" id="aperturaModal" tabindex="-1" role="dialog" aria-labelledby="aperturaModalLabel"

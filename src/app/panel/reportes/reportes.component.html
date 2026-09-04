@@ -165,14 +165,95 @@
           <!-- Filtros de Compras Detalladas -->
           <div class="col-2" *ngIf="activeTab === 'compras-detallado'">
             <div>
-              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Insumo</label>
-              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-                (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
-                <ng-option [value]="0">Todos los Productos</ng-option>
-                <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                  {{ prod.nombre }}
-                </ng-option>
-              </ng-select>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Productos / Insumos</label>
+              <div class="dropdown w-100">
+                <button class="btn bg-light border-0 rounded-3 w-100 py-1.5 px-3 text-start d-flex align-items-center justify-content-between dropdown-toggle dropdown-toggle-no-caret shadow-none"
+                        type="button"
+                        id="dropdownFiltroProductosCompras"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-expanded="false"
+                        style="height: 38px;">
+                  <div class="d-flex align-items-center gap-1 text-truncate pe-1" style="max-width: 82%;">
+                    <span *ngIf="idProductosSelected.length === 0" class="text-secondary small">Todos los Productos</span>
+                    <span *ngIf="idProductosSelected.length === 1" class="text-dark small fw-semibold text-truncate">{{ getTextoBotonProductos() }}</span>
+                    <div *ngIf="idProductosSelected.length > 1" class="d-flex align-items-center gap-1">
+                      <span class="badge bg-danger rounded-pill fs-9">{{ idProductosSelected.length }}</span>
+                      <span class="text-dark small fw-semibold">Seleccionados</span>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    <i class="bi bi-x-circle-fill text-secondary hover-danger fs-7 cursor-pointer" 
+                       *ngIf="idProductosSelected.length > 0" 
+                       (click)="limpiarProductosSeleccionados($event)" 
+                       title="Limpiar selección"></i>
+                    <i class="bi bi-chevron-down text-muted fs-8"></i>
+                  </div>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-start shadow-lg border-0 rounded-4 p-3 mt-1" 
+                     aria-labelledby="dropdownFiltroProductosCompras" 
+                     style="min-width: 320px; max-width: 380px; z-index: 1050;">
+                  
+                  <!-- Buscador en tiempo real -->
+                  <div class="input-group input-group-sm mb-2 shadow-sm rounded-3 overflow-hidden border">
+                    <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" 
+                           class="form-control border-0 ps-0 fs-8 shadow-none" 
+                           placeholder="Buscar producto o código..." 
+                           [(ngModel)]="busquedaProductoFiltro">
+                    <button class="btn btn-white border-0 text-muted" 
+                            *ngIf="busquedaProductoFiltro" 
+                            (click)="busquedaProductoFiltro = ''" 
+                            type="button">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+
+                  <!-- Acciones rápidas (Seleccionar todos / Limpiar) -->
+                  <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                    <span class="fs-9 text-muted fw-bold text-uppercase">
+                      {{ idProductosSelected.length }} de {{ productos.length }} selec.
+                    </span>
+                    <div class="d-flex gap-2">
+                      <button type="button" 
+                              class="btn btn-link btn-sm p-0 text-decoration-none fs-9 fw-semibold text-primary" 
+                              (click)="seleccionarTodosProductos()">
+                        Seleccionar todos
+                      </button>
+                      <span class="text-muted fs-9">|</span>
+                      <button type="button" 
+                              class="btn btn-link btn-sm p-0 text-decoration-none fs-9 fw-semibold text-danger" 
+                              (click)="limpiarProductosSeleccionados()">
+                        Limpiar
+                      </button>
+                    </div>
+                  </div>
+
+                  <hr class="my-1 text-muted opacity-25">
+
+                  <!-- Lista scrolleable con Checkboxes -->
+                  <div class="product-filter-list" style="max-height: 240px; overflow-y: auto;">
+                    <div *ngFor="let prod of productosFiltradosDropdown()" 
+                         class="d-flex align-items-center py-1.5 px-2 rounded-2 hover-bg-light cursor-pointer mb-0.5"
+                         (click)="toggleProductoSeleccionado(prod.id)">
+                      <i class="bi fs-6 me-2" 
+                         [ngClass]="estaProductoSeleccionado(prod.id) ? 'bi-check-square-fill text-danger' : 'bi-square text-muted opacity-75'"></i>
+                      <span class="fs-8 text-dark text-truncate flex-grow-1" [class.fw-bold]="estaProductoSeleccionado(prod.id)">
+                        {{ prod.nombre }}
+                      </span>
+                      <span class="badge bg-light text-secondary border fs-9 fw-normal ms-2" *ngIf="prod.codigo">
+                        {{ prod.codigo }}
+                      </span>
+                    </div>
+
+                    <div *ngIf="productosFiltradosDropdown().length === 0" class="text-center py-4 text-muted">
+                      <i class="bi bi-search fs-4 d-block mb-1 text-secondary opacity-50"></i>
+                      <span class="fs-8">No se encontraron productos</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -204,14 +285,95 @@
           <!-- Filtros de Ventas Detalladas -->
           <div class="col-2" *ngIf="activeTab === 'ventas-detallado'">
             <div>
-              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Producto / Platillo</label>
-              <ng-select class="custom-ng-select border-0 bg-light rounded-3" [(ngModel)]="idProductoSelected"
-                (change)="onFilterChange()" [clearable]="true" placeholder="Todos los Productos">
-                <ng-option [value]="0">Todos los Productos</ng-option>
-                <ng-option *ngFor="let prod of productos" [value]="prod.id">
-                  {{ prod.nombre }}
-                </ng-option>
-              </ng-select>
+              <label class="fs-8 text-secondary fw-semibold mb-1 d-block">Productos / Platillos</label>
+              <div class="dropdown w-100">
+                <button class="btn bg-light border-0 rounded-3 w-100 py-1.5 px-3 text-start d-flex align-items-center justify-content-between dropdown-toggle dropdown-toggle-no-caret shadow-none"
+                        type="button"
+                        id="dropdownFiltroProductosVentas"
+                        data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside"
+                        aria-expanded="false"
+                        style="height: 38px;">
+                  <div class="d-flex align-items-center gap-1 text-truncate pe-1" style="max-width: 82%;">
+                    <span *ngIf="idProductosSelected.length === 0" class="text-secondary small">Todos los Productos</span>
+                    <span *ngIf="idProductosSelected.length === 1" class="text-dark small fw-semibold text-truncate">{{ getTextoBotonProductos() }}</span>
+                    <div *ngIf="idProductosSelected.length > 1" class="d-flex align-items-center gap-1">
+                      <span class="badge bg-danger rounded-pill fs-9">{{ idProductosSelected.length }}</span>
+                      <span class="text-dark small fw-semibold">Seleccionados</span>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    <i class="bi bi-x-circle-fill text-secondary hover-danger fs-7 cursor-pointer" 
+                       *ngIf="idProductosSelected.length > 0" 
+                       (click)="limpiarProductosSeleccionados($event)" 
+                       title="Limpiar selección"></i>
+                    <i class="bi bi-chevron-down text-muted fs-8"></i>
+                  </div>
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-start shadow-lg border-0 rounded-4 p-3 mt-1" 
+                     aria-labelledby="dropdownFiltroProductosVentas" 
+                     style="min-width: 320px; max-width: 380px; z-index: 1050;">
+                  
+                  <!-- Buscador en tiempo real -->
+                  <div class="input-group input-group-sm mb-2 shadow-sm rounded-3 overflow-hidden border">
+                    <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" 
+                           class="form-control border-0 ps-0 fs-8 shadow-none" 
+                           placeholder="Buscar producto o código..." 
+                           [(ngModel)]="busquedaProductoFiltro">
+                    <button class="btn btn-white border-0 text-muted" 
+                            *ngIf="busquedaProductoFiltro" 
+                            (click)="busquedaProductoFiltro = ''" 
+                            type="button">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+
+                  <!-- Acciones rápidas (Seleccionar todos / Limpiar) -->
+                  <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                    <span class="fs-9 text-muted fw-bold text-uppercase">
+                      {{ idProductosSelected.length }} de {{ productos.length }} selec.
+                    </span>
+                    <div class="d-flex gap-2">
+                      <button type="button" 
+                              class="btn btn-link btn-sm p-0 text-decoration-none fs-9 fw-semibold text-primary" 
+                              (click)="seleccionarTodosProductos()">
+                        Seleccionar todos
+                      </button>
+                      <span class="text-muted fs-9">|</span>
+                      <button type="button" 
+                              class="btn btn-link btn-sm p-0 text-decoration-none fs-9 fw-semibold text-danger" 
+                              (click)="limpiarProductosSeleccionados()">
+                        Limpiar
+                      </button>
+                    </div>
+                  </div>
+
+                  <hr class="my-1 text-muted opacity-25">
+
+                  <!-- Lista scrolleable con Checkboxes -->
+                  <div class="product-filter-list" style="max-height: 240px; overflow-y: auto;">
+                    <div *ngFor="let prod of productosFiltradosDropdown()" 
+                         class="d-flex align-items-center py-1.5 px-2 rounded-2 hover-bg-light cursor-pointer mb-0.5"
+                         (click)="toggleProductoSeleccionado(prod.id)">
+                      <i class="bi fs-6 me-2" 
+                         [ngClass]="estaProductoSeleccionado(prod.id) ? 'bi-check-square-fill text-danger' : 'bi-square text-muted opacity-75'"></i>
+                      <span class="fs-8 text-dark text-truncate flex-grow-1" [class.fw-bold]="estaProductoSeleccionado(prod.id)">
+                        {{ prod.nombre }}
+                      </span>
+                      <span class="badge bg-light text-secondary border fs-9 fw-normal ms-2" *ngIf="prod.codigo">
+                        {{ prod.codigo }}
+                      </span>
+                    </div>
+
+                    <div *ngIf="productosFiltradosDropdown().length === 0" class="text-center py-4 text-muted">
+                      <i class="bi bi-search fs-4 d-block mb-1 text-secondary opacity-50"></i>
+                      <span class="fs-8">No se encontraron productos</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -282,7 +444,7 @@
             [fechaInicio]="fechaInicio" 
             [fechaFin]="fechaFin" 
             [idSucursal]="idSucursalSelected" 
-            [idProducto]="idProductoSelected" 
+            [idProducto]="idProductosSelected" 
             [idProveedor]="idProveedorSelected"
             [tipoPago]="tipoPagoSelected">
           </app-reporte-compras-detallado>
@@ -291,7 +453,7 @@
             [fechaInicio]="fechaInicio" 
             [fechaFin]="fechaFin" 
             [idSucursal]="idSucursalSelected" 
-            [idProducto]="idProductoSelected" 
+            [idProducto]="idProductosSelected" 
             [idCliente]="idClienteSelected"
             [tipoPago]="tipoPagoSelected">
           </app-reporte-ventas-detallado>
